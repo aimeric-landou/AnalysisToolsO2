@@ -406,36 +406,44 @@ const double deltaEtaMcVsTrackEfficiency = 0;
 
 
 //////// -------- accept split vs not accepting split collisions - PbPb MC anchored to LHC23zzh apass4 -------- ////////
-TString* texCollisionDataInfo = new TString("PbPb MC #sqrt{#it{s}} = 5.36 TeV");
-const TString* texDatasetsComparisonType = new TString("splitCollisions");
-const TString* texDatasetsComparisonCommonDenominator = new TString("noSplit");
-const int nDatasets = 8;
-// const TString Datasets[nDatasets] = {"LHC23zzh_apass3_global", "LHC23zzh_apass3_uniform", "LHC23zzh_apass3_itsOnly", "LHC23zzh_apass3_globalWithoutTpcCrossedRows"};
-// const TString Datasets[nDatasets] = {"anchoredJetJetPbPb", "anchoredJetJetpp", "LHC24f3_train240962", "LHC24f3_local", "unanchoredJetJet_train230486"};
-const TString Datasets[nDatasets] = {"LHC24g3", "LHC24g3", "LHC24g3", "LHC24g3", "LHC24g3", "LHC24g3", "LHC24g3", "LHC24g3"}; //DatasetFiles
-const TString DatasetsNames[nDatasets] = {"noSplit 0-10%", "okSplit 0-10%", "noSplit 10-30%", "okSplit 10-30%", "noSplit 30-50%", "okSplit 30-50%", "noSplit 50-70%", "okSplit 50-70%"};
-TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[1]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[2]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[3]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[4]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[5]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[6]+"/AnalysisResults.root"),
-                                        new TFile("Datasets/"+Datasets[7]+"/AnalysisResults.root")
-                                        };
-const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010_id16386",
-                                            "track-efficiency_central0010_id16837",
-                                            "track-efficiency_central1030_id16386",
-                                            "track-efficiency_central1030_id16837",
-                                            "track-efficiency_central3050_id16840",
-                                            "track-efficiency_central3050_id16841",
-                                            "track-efficiency_central5070_id16840",
-                                            "track-efficiency_central5070_id16841",
-                                          };
+// TString* texCollisionDataInfo = new TString("PbPb MC #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("splitCollisions");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("noSplit");
+// const int nDatasets = 1;
+// // const TString Datasets[nDatasets] = {"LHC23zzh_apass3_global", "LHC23zzh_apass3_uniform", "LHC23zzh_apass3_itsOnly", "LHC23zzh_apass3_globalWithoutTpcCrossedRows"};
+// // const TString Datasets[nDatasets] = {"anchoredJetJetPbPb", "anchoredJetJetpp", "LHC24f3_train240962", "LHC24f3_local", "unanchoredJetJet_train230486"};
+// const TString Datasets[nDatasets] = {"LHC24g3"}; //DatasetFiles
+// const TString DatasetsNames[nDatasets] = {"noSplit 0-10%"};
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResults.root")};
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010_id16386"};
 
-const TString trainId = "";
-const bool isDatasetWeighted[nDatasets] = {false, false, false, false, false, false, false, false};
-const std::string histDrawColorsOption = "colorPairs";
+// const TString trainId = "";
+// const bool isDatasetWeighted[nDatasets] = {false};
+// const std::string histDrawColorsOption = "colorPairs";
 
 // jaime testJetAnchoredGapGen-20240801-155530
 
+//////// -------- accept split vs not accepting split collisions - PbPb MC anchored to LHC23zzh apass4 -------- ////////
+TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
+const TString* texDatasetsComparisonType = new TString("Occupancy analysis");
+const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3 - sel8FullPbPb");
+const int nDatasets = 8;
+// const TString Datasets[nDatasets] = {"LHC24g3","LHC24d2"};
+// const TString Datasets[nDatasets] = {"LHC24g3"};
+ const TString Datasets[nDatasets] = {"LHC24g3","LHC24d2","LHC24g3","LHC24d2","LHC24g3","LHC24d2","LHC24g3","LHC24d2"};
+const TString DatasetsNames[nDatasets] = {"0-10% pass4","0-10% pass3","10-30% pass4","10-30% pass3","30-50% pass4","30-50% pass3","50-70% pass4","50-70% pass3"};
+TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResults_LHC24g3_centrality.root"),
+                                        new TFile(Datasets[1]+"/AnalysisResults_LHC24d2_centrality.root"),
+                                        new TFile(Datasets[2]+"/AnalysisResults_LHC24g3_centrality.root"),
+                                        new TFile(Datasets[3]+"/AnalysisResults_LHC24d2_centrality.root"),
+                                        new TFile(Datasets[4]+"/AnalysisResults_LHC24g3_centrality.root"),
+                                        new TFile(Datasets[5]+"/AnalysisResults_LHC24d2_centrality.root"),
+                                        new TFile(Datasets[4]+"/AnalysisResults_LHC24g3_centrality.root"),
+                                        new TFile(Datasets[5]+"/AnalysisResults_LHC24d2_centrality.root")
+                                        };
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency","track-efficiency"};
+const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central3050","track-efficiency_central5070","track-efficiency_central5070"};
+
+const TString trainId = "";
+const bool isDatasetWeighted[nDatasets] = {false,false,false,false,false,false,false,false};
+const std::string histDrawColorsOption = "colorPairs";
