@@ -438,7 +438,11 @@
 
 
 
+<<<<<<< HEAD
 // //////// -------- pp sim test Anchor Pb-Pb gap comparison-------- ////////
+=======
+//////// -------- pp sim test Anchor Pb-Pb gap comparison-------- ////////
+>>>>>>> f380b10 (adding .h)
 // TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
 // const TString* texDatasetsComparisonType = new TString("gap value");
 // const TString* texDatasetsComparisonCommonDenominator = new TString("MC anchored to Pb-Pb");
@@ -462,6 +466,7 @@
 // const std::string histDrawColorsOption = "";
 
 
+<<<<<<< HEAD
 // TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
 // const TString* texDatasetsComparisonType = new TString("Data");
 // const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3");
@@ -505,10 +510,30 @@ TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResult
                                         new TFile(Datasets[7]+"/AnalysisResults_LHC24d2_centrality.root")
                                         };
 const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central3050","track-efficiency_central5070","track-efficiency_central5070"
+=======
+TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
+const TString* texDatasetsComparisonType = new TString("Data");
+const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3_medium pass 4");
+const int nDatasets = 4;
+const TString Datasets[nDatasets] = {"LHC24g3","LHC24g3","LHC24g3","LHC24g3"};
+const TString DatasetsNames[nDatasets] = {"00-10%","10-30%","30-50%","50-70%"};
+TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[1]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[2]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[3]+"/AnalysisResults_LHC24g3_medium.root")
+                                        };
+const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central5070"
+>>>>>>> f380b10 (adding .h)
                                          
                                           };
 
 const TString trainId = "";
+<<<<<<< HEAD
 const bool isDatasetWeighted[nDatasets] = {false,false,false,false,false,false,false,false};
 const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false,false,false,false,false};
 const std::string histDrawColorsOption = "colorPairs";
+=======
+const bool isDatasetWeighted[nDatasets] = {false,false,false,false};
+const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false};
+const std::string histDrawColorsOption = "colorPairs";
+>>>>>>> f380b10 (adding .h)
