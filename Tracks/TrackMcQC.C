@@ -110,7 +110,7 @@ void TrackMcQC() {
   // Draw_Efficiency_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange);
   // // Draw_Efficiency_Phi_DatasetComparison_finerPhi(ptRange1, etaRange); // only works with very specific datasets created locally
 
-  Draw_Purity_Pt_DatasetComparison(etaRange);
+  // Draw_Purity_Pt_DatasetComparison(etaRange);
   // Draw_Purity_Eta_DatasetComparison(etaRange);
   // Draw_Purity_Phi_DatasetComparison(etaRange);
   // Draw_Purity_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange);
@@ -412,14 +412,19 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
   int nHistPairRatio = (int)nDatasets / 2;
   bool divideSuccessRatio;
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
+      
     if (histDrawColorsOption.find("colorPairs") != std::string::npos) { //colorPairs assumes a Datasets array like so: {pair1_element1, pair1_element2, pair2_element1, pair2_element2..., pairN_element1, pairN_element2}
+    cout<<"test1,1"<<endl;
       if (iDataset < nHistPairRatio) {
         DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
         H1D_trackPt_efficiency_ratios[iDataset] = (TH1D*)H1D_trackPt_efficiency_concatenated[2*iDataset]->Clone("H1D_trackPt_efficiency_concatenated_ratio"+Datasets[iDataset]);
         H1D_trackPt_efficiency_ratios[iDataset]->Reset("M");
+        cout<<"test1"<<endl;
         divideSuccessRatio = H1D_trackPt_efficiency_ratios[iDataset]->Divide(H1D_trackPt_efficiency_concatenated[2*iDataset], H1D_trackPt_efficiency_concatenated[2*iDataset+1]);
+        cout<<"test2"<<endl;
       }
     } else {
+      cout<<"test3"<<endl;
       H1D_trackPt_efficiency_ratios[iDataset] = (TH1D*)H1D_trackPt_efficiency_concatenated[iDataset]->Clone("H1D_trackPt_efficiency_concatenated_ratio"+Datasets[iDataset]);
       H1D_trackPt_efficiency_ratios[iDataset]->Reset("M");
       divideSuccessRatio = H1D_trackPt_efficiency_ratios[iDataset]->Divide(H1D_trackPt_efficiency_concatenated[iDataset], H1D_trackPt_efficiency_concatenated[0]);
@@ -486,7 +491,48 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     cout << "Divide failed in Draw_Pt_DatasetComparison" << endl;
   }
 
-
+    const int nHistograms = 2;  // Exemple : si vous savez que deux histogrammes sont pertinents
+    TCanvas* canvas = new TCanvas("canvas_efficiency_comparison", "Efficiency Comparison", 800, 1000);
+    canvas->Divide(1, 2, 0, 0);  // Division en deux pads verticaux
+    gPad->SetBottomMargin(0.01);
+    // Histogramme concatenated
+    canvas->cd(1);
+    if (H1D_trackPt_efficiency_concatenated[0]) { 
+        H1D_trackPt_efficiency_concatenated[0]->SetTitle("Efficiencies");
+        H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->SetRangeUser(0, 30); 
+        H1D_trackPt_efficiency_concatenated[0]->GetYaxis()->SetRangeUser(0, 1); 
+        H1D_trackPt_efficiency_concatenated[0]->GetYaxis()->SetTitle("Efficiencies");
+        H1D_trackPt_efficiency_concatenated[0]->Draw("hist");
+    } 
+    if (H1D_trackPt_efficiency_concatenated[1]) {  
+        H1D_trackPt_efficiency_concatenated[1]->Draw("hist same");
+    } 
+    if (H1D_trackPt_efficiency_concatenated[2]) {  
+        H1D_trackPt_efficiency_concatenated[2]->Draw("hist same");
+    } 
+    if (H1D_trackPt_efficiency_concatenated[3]) {  
+        H1D_trackPt_efficiency_concatenated[3]->Draw("hist same");
+    } 
+    gPad->SetTopMargin(0);
+    // Histogramme ratios
+    canvas->cd(2);
+    if (H1D_trackPt_efficiency_ratios[0]) {  
+        H1D_trackPt_efficiency_ratios[0]->GetYaxis()->SetTitle("ratio");
+        H1D_trackPt_efficiency_ratios[0]->GetXaxis()->SetRangeUser(0, 30);
+        H1D_trackPt_efficiency_ratios[0]->GetYaxis()->SetRangeUser(0.95, 1.2);
+        H1D_trackPt_efficiency_ratios[0]->Draw("hist");
+    } 
+    if (H1D_trackPt_efficiency_ratios[1]) {  
+        H1D_trackPt_efficiency_ratios[1]->Draw("hist same");
+    } 
+    if (H1D_trackPt_efficiency_ratios[2]) { 
+        H1D_trackPt_efficiency_ratios[2]->Draw("hist same");
+    } 
+    if (H1D_trackPt_efficiency_ratios[3]) {  
+        H1D_trackPt_efficiency_ratios[3]->Draw("hist same");
+    } 
+    canvas->Update();
+    canvas->SaveAs("EfficiencyComparison.pdf");
 
 
 }
