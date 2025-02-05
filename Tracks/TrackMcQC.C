@@ -47,7 +47,7 @@ void LoadLibs();
 //////////// QC plot functions
 // Dataset comparison
 
-void Draw_Efficiency_Pt_DatasetComparison(float* etaRange);
+void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit );
 void Draw_Efficiency_Eta_DatasetComparison(float* PtRange);
 void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange);
 void Draw_Efficiency_Eta_PtRangeComparison(float* ptRange, int nPtRanges, int iDataset, std::string options);
@@ -100,9 +100,9 @@ void TrackMcQC() {
   TString* texXtitle = new TString("");
   TString* texYtitle = new TString("");
   // TString* Extra = new TString("");
-  
+  bool useSplit = false;
   float etaRange[2] = {-0.9, 0.9};
-   Draw_Efficiency_Pt_DatasetComparison(etaRange);
+   Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit);
   float ptRange1[2] = {0.15, 100};
   // Draw_Efficiency_Eta_DatasetComparison(ptRange1);
   // Draw_Efficiency_Phi_DatasetComparison(ptRange1, etaRange);
@@ -239,7 +239,7 @@ TString contextTrackDatasetComp(std::string options){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
+void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit = false) {
   TH3D* H3D_trackPtEtaPhi_mcparticles[nDatasets];
   TH3D* H3D_trackPtEtaPhi_assoctracks[nDatasets];
   TH3D* H3D_trackPtEtaPhi_assoctracks_split[nDatasets];
@@ -281,9 +281,10 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     H3D_trackPtEtaPhi_assoctracks[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_particle_eta_particle_phi_associatedtrack_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelColl"+Datasets[iDataset]);
     H3D_trackPtEtaPhi_assoctracks_ptHigh[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_high_particle_eta_particle_phi_associatedtrack_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelColl_ptHigh"+Datasets[iDataset]);
 
-    H3D_trackPtEtaPhi_assoctracks_split[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_particle_eta_particle_phi_associatedtrack_split_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelCollSplit"+Datasets[iDataset]);
-    H3D_trackPtEtaPhi_assoctracks_split_ptHigh[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_high_particle_eta_particle_phi_associatedtrack_split_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelCollSplit_ptHigh"+Datasets[iDataset]);
-
+    if (useSplit == true) {
+      H3D_trackPtEtaPhi_assoctracks_split[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_particle_eta_particle_phi_associatedtrack_split_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelCollSplit"+Datasets[iDataset]);
+      H3D_trackPtEtaPhi_assoctracks_split_ptHigh[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_particle_pt_high_particle_eta_particle_phi_associatedtrack_split_primary"))->Clone("Draw_Efficiency_Pt_DatasetComparison_associatedtrackSelCollSplit_ptHigh"+Datasets[iDataset]);
+    }
     int ibinEta_low_mcpart = H3D_trackPtEtaPhi_mcparticles[iDataset]->GetYaxis()->FindBin(etaRange[0] + GLOBAL_epsilon + deltaEtaMcVsTrackEfficiency);
     int ibinEta_high_mcpart = H3D_trackPtEtaPhi_mcparticles[iDataset]->GetYaxis()->FindBin(etaRange[1] - GLOBAL_epsilon -deltaEtaMcVsTrackEfficiency);
     int ibinEta_low_track = H3D_trackPtEtaPhi_mcparticles[iDataset]->GetYaxis()->FindBin(etaRange[0] + GLOBAL_epsilon );
@@ -292,12 +293,14 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     H1D_trackPt_mcparticles[iDataset] = (TH1D*)H3D_trackPtEtaPhi_mcparticles[iDataset]->ProjectionX("trackPt_mcparticles"+Datasets[iDataset], ibinEta_low_mcpart, ibinEta_high_mcpart, 0, -1, "e");
     H1D_trackPt_mcparticles_ptHigh[iDataset] = (TH1D*)H3D_trackPtEtaPhi_mcparticles_ptHigh[iDataset]->ProjectionX("trackPt_mcparticles_ptHigh"+Datasets[iDataset], ibinEta_low_mcpart, ibinEta_high_mcpart, 0, -1, "e");
 
-    H1D_trackPt_assoctracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks[iDataset]->ProjectionX("trackPt_tracks_split"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
-    H1D_trackPt_assoctracks_ptHigh[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_ptHigh[iDataset]->ProjectionX("trackPt_tracks_split_ptHigh"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
+    H1D_trackPt_assoctracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks[iDataset]->ProjectionX("trackPt_tracks"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
+    H1D_trackPt_assoctracks_ptHigh[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_ptHigh[iDataset]->ProjectionX("trackPt_tracks_ptHigh"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
 
-    H1D_trackPt_assoctracks_split[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_split[iDataset]->ProjectionX("trackPt_assoctracks_split"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
-    H1D_trackPt_assoctracks_split_ptHigh[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_split_ptHigh[iDataset]->ProjectionX("trackPt_assoctracks_split_ptHigh"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
-
+    if (useSplit == true) {
+        H1D_trackPt_assoctracks_split[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_split[iDataset]->ProjectionX("trackPt_assoctracks_split"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
+        H1D_trackPt_assoctracks_split_ptHigh[iDataset] = (TH1D*)H3D_trackPtEtaPhi_assoctracks_split_ptHigh[iDataset]->ProjectionX("trackPt_assoctracks_split_ptHigh"+Datasets[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
+    }
+    
     //tweaking the low-pt bins to make them larger close to 10GeV
     std::vector<double> xbinsVectorInitialLow = GetTH1Bins(H1D_trackPt_mcparticles[iDataset]);
     double* xbinsInitialLow = &xbinsVectorInitialLow[0];
@@ -325,8 +328,9 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     }
     H1D_trackPt_mcparticles_rebinned[iDataset] = (TH1D*)H1D_trackPt_mcparticles[iDataset]->Rebin(nBinsLowNew, "H1D_trackPt_mcparticles_rebinned"+Datasets[iDataset], ptBinsLowNew);
     H1D_trackPt_assoctracks_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks[iDataset]->Rebin(nBinsLowNew, "H1D_trackPt_assoctracks_rebinned"+Datasets[iDataset], ptBinsLowNew);
-    H1D_trackPt_assoctracks_split_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks_split[iDataset]->Rebin(nBinsLowNew, "H1D_trackPt_assoctracks_split_rebinned"+Datasets[iDataset], ptBinsLowNew);
-
+    if (useSplit == true) {
+      H1D_trackPt_assoctracks_split_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks_split[iDataset]->Rebin(nBinsLowNew, "H1D_trackPt_assoctracks_split_rebinned"+Datasets[iDataset], ptBinsLowNew);
+    }
 
     //tweaking the high-pt bins to have them less prone to statistical fluctuations
     std::vector<double> xbinsVectorInitialHigh = GetTH1Bins(H1D_trackPt_mcparticles_ptHigh[iDataset]);
@@ -353,8 +357,9 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     }
     H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset] = (TH1D*)H1D_trackPt_mcparticles_ptHigh[iDataset]->Rebin(nBinsHighNew, "H1D_trackPt_mcparticles_ptHigh_rebinned"+Datasets[iDataset], ptBinsHighNew);
     H1D_trackPt_assoctracks_ptHigh_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks_ptHigh[iDataset]->Rebin(nBinsHighNew, "H1D_trackPt_assoctracks_ptHigh_rebinned"+Datasets[iDataset], ptBinsHighNew);
-    H1D_trackPt_assoctracks_split_ptHigh_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks_split_ptHigh[iDataset]->Rebin(nBinsHighNew, "H1D_trackPt_assoctracks_split_ptHigh_rebinned"+Datasets[iDataset], ptBinsHighNew);
-
+    if (useSplit == true) {
+      H1D_trackPt_assoctracks_split_ptHigh_rebinned[iDataset] = (TH1D*)H1D_trackPt_assoctracks_split_ptHigh[iDataset]->Rebin(nBinsHighNew, "H1D_trackPt_assoctracks_split_ptHigh_rebinned"+Datasets[iDataset], ptBinsHighNew);
+    }
     // getting the efficiency
     H1D_trackPt_efficiency[iDataset] = (TH1D*)H1D_trackPt_mcparticles_rebinned[iDataset]->Clone("trackPt_efficiency"+Datasets[iDataset]);
     H1D_trackPt_efficiency[iDataset]->Reset("M");
@@ -365,17 +370,18 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     divideSuccess_ptHigh = H1D_trackPt_efficiency_ptHigh[iDataset]->Divide(H1D_trackPt_assoctracks_ptHigh_rebinned[iDataset], H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset], 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency
 
     // correcting for split tracks
-    H1D_trackPt_efficiency_splitCorrected[iDataset] = (TH1D*)H1D_trackPt_mcparticles_rebinned[iDataset]->Clone("trackPt_efficiency_split"+Datasets[iDataset]);
-    H1D_trackPt_efficiency_splitCorrected[iDataset]->Reset("M");
-    divideSuccess_split = H1D_trackPt_efficiency_splitCorrected[iDataset]->Divide(H1D_trackPt_assoctracks_split_rebinned[iDataset], H1D_trackPt_mcparticles_rebinned[iDataset]);
-    H1D_trackPt_efficiency_splitCorrected[iDataset]->Scale(-1.);
-    H1D_trackPt_efficiency_splitCorrected[iDataset]->Add(H1D_trackPt_efficiency[iDataset],1.);
-    H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset] = (TH1D*)H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset]->Clone("trackPt_efficiency_split_ptHigh"+Datasets[iDataset]);
-    H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Reset("M");
-    divideSuccess_split_ptHigh = H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Divide(H1D_trackPt_assoctracks_split_ptHigh_rebinned[iDataset], H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset], 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency
-    H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Scale(-1.);
-    H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Add(H1D_trackPt_efficiency_ptHigh[iDataset],1.);
-
+    if (useSplit == true) {
+      H1D_trackPt_efficiency_splitCorrected[iDataset] = (TH1D*)H1D_trackPt_mcparticles_rebinned[iDataset]->Clone("trackPt_efficiency_split"+Datasets[iDataset]);
+      H1D_trackPt_efficiency_splitCorrected[iDataset]->Reset("M");
+      divideSuccess_split = H1D_trackPt_efficiency_splitCorrected[iDataset]->Divide(H1D_trackPt_assoctracks_split_rebinned[iDataset], H1D_trackPt_mcparticles_rebinned[iDataset]);
+      H1D_trackPt_efficiency_splitCorrected[iDataset]->Scale(-1.);
+      H1D_trackPt_efficiency_splitCorrected[iDataset]->Add(H1D_trackPt_efficiency[iDataset],1.);
+      H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset] = (TH1D*)H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset]->Clone("trackPt_efficiency_split_ptHigh"+Datasets[iDataset]);
+      H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Reset("M");
+      divideSuccess_split_ptHigh = H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Divide(H1D_trackPt_assoctracks_split_ptHigh_rebinned[iDataset], H1D_trackPt_mcparticles_ptHigh_rebinned[iDataset], 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency
+      H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Scale(-1.);
+      H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->Add(H1D_trackPt_efficiency_ptHigh[iDataset],1.);
+    }
 
     // Merging high and low pt histograms:
     // x-axis
@@ -391,19 +397,25 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
     // making the new hist with concatenated bins
     TH1D H1D_trackPt_efficiency_concatenated_temp("H1D_trackPt_efficiency_concatenated_temp"+Datasets[iDataset], "H1D_trackPt_efficiency_concatenated_temp"+Datasets[iDataset], xbinsVectorCombination.size()-1, xbins_new);
     H1D_trackPt_efficiency_concatenated[iDataset] = (TH1D*)H1D_trackPt_efficiency_concatenated_temp.Clone("H1D_trackPt_efficiency_concatenated"+Datasets[iDataset]);
-    H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset] = (TH1D*)H1D_trackPt_efficiency_concatenated_temp.Clone("H1D_trackPt_efficiency_splitCorrected_concatenated"+Datasets[iDataset]);
+    if (useSplit == true) {
+      H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset] = (TH1D*)H1D_trackPt_efficiency_concatenated_temp.Clone("H1D_trackPt_efficiency_splitCorrected_concatenated"+Datasets[iDataset]);
+      }
     //filling the two new histograms
     for(int iBinX = 1; iBinX <= H1D_trackPt_efficiency[iDataset]->GetNbinsX(); iBinX++){
       H1D_trackPt_efficiency_concatenated[iDataset]->SetBinContent(iBinX, H1D_trackPt_efficiency[iDataset]->GetBinContent(iBinX));
       H1D_trackPt_efficiency_concatenated[iDataset]->SetBinError(iBinX, H1D_trackPt_efficiency[iDataset]->GetBinError(iBinX));
-      H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinContent(iBinX, H1D_trackPt_efficiency_splitCorrected[iDataset]->GetBinContent(iBinX));
-      H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinError(iBinX, H1D_trackPt_efficiency_splitCorrected[iDataset]->GetBinError(iBinX));
+      if (useSplit == true) {
+        H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinContent(iBinX, H1D_trackPt_efficiency_splitCorrected[iDataset]->GetBinContent(iBinX));
+        H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinError(iBinX, H1D_trackPt_efficiency_splitCorrected[iDataset]->GetBinError(iBinX));
+      }
     }
     for(int iBinX = 1; iBinX <= H1D_trackPt_efficiency_ptHigh[iDataset]->GetNbinsX(); iBinX++){
       H1D_trackPt_efficiency_concatenated[iDataset]->SetBinContent(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_ptHigh[iDataset]->GetBinContent(iBinX));
       H1D_trackPt_efficiency_concatenated[iDataset]->SetBinError(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_ptHigh[iDataset]->GetBinError(iBinX));
-      H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinContent(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->GetBinContent(iBinX));
-      H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinError(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->GetBinError(iBinX));
+      if (useSplit == true) {
+        H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinContent(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->GetBinContent(iBinX));
+        H1D_trackPt_efficiency_splitCorrected_concatenated[iDataset]->SetBinError(H1D_trackPt_efficiency[iDataset]->GetNbinsX()+iBinX, H1D_trackPt_efficiency_splitCorrected_ptHigh[iDataset]->GetBinError(iBinX));
+      }
     }
     
   }
@@ -433,7 +445,7 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
 
   TString* pdfNameEntriesNorm = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]");
   TString* pdfNameEntriesNorm_splitCorrected = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_splitCorrected");
-
+  
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextEtaRange(etaRange), ""));
 
   std::array<std::array<float, 2>, 2> drawnWindowLog = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
@@ -471,7 +483,9 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange) {
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms_in_one(H1D_trackPt_efficiency_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff, legendPlacementEfficiency, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDrawColorsOption);
-    //Draw_TH1_Histograms_in_one(H1D_trackPt_efficiency_splitCorrected_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_splitCorrected, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLog, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
+    if (useSplit == true) {
+      Draw_TH1_Histograms_in_one(H1D_trackPt_efficiency_splitCorrected_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_splitCorrected, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLog, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
+    }
   }
   else {
     cout << "Divide failed in Draw_Efficiency_Pt_DatasetComparison" << endl;
