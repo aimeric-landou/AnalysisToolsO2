@@ -58,7 +58,7 @@ TString* texSigmaPtMedian = new TString("median(#sigma(#it{p}_{T})/#it{p}_{T})")
 
 TString* texRatio = new TString("ratio");
 
-TString* texRatioDatasets = new TString(*texDatasetsComparisonType+"/"+*texDatasetsComparisonType+" "+DatasetsNames[0]); 
+TString* texRatioDatasets = new TString(*texDatasetsComparisonType+"/("+*texDatasetsComparisonType+" "+DatasetsNames[0]+")"); 
 TString* texRatioRun3Run2 = new TString("Run3 / Run2"); 
 
 TString* texRho = new TString("#it{#rho} (GeV/#it{c})");
