@@ -1,3 +1,5 @@
+// To avoid your local _inputs.h files to be replaced by the template in the git repository, you should ask git to ignore them with git update-index --assume-unchanged (for more details see https://stackoverflow.com/questions/3319479/can-i-git-commit-a-file-and-ignore-its-content-changes)
+
 // TFile* file_AliAnalysis = new TFile("../AnalysisResults_Run2_merged_Jaime.root");
 TFile* file_AliAnalysis; //dummy
 
@@ -491,7 +493,7 @@ TFile* file_AliAnalysis; //dummy
 
 //////// -------- LHC23zzh - apass 4 with area and leadingtrackpt cuts - 6000occupancy - run(IR) comparison-------- ////////
 TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
-const TString* texDatasetsComparisonType = new TString("Data");
+const TString* texDatasetsComparisonType = new TString("run");
 const TString* texDatasetsComparisonCommonDenominator = new TString("LHC23 golden runs");
 const int nDatasets = 27;
 const TString Datasets[nDatasets] = {"run544124","run544123","run544477","run544392","run544492","run544391","run544122","run544476","run544390","run544098","run544454","run544475","run544121","run544032","run544491","run544095","run544389","run544451","run544510","run544474","run544185","run544091","run544028","run544184","run544116","run544508","run544490"};

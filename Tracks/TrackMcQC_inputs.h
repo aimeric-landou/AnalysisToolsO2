@@ -1,3 +1,5 @@
+// To avoid your local _inputs.h files to be replaced by the template in the git repository, you should ask git to ignore them with git update-index --assume-unchanged (for more details see https://stackoverflow.com/questions/3319479/can-i-git-commit-a-file-and-ignore-its-content-changes)
+
 // //////// -------- Track Sel check rough -------- ////////
 // TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV"); 
 // const TString* texDatasetsComparisonType = new TString("TrackSel");
