@@ -467,6 +467,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
 // const TString* texDatasetsComparisonType = new TString("Data");
 // const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3");
@@ -484,10 +485,25 @@
 //                                         new TFile(Datasets[7]+"/AnalysisResults_LHC24d2_centrality.root")
 //                                         };
 // const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central3050","track-efficiency_central5070","track-efficiency_central5070"
+=======
+// TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("Data");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3_medium pass 4");
+// const int nDatasets = 4;
+// const TString Datasets[nDatasets] = {"LHC24g3","LHC24g3","LHC24g3","LHC24g3"};
+// const TString DatasetsNames[nDatasets] = {"00-10%","10-30%","30-50%","50-70%"};
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResults_LHC24g3_medium.root"),
+//                                         new TFile(Datasets[1]+"/AnalysisResults_LHC24g3_medium.root"),
+//                                         new TFile(Datasets[2]+"/AnalysisResults_LHC24g3_medium.root"),
+//                                         new TFile(Datasets[3]+"/AnalysisResults_LHC24g3_medium.root")
+//                                         };
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central5070"
+>>>>>>> b052c17 (adding useSplit bool whenever split was necessary)
                                          
 //                                           };
 
 // const TString trainId = "";
+<<<<<<< HEAD
 // const bool isDatasetWeighted[nDatasets] = {false,false,false,false,false,false,false,false};
 // const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false,false,false,false,false};
 // const std::string histDrawColorsOption = "";
@@ -511,23 +527,38 @@ TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResult
                                         };
 const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central3050","track-efficiency_central5070","track-efficiency_central5070"
 =======
+=======
+// const bool isDatasetWeighted[nDatasets] = {false,false,false,false};
+// const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false};
+// const std::string histDrawColorsOption = "colorPairs";
+
+>>>>>>> b052c17 (adding useSplit bool whenever split was necessary)
 TString* texCollisionDataInfo = new TString("Pb-Pb #sqrt{#it{s}} = 5.36 TeV");
 const TString* texDatasetsComparisonType = new TString("Data");
-const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3_medium pass 4");
-const int nDatasets = 4;
-const TString Datasets[nDatasets] = {"LHC24g3","LHC24g3","LHC24g3","LHC24g3"};
-const TString DatasetsNames[nDatasets] = {"00-10%","10-30%","30-50%","50-70%"};
+const TString* texDatasetsComparisonCommonDenominator = new TString("LHC24g3");
+const int nDatasets = 8;
+const TString Datasets[nDatasets] = {"LHC24g3","LHC24d2","LHC24g3","LHC24d2","LHC24g3","LHC24d2","LHC24g3","LHC24d2"};
+const TString DatasetsNames[nDatasets] = {"00-10%","00-10%","10-30%","10-30%","30-50%","30-50%","50-70%","50-70%"};
 TFile* file_O2Analysis_list[nDatasets] = {new TFile(Datasets[0]+"/AnalysisResults_LHC24g3_medium.root"),
-                                        new TFile(Datasets[1]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[1]+"/AnalysisResults_LHC24d2_centrality.root"),
                                         new TFile(Datasets[2]+"/AnalysisResults_LHC24g3_medium.root"),
-                                        new TFile(Datasets[3]+"/AnalysisResults_LHC24g3_medium.root")
+                                        new TFile(Datasets[3]+"/AnalysisResults_LHC24d2_centrality.root"),
+                                        new TFile(Datasets[4]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[5]+"/AnalysisResults_LHC24d2_centrality.root"),
+                                        new TFile(Datasets[6]+"/AnalysisResults_LHC24g3_medium.root"),
+                                        new TFile(Datasets[7]+"/AnalysisResults_LHC24d2_centrality.root")
                                         };
+<<<<<<< HEAD
 const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central5070"
 >>>>>>> f380b10 (adding .h)
+=======
+const TString analysisWorkflow[nDatasets] = {"track-efficiency_central0010","track-efficiency_central0010","track-efficiency_central1030","track-efficiency_central1030","track-efficiency_central3050","track-efficiency_central3050","track-efficiency_central5070","track-efficiency_central5070"
+>>>>>>> b052c17 (adding useSplit bool whenever split was necessary)
                                          
                                           };
 
 const TString trainId = "";
+<<<<<<< HEAD
 <<<<<<< HEAD
 const bool isDatasetWeighted[nDatasets] = {false,false,false,false,false,false,false,false};
 const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false,false,false,false,false};
@@ -537,3 +568,8 @@ const bool isDatasetWeighted[nDatasets] = {false,false,false,false};
 const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false};
 const std::string histDrawColorsOption = "colorPairs";
 >>>>>>> f380b10 (adding .h)
+=======
+const bool isDatasetWeighted[nDatasets] = {false,false,false,false,false,false,false,false};
+const bool trackHistsObsoleteVersion[nDatasets] = {false,false,false,false,false,false,false,false};
+const std::string histDrawColorsOption = "colorPairs";
+>>>>>>> b052c17 (adding useSplit bool whenever split was necessary)
