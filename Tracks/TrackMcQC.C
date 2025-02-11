@@ -532,54 +532,6 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
   else {
     cout << "Divide failed in Draw_Pt_DatasetComparison" << endl;
   }
-<<<<<<< HEAD
-
-    const int nHistograms = 2;  // Exemple : si vous savez que deux histogrammes sont pertinents
-    TCanvas* canvas = new TCanvas("canvas_efficiency_comparison", "Efficiency Comparison", 800, 1000);
-    canvas->Divide(1, 2, 0, 0);  // Division en deux pads verticaux
-    gPad->SetBottomMargin(0.01);
-    // Histogramme concatenated
-    canvas->cd(1);
-    if (H1D_trackPt_efficiency_concatenated[0]) { 
-        H1D_trackPt_efficiency_concatenated[0]->SetTitle("Efficiencies");
-        H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->SetRangeUser(0, 30); 
-        H1D_trackPt_efficiency_concatenated[0]->GetYaxis()->SetRangeUser(0, 1); 
-        H1D_trackPt_efficiency_concatenated[0]->GetYaxis()->SetTitle("Efficiencies");
-        H1D_trackPt_efficiency_concatenated[0]->Draw("hist");
-    } 
-    if (H1D_trackPt_efficiency_concatenated[1]) {  
-        H1D_trackPt_efficiency_concatenated[1]->Draw("hist same");
-    } 
-    if (H1D_trackPt_efficiency_concatenated[2]) {  
-        H1D_trackPt_efficiency_concatenated[2]->Draw("hist same");
-    } 
-    if (H1D_trackPt_efficiency_concatenated[3]) {  
-        H1D_trackPt_efficiency_concatenated[3]->Draw("hist same");
-    } 
-    gPad->SetTopMargin(0);
-    // Histogramme ratios
-    canvas->cd(2);
-    if (H1D_trackPt_efficiency_ratios[0]) {  
-        H1D_trackPt_efficiency_ratios[0]->GetYaxis()->SetTitle("ratio");
-        H1D_trackPt_efficiency_ratios[0]->GetXaxis()->SetRangeUser(0, 30);
-        H1D_trackPt_efficiency_ratios[0]->GetYaxis()->SetRangeUser(0.95, 1.2);
-        H1D_trackPt_efficiency_ratios[0]->Draw("hist");
-    } 
-    if (H1D_trackPt_efficiency_ratios[1]) {  
-        H1D_trackPt_efficiency_ratios[1]->Draw("hist same");
-    } 
-    if (H1D_trackPt_efficiency_ratios[2]) { 
-        H1D_trackPt_efficiency_ratios[2]->Draw("hist same");
-    } 
-    if (H1D_trackPt_efficiency_ratios[3]) {  
-        H1D_trackPt_efficiency_ratios[3]->Draw("hist same");
-    } 
-    canvas->Update();
-    canvas->SaveAs("EfficiencyComparison.pdf");
-
-
-=======
->>>>>>> b052c17 (adding useSplit bool whenever split was necessary)
 }
 
 void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit) {
