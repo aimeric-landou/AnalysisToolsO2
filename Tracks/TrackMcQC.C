@@ -102,17 +102,17 @@ void TrackMcQC() {
   // TString* Extra = new TString("");
   bool useSplit = false; //set to true if you want to see the influence of split
   float etaRange[2] = {-0.9, 0.9};
-  //  Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit);
+   Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit);
   float ptRange[2] = {0.15, 100};
-  // Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
-  // Draw_Efficiency_Phi_DatasetComparison(ptRange1, etaRange, useSplit);
+  Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
+  Draw_Efficiency_Phi_DatasetComparison(ptRange, etaRange, useSplit);
 
   // Draw_Efficiency_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange, useSplit);
   // // Draw_Efficiency_Phi_DatasetComparison_finerPhi(ptRange1, etaRange); // only works with very specific datasets created locally
 
-  // Draw_Purity_Pt_DatasetComparison(etaRange, useSplit);
-  // Draw_Purity_Eta_DatasetComparison(etaRange, useSplit);
-  // Draw_Purity_Phi_DatasetComparison(etaRange, useSplit);
+  Draw_Purity_Pt_DatasetComparison(etaRange, useSplit);
+  Draw_Purity_Eta_DatasetComparison(etaRange, useSplit);
+  Draw_Purity_Phi_DatasetComparison(etaRange, useSplit);
   // Draw_Purity_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange, useSplit);
 
   // int nPtRanges = 4;
@@ -1144,14 +1144,8 @@ void Draw_Purity_Pt_DatasetComparison(float* etaRange, bool useSplit) {
   //low pT histos for declaring ratio
   TH1D* H1D_trackPt_primaryPurity[nDatasets];
   TH1D* H1D_primaryPurity_denominator[nDatasets];
-  TH1D* H1D_trackPt_splitprimaryPurity[nDatasets]; 
-  TH1D* H1D_splitprimaryPurity_denominator[nDatasets]; 
   TH1D* H1D_trackPt_split[nDatasets];
-  TH1D* H1D_split_denominator[nDatasets];
   TH1D* H1D_trackPt_nonsplit[nDatasets];
-  TH1D* H1D_nonsplit_denominator[nDatasets];
-  TH1D* H1D_trackPt_nonsplitprimaryPurity[nDatasets];
-  TH1D* H1D_nonsplitprimaryPurity_denominator[nDatasets];
 
   TH1D* H1D_trackPt_purity_concatenated[nDatasets];
   TH1D* H1D_trackPt_purity_concatenatedSplitCorrected[nDatasets];
@@ -1198,17 +1192,11 @@ void Draw_Purity_Pt_DatasetComparison(float* etaRange, bool useSplit) {
       H1D_trackPt_splitPrimaryTracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_splitPrimaryTracks[iDataset]->ProjectionX("trackPt_splitPrimaryTracks"+Datasets[iDataset]+DatasetsNames[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
       H1D_trackPt_splitSecondaryTracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_splitSecondaryTracks[iDataset]->ProjectionX("trackPt_splitNonPrimaryTracks"+Datasets[iDataset]+DatasetsNames[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
     }
-    //non split primary 
-    H1D_trackPt_primaryNonSplit[iDataset] = (TH1D*)H1D_trackPt_primary[iDataset]->Clone("trackPt_primaryNonSplit"+Datasets[iDataset]+DatasetsNames[iDataset]);
-    H1D_trackPt_primaryNonSplit[iDataset]->Add(H1D_trackPt_splitPrimaryTracks[iDataset], -1);
-
-    //non split non primary
-    H1D_trackPt_nonprimaryNonSplit[iDataset] = (TH1D*)H1D_trackPt_secondary[iDataset]->Clone("trackPt_nonprimaryNonSplit"+Datasets[iDataset]+DatasetsNames[iDataset]);
-    H1D_trackPt_nonprimaryNonSplit[iDataset]->Add(H1D_trackPt_splitSecondaryTracks[iDataset], -1);
 
     //////////////////////////// high pT
 
     //primary (split + nonsplit)
+    
     H3D_trackPtEtaPhi_high_primaryTracks[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_track_pt_high_track_eta_track_phi_associatedtrack_primary"))->Clone("Draw_Purity_PtHigh_DatasetComparison_associatedtrack_primary"+Datasets[iDataset]+DatasetsNames[iDataset]);
     //non primary (split + non split)
     H3D_trackPtEtaPhi_high_secondaryTracks[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_track_pt_high_track_eta_track_phi_associatedtrack_nonprimary"))->Clone("Draw_Purity_PtHigh_DatasetComparison_associatedtrack_nonprimary"+Datasets[iDataset]+DatasetsNames[iDataset]);
@@ -1226,7 +1214,6 @@ void Draw_Purity_Pt_DatasetComparison(float* etaRange, bool useSplit) {
       H1D_trackPtHigh_splitPrimaryTracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_high_splitPrimaryTracks[iDataset]->ProjectionX("trackPtHigh_splitPrimaryTracks"+Datasets[iDataset]+DatasetsNames[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
       H1D_trackPtHigh_splitSecondaryTracks[iDataset] = (TH1D*)H3D_trackPtEtaPhi_high_splitSecondaryTracks[iDataset]->ProjectionX("trackPtHihg_splitNonPrimaryTracks"+Datasets[iDataset]+DatasetsNames[iDataset], ibinEta_low_track, ibinEta_high_track, 0, -1, "e");
     }
-
     //tweaking the low-pt bins to make them larger close to 10GeV
     std::vector<double> xbinsVectorInitialLow = GetTH1Bins(H1D_trackPt_primary[iDataset]);
     double* xbinsInitialLow = &xbinsVectorInitialLow[0];
@@ -1450,30 +1437,6 @@ void Draw_Purity_Pt_DatasetComparison(float* etaRange, bool useSplit) {
   else {
     cout << "Divide failed in Draw_Pt_DatasetComparison" << endl;
   }
-  // if (divideSuccess2 == true) {
-  //   Draw_TH1_Histograms(H1D_trackPt_splitprimaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm2, texPtRec, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
-  // }
-  // else {
-  //   cout << "Divide failed in Draw_Purity_Pt_DatasetComparison_legacy" << endl;
-  // }
-  // if (divideSuccess3 == true) {
-  //   Draw_TH1_Histograms(H1D_trackPt_split, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm3, texPtRec, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
-  // }
-  // else {
-  //   cout << "Divide failed in Draw_Purity_Pt_DatasetComparison_legacy" << endl;
-  // }
-  // if (divideSuccess4 == true) {
-  //   Draw_TH1_Histograms(H1D_trackPt_nonsplit, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm4, texPtRec, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
-  // }
-  // else {
-  //   cout << "Divide failed in Draw_Purity_Pt_DatasetComparison_legacy" << endl;
-  // }
-  // if (divideSuccess5 == true) {
-  //   Draw_TH1_Histograms(H1D_trackPt_nonsplitprimaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm5, texPtRec, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,efficiency,150MevLine"+histDrawColorsOption);
-  // }
-  // else {
-  //   cout << "Divide failed in Draw_Purity_Pt_DatasetComparison_legacy" << endl;
-  // }
 }
 
 
