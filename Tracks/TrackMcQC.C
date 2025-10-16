@@ -114,24 +114,24 @@ void TrackMcQC() {
   // Draw_Efficiency_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange, useSplit);
   // // Draw_Efficiency_Phi_DatasetComparison_finerPhi(ptRange1, etaRange); // only works with very specific datasets created locally
 
-  Draw_Purity_Pt_DatasetComparison(etaRange, useSplit);
-  Draw_Purity_Eta_DatasetComparison(etaRange, useSplit);
-  Draw_Purity_Phi_DatasetComparison(etaRange, useSplit);
+  // Draw_Purity_Pt_DatasetComparison(etaRange, useSplit);
+  // Draw_Purity_Eta_DatasetComparison(etaRange, useSplit);
+  // Draw_Purity_Phi_DatasetComparison(etaRange, useSplit);
   // Draw_Purity_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange, useSplit);
 
-  int nPtRanges = 10;
-  float ptRanges[11] = {0.15, 0.5, 1, 2, 4, 8, 15, 20, 40, 80, 100};
-  for(int iPtRange = 0; iPtRange < nPtRanges; iPtRange++){  
-    float ptRangeVariable[2] = {ptRanges[iPtRange], ptRanges[iPtRange+1]};
-    Draw_Efficiency_Eta_DatasetComparison(ptRangeVariable,useSplit);
-    Draw_Eta_gen_DatasetComparison(ptRangeVariable, "primaries, ratio, entriesNorm");
-    Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(ptRangeVariable, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
+  // int nPtRanges = 10;
+  // float ptRanges[11] = {0.15, 0.5, 1, 2, 4, 8, 15, 20, 40, 80, 100};
+  // for(int iPtRange = 0; iPtRange < nPtRanges; iPtRange++){  
+  //   float ptRangeVariable[2] = {ptRanges[iPtRange], ptRanges[iPtRange+1]};
+  //   Draw_Efficiency_Eta_DatasetComparison(ptRangeVariable,useSplit);
+  //   Draw_Eta_gen_DatasetComparison(ptRangeVariable, "primaries, ratio, entriesNorm");
+  //   Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(ptRangeVariable, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
 
-    Draw_Efficiency_Phi_DatasetComparison(ptRangeVariable, etaRange, useSplit);
-    Draw_Phi_gen_DatasetComparison(ptRangeVariable, etaRange, "primaries, ratio, entriesNorm");
-    Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRangeVariable, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
+  //   Draw_Efficiency_Phi_DatasetComparison(ptRangeVariable, etaRange, useSplit);
+  //   Draw_Phi_gen_DatasetComparison(ptRangeVariable, etaRange, "primaries, ratio, entriesNorm");
+  //   Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRangeVariable, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
 
-  }
+  // }
 
 
   // FOR SIMULATION CHECKS, don't use in standard mc files
@@ -144,12 +144,12 @@ void TrackMcQC() {
 
   // float ptRange[2] = {0.150, 100};
   // float etaRange[2] = {-0.9, 0.9};
-  Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, entriesNorm");
+  // Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, entriesNorm");
   Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, evtNorm");
-  Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, entriesNorm");
-  // Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, evtNorm");
-  Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, entriesNorm");
-  // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, evtNorm");
+  // Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, entriesNorm");
+  Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, evtNorm");
+  // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, entriesNorm");
+  Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, evtNorm");
   // Draw_Pt_gen_DatasetComparison(etaRange, "secondaries, ratio");
   // Draw_Eta_gen_DatasetComparison(ptRange, "secondaries, ratio");
   // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "secondaries, ratio");
@@ -157,13 +157,13 @@ void TrackMcQC() {
   // Draw_Eta_gen_DatasetComparison(ptRange, "primaries,secondaries, ratio");
   // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries,secondaries, ratio");
 
-  Draw_Pt_tracksReco_fromEffWorkflow_DatasetComparison(etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
+  // Draw_Pt_tracksReco_fromEffWorkflow_DatasetComparison(etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
   Draw_Pt_tracksReco_fromEffWorkflow_DatasetComparison(etaRange, "primaries, secondaries, nonassociatedtrack, ratio, evtNorm");
 
-  Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
+  // Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
   Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, "primaries, secondaries, nonassociatedtrack, ratio, evtNorm");
 
-  Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
+  // Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, entriesNorm");
   Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, evtNorm");
 
 
@@ -546,9 +546,22 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
     cout << "Divide failed in Draw_Pt_DatasetComparison" << endl;
   }
 
+  int nPtBins = xbins_new[iDataset].size() - 1;
 
-
-
+  cout << "--------- Track Efficiency vs pt: values ---------" << endl;
+  for(int iDataset = 0; iDataset < nDatasets; iDataset++){
+    cout << "     ---- Dataset " << DatasetNames[iDataset] << endl;
+    for(int iBinPt = 0; iBinPt < nPtBins; iBinPt++) {
+      cout << "eff[" << xbins_new[iBinPt] << ", " << xbins_new[iBinPt+1] << "] = " << H1D_trackPt_efficiency_concatenated[iBinPt] << endl;
+    }
+  }
+  cout << "--------- Track Efficiency vs pt: ratios ---------" << endl;
+  for(int iDataset = 1; iDataset < nDatasets; iDataset++){
+    cout << "     ---- Dataset " << DatasetNames[iDataset] << endl;
+    for(int iBinPt = 0; iBinPt < nPtBins; iBinPt++) {
+      cout << "eff[" << xbins_new[iBinPt] << ", " << xbins_new[iBinPt+1] << "] = " << H1D_trackPt_efficiency_ratios[iBinPt] << endl;
+    }
+  }
 }
 
 void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit) {
