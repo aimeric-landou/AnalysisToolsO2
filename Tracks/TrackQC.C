@@ -1087,7 +1087,7 @@ void Draw_SelectedMultiplicity_CentralityComp(int iDataset, std::string options)
 
     yAxisLabel = texNoNorm_SelMultYield;
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_mult_rebinned[iCentralityBin]);
+      NormaliseYieldToIntegral(H1D_mult_rebinned[iCentralityBin]);
       yAxisLabel = texEntriesNorm_selMultYield;
     }
     if (options.find("normEvents") != std::string::npos) {
