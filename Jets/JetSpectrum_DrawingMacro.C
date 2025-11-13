@@ -91,6 +91,8 @@ void JetSpectrum_DrawingMacro() {
   snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s,%s", mergingPrior, unfoldingPrior, unfoldingMethod);
   cout << "Analysis options are: " << optionsAnalysis << endl;
 
+  mcCollHistIsObsolete = inputMcCollHistIsObsolete;
+
   int iDataset = 0;
   int iRadius = 0;
 

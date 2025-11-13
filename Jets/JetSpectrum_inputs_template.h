@@ -60,7 +60,7 @@ const TString analysisWorkflow_unfoldingControl = "jet-spectra-charged_lead_05_1
 const TString trainIdMC = "";
 const TString analysisWorkflowMC = "jet-spectra-charged_lead_05_100"+trainIdMC;
 const bool etaCutOnMatchedJetsIsObsoleteVersion = false;
-hmcCollHistIsObsolete = true;
+bool inputMcCollHistIsObsolete = true;
 
 
 
