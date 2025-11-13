@@ -1,3 +1,4 @@
+// This is a template. To use the nSubJettiness.C, rename this file to nSubJettiness_settings.h and edit it how you want.
 
 // // Options to be set:
 // // TFile* file_O2Analysis = new TFile("AnalysisResults_LHC23d4_fullProdHyperloop.root");

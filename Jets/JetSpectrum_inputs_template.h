@@ -1,5 +1,6 @@
 
-// To avoid your local _inputs.h files to be replaced by the template in the git repository, you should ask git to ignore them with git update-index --assume-unchanged (for more details see https://stackoverflow.com/questions/3319479/can-i-git-commit-a-file-and-ignore-its-content-changes)
+// This is a template. To use the JetSpectrum_DrawingMacro.C, rename this file to JetSpectrum_inputs.h and edit it how you want.
+
 
 #ifndef JETSPECTRUM_INPUTS_H
 #define JETSPECTRUM_INPUTS_H
@@ -19,33 +20,38 @@ TString* texCollisionDataType = new TString("0#font[122]{-}10% Pb#font[122]{-}Pb
 TString* texCollisionDataInfo = new TString((TString)*texCollisionDataType+", "+(TString)*texEnergyPbPb); 
 TString* texCollisionMCType = new TString("PYTHIA + GEANT4"); 
 TString* texCollisionMCInfo = new TString((TString)*texCollisionMCType+", "+(TString)*texEnergy); 
-const TString* texDatasetsComparisonType = new TString("0#font[122]{-}10% centrality");
+const TString* texDatasetsComparisonType = new TString("0#font[122]{-}10% cent.");
 // const TString* texDatasetsComparisonType = new TString("50-70% centrality");
 const TString* texDatasetsComparisonCommonDenominator = new TString("ALICE performance");
-const int nDatasets = 2;
-const TString Datasets[nDatasets] = {"LHC23_PbPb_pass4_goldenRuns_occupancy01000_train372068",
-                                    "LHC23_PbPb_pass4_goldenRuns_occupancy01000_train372068"};
-const TString DatasetsNames[nDatasets] = {"noTrackEff", "withTrackEff"};
-TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root"),
-                                      new TFile("Datasets/"+Datasets[1]+"/AnalysisResults.root")
+
+const int nDatasets = 1;
+const TString Datasets[nDatasets] = {"LHC25b6_pp_sim_PbPbAnchor_train420439"
+                                    };
+const TString DatasetsNames[nDatasets] = {"ppAnchorPbPb"};
+TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root")
                                       };
-// TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = new TFile("Datasets/ppSim_LHC23d4/AnalysisResults.root");
-// TFile* file_O2Analysis_MCfileForMatrix = new TFile("Datasets/ppSim_LHC23d4_weighted_withLeadingTrackCut/AnalysisResults.root");
-// TFile* file_O2Analysis_MCfileForMatrix = new TFile("Datasets/MC_halfMCAngantyr/AnalysisResults.root");
-TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_noTrackEffCorrection_train395261/AnalysisResults.root"),
-                                                    new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_trackEffCorrection_cent0010_train420439/AnalysisResults.root"),
+TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_train420439/AnalysisResults.root")
                                                     };
-TFile* file_O2Analysis_ppSimDetectorEffect_unfoldingControl[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_noTrackEffCorrection_train395261/AnalysisResults.root"),
-                                                                        new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_trackEffCorrection_cent0010_train420439/AnalysisResults.root")
+TFile* file_O2Analysis_ppSimDetectorEffect_unfoldingControl[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_train420439/AnalysisResults.root")
                                                                         }; // use this MC file as input to unfolding (with h_jet_pt_rhoareasubtracted distrib on file) and as comparison to gen (with h_jet_pt_part distrib on file)
 
-// const TString trainId = "_id12832";
-// const TString analysisWorkflowData = "jet-finder-charged-qa_central_5090_lead5"+trainId;
-// const TString trainId = "_id12436";
-// const TString analysisWorkflowData = "jet-finder-charged-qa_central_0010_lead5"+trainId;
-const TString trainIdData = "_id26156"; // lead05
-const TString analysisWorkflowData = "jet-spectra-charged_central"+trainIdData;
-// const TString analysisWorkflowData = "jet-spectra-charged_peripheral"+trainIdData;
+
+// const int nDatasets = 1;
+// const TString Datasets[nDatasets] = {"LHC23_PbPb_pass4_goldenRuns_occupancy01000_train372068"
+//                                     };
+// const TString DatasetsNames[nDatasets] = {"noTrackEffCorrection"};
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root")
+//                                       };
+// TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_noTrackEffCorrection_train395261/AnalysisResults.root")
+//                                                     };
+// TFile* file_O2Analysis_ppSimDetectorEffect_unfoldingControl[nDatasets] = {new TFile("Datasets/LHC25b6_pp_sim_PbPbAnchor_FullStats_R02_noTrackEffCorrection_train395261/AnalysisResults.root")
+//                                                                         }; // use this MC file as input to unfolding (with h_jet_pt_rhoareasubtracted distrib on file) and as comparison to gen (with h_jet_pt_part distrib on file)
+
+// const TString trainIdData = "_id26156"; // lead05
+// const TString analysisWorkflowData = "jet-spectra-charged_central"+trainIdData;
+const TString trainIdData = ""; // lead05
+const TString analysisWorkflowData = "jet-spectra-charged_lead_05_100"+trainIdData;
+
 const TString trainIdBkg = "";
 const TString analysisWorkflowBkg = "jet-background-analysis"+trainIdBkg;
 const TString trainIdUnfoldingControl = "";
@@ -145,7 +151,7 @@ const bool etaCutOnMatchedJetsIsObsoleteVersion = false;
 //                                       };
 // // TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = new TFile("Datasets/ppSim_LHC23d4/AnalysisResults.root");
 // // TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = new TFile("Datasets/ppSim_LHC23d4_weighted_withLeadingTrackCut/AnalysisResults.root");
-// TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = new TFile("Datasets/ppSim_LHC24f3b_withTrackTuner_Joonsuk/AnalysisResults.root");
+// TFile* file_O2Analysis_MCfileForMatrix[nDatasets] = {new TFile("Datasets/ppSim_LHC24f3b_withTrackTuner_Joonsuk/AnalysisResults.root")};
 // TFile* file_O2Analysis_ppSimDetectorEffect_unfoldingControl[nDatasets] = {new TFile("Datasets/ppSim_LHC24f3b_withTrackTuner_Joonsuk/AnalysisResults.root")};
 
 // // const TString trainId = "_id12832";

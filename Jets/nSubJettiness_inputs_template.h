@@ -1,4 +1,4 @@
-// To avoid your local _inputs.h files to be replaced by the template in the git repository, you should ask git to ignore them with git update-index --assume-unchanged (for more details see https://stackoverflow.com/questions/3319479/can-i-git-commit-a-file-and-ignore-its-content-changes)
+// This is a template. To use the nSubJettiness.C, rename this file to nSubJettiness_inputs_template.h and edit it how you want
 
 // TFile* file_AliAnalysis = new TFile("../AnalysisResults_Run2_merged_Jaime.root");
 

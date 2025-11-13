@@ -1,3 +1,4 @@
+// This is a template. To use the JetQC.C, rename this file to JetQC_settings.h and edit it how you want.
 
 // // Bin edge control
 // float GLOBAL_epsilon = 0.00001;

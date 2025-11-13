@@ -1,3 +1,5 @@
+// This is a template. To use the JetSpectrum_DrawingMacro.C, rename this file to JetSpectrum_settings.h and edit it how you want.
+
 #ifndef JETSPECTRUM_SETTINGS_H
 #define JETSPECTRUM_SETTINGS_H
 
@@ -45,10 +47,10 @@ const bool matrixTransformationOrder = 0; // use 0
 char unfoldingMethod[] = "Svd"; // unfolding method options: Bayes, Svd
 char optionsAnalysis[100] = "";
 
-const bool isDataPbPb = true; // if false -> pp
-const bool doBkgSubtractionInData = true;
+const bool isDataPbPb = false; // if false -> pp
+const bool doBkgSubtractionInData = false;
 const bool doBkgSubtractionInMC = false;
-const bool useFactorisedMatrix = true; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
+const bool useFactorisedMatrix = false; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
 const bool mcIsWeighted = true; // use if the MC has been weighted to have more high pt jets?
 bool applyFakes = true; // only applied if useManualRespMatrixSettingMethod is true; 18/03: if false?
 int applyEfficiencies = 2; // 2 is best; kinematic efficiency is already be handled by roounfold (02/04/2025; one can check simply with a pp unfolding with just det matrix and fine-ish binning like "// Joonsuk binning for pp with smaller rec window to test kinematic efficiency")
@@ -75,7 +77,7 @@ const bool doManualErrorPropagForKineEff = false; // false is likely better, but
 const bool useFineBinningTest = false;
 bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt_rhoareasubtracted distrib on file), rather than real data, and as comparison to gen (with h_jet_pt_part distrib on file); weighted control MC, and control for PbPb are not yet implemented
 const bool drawIntermediateResponseMatrices = false;
-bool comparePbPbWithRun2 = true; // if isDataPbPb == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
+bool comparePbPbWithRun2 = false; // if isDataPbPb == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
 
 bool smoothenEfficiency = false;
 bool smoothenMCP = false;
