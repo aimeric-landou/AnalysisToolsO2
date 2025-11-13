@@ -919,16 +919,13 @@ void Draw_Eta_DatasetComparison(float jetRadius, float* PtRange, std::string opt
       cout << "Requested workflow is incorrect: it should be jet-finder-charged-qa or jet-spectra-charged" << endl;
     }
 
-
-    H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(5.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
-    cout << "getentries H3D = "<< H3D_jetRjetPtjetEta[iDataset]->GetEntries() << endl;
-    cout << "getentries H1D = "<< H1D_jetEta_rebinned[iDataset]->GetEntries() << endl;
-
     if (PtRange[0] < 40) {
       H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(5.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
     } else {
       H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(20.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
     }
+    cout << "getentries H3D = "<< H3D_jetRjetPtjetEta[iDataset]->GetEntries() << endl;
+    cout << "getentries H1D = "<< H1D_jetEta_rebinned[iDataset]->GetEntries() << endl;
 
     if (options.find("normEntries") != std::string::npos) {
       NormaliseYieldToIntegral(H1D_jetEta_rebinned[iDataset]);
