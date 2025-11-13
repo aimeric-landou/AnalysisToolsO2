@@ -105,12 +105,12 @@ void JetSpectrum_DrawingMacro() {
   // Draw_ResponseMatrices_DetectorAndFluctuationsCombined(1, iRadius, optionsAnalysis);
 
   // // Draw_Pt_spectrum_unfolded_FluctResponseOnly(iDataset, iRadius, optionsAnalysis); // NOT FIXED YET - result meaningless
-  // Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
-  // Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
-  // Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
+  Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis);
+  Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
+  Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis);
+  Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
+  Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis);
+  Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
 
   Draw_Pt_efficiency_jets(iRadius, optionsAnalysis);
   Draw_kinematicEfficiency(iRadius, optionsAnalysis);
@@ -645,7 +645,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   TH1D* H1D_jetPt_ratio_mcpFoldedUnfoldedMcp;
 
   // RUN 2 settings
-  if (isDataPbPb && comparePbPbWithRun2) {
+  if (comparePbPbWithRun2) {
     H1D_jetPt_run2_HannaBossiLauraFile = (TH1D*)((TH1D*)file_O2Analysis_run2ComparisonFileHannaBossiLaura->Get("Bayesian_Unfoldediter15"))->Clone("H1D_jetPt_run2_HannaBossiLauraFile");
     int NcollRun2 = 4619963; // central (see Laura discussion mattermost) 
     H1D_jetPt_run2_HannaBossiLauraFile->Scale(1./NcollRun2);
@@ -731,12 +731,12 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
   cout << "comparison with mcp truth" << endl; 
   H1D_jetPt_unfolded_mcpComp[0] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_unfolded_mcpComp"+partialUniqueSpecifier);
-  H1D_jetPt_unfolded_mcpComp[1] = (TH1D*)H1D_jetPt_mcp->Clone("H1D_jetPt_unfolded_mcpComp"+partialUniqueSpecifier);
+  H1D_jetPt_unfolded_mcpComp[1] = (TH1D*)H1D_jetPt_mcp->Clone("H1D_jetPt_mcp_mcpComp"+partialUniqueSpecifier);
   H1D_jetPt_ratio_mcp = (TH1D*)H1D_jetPt_mcp->Clone("H1D_jetPt_ratio_mcp"+partialUniqueSpecifier);
   divideSuccessMcp = H1D_jetPt_ratio_mcp->Divide(H1D_jetPt_unfolded);
 
   cout << "comparison with run2" << endl; 
-  if (isDataPbPb && comparePbPbWithRun2) {
+  if (comparePbPbWithRun2) {
     // comparison with run2 results rebinned using a fit (errors look way underestimated; tsallis function not great aboe 100+ GeV; where should one eval the function inside a bin? probably not just the center)
     H1D_jetPt_unfolded_run2Comp_fitRebin[0] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_unfolded_run2Comp_fitRebin"+partialUniqueSpecifier);
     double fitPtRange[2] = {ptBinsJetsGen_run2[iRadius][0], ptBinsJetsGen_run2[iRadius][nBinPtJetsGen_run2[iRadius]]};
@@ -794,7 +794,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
 
 
-  if (isDataPbPb) {
+  if (doComparisonMcpFoldedWithFluct) {
     cout << "comparison mcp folded with fluctuations vs mcp" << endl; 
     Get_Pt_spectrum_mcpFoldedWithFluctuations(H1D_jetPt_mcpFolded, iDataset, iRadius, options);
     H1D_jetPt_unfolded_mcpFoldedComp[0] = (TH1D*)H1D_jetPt_mcpFolded->Clone("H1D_jetPt_mcpFoldedComp_mcpFolded"+partialUniqueSpecifier);
@@ -894,7 +894,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
 
   // comparison with Run 2
-  if (isDataPbPb && comparePbPbWithRun2) {
+  if (comparePbPbWithRun2) {
     TString unfoldedRun2CompLegend_fitRebin[3] = {"unfolded Run3", "unfolded Run2 ML rebinned", "unfolded Run2 ML initial"};
     TString* pdfName_run2Comp_fitRebin = new TString(pdfTitleBase+"_run2Comp_fitRebin");
     Draw_TH1_Histograms(H1D_jetPt_unfolded_run2Comp_fitRebin, unfoldedRun2CompLegend_fitRebin, 3, textContext, pdfName_run2Comp_fitRebin, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy,fitSingle", TF1_jetPt_run2_MLPaperFile_fit);
@@ -920,7 +920,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
     }
   }
 
-  if (isDataPbPb) {
+  if (doComparisonMcpFoldedWithFluct) {
     // comparison mcp folded with fluctuations vs mcp
     TString unfoldedMcpFoldedCheckLegend[2] = {"mcp-folded", "mcp"};
     TString* pdfName_McpFoldedCheck = new TString(pdfTitleBase+"_McpFoldedVsMcp");
@@ -1142,7 +1142,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
 
   // RUN 2 settings
   TH1D* H1D_jetPt_run2_MLPaperFile = new TH1D("H1D_jetPt_run2_MLPaperFile", "H1D_jetPt_run2_MLPaperFile", nBinPtJetsGen_run2[iRadius], ptBinsJetsGen_run2[iRadius]);
-  if (isDataPbPb && comparePbPbWithRun2) {
+  if (comparePbPbWithRun2) {
     TGraph* Graph_jetPt_run2_MLPaperFile;
     double Ncoll;
     if (centralityRange[0] == 00 && centralityRange[1] == 10) {
@@ -1229,7 +1229,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     divideSuccessMeasuredRefolded[iDataset] = H1D_jetPt_ratio_measuredRefolded[iDataset]->Divide(H1D_jetPt_measured[iDataset]);
 
     cout << "comparison with run2" << endl; 
-    if (isDataPbPb && comparePbPbWithRun2) {
+    if (comparePbPbWithRun2) {
       // // comparison with run2 results rebinned using a fit (errors look way underestimated; tsallis function not great aboe 100+ GeV; where should one eval the function inside a bin? probably not just the center)
       // H1D_jetPt_unfolded_run2Comp_fitRebin[0][iDataset] = (TH1D*)H1D_jetPt_unfolded[iDataset]->Clone("H1D_jetPt_unfolded_run2Comp_fitRebin"+partialUniqueSpecifier);
       // double fitPtRange[2] = {ptBinsJetsGen_run2[iRadius][0], ptBinsJetsGen_run2[iRadius][nBinPtJetsGen_run2[iRadius]]};
@@ -1258,7 +1258,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
       divideSuccessRun2[iDataset] = H1D_jetPt_ratio_run2[iDataset]->Divide(H1D_jetPt_unfolded_run2Comp[iDataset]);
     }
 
-    // if (isDataPbPb) {
+    // if (doComparisonMcpFoldedWithFluct) {
     //   cout << "comparison mcp folded with fluctuations vs mcp" << endl; 
     //   Get_Pt_spectrum_mcpFoldedWithFluctuations(H1D_jetPt_mcpFolded, iDataset, iRadius, options);
     //   H1D_jetPt_unfolded_mcpFoldedComp[0] = (TH1D*)H1D_jetPt_mcpFolded->Clone("H1D_jetPt_mcpFoldedComp_mcpFolded"+partialUniqueSpecifier);
@@ -1374,7 +1374,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     Draw_TH1_Histograms(H1D_jetPt_ratio_run2, DatasetsNames, nDatasets, textContext, pdfName_ratio_run2, texPtX, texRatioRun2Unfolded, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "zoomToOneLarge, ratioLine");
   }
 
-  // if (isDataPbPb) {
+  // if (doComparisonMcpFoldedWithFluct) {
   //   // comparison mcp folded with fluctuations vs mcp
   //   TString unfoldedMcpFoldedCheckLegend[2] = {"mcp-folded", "mcp"};
   //   TString* pdfName_McpFoldedCheck = new TString(pdfTitleBase+"_McpFoldedVsMcp");
