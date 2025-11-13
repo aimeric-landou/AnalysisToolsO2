@@ -56,7 +56,8 @@ long int GetNEventsSelected_JetFramework_gen(TFile* file_O2Analysis, const char 
   return ((TH1I*)file_O2Analysis->Get((TString)analysisWorkflow+"/h_mcColl_counts"))->GetBinContent(6);
 }
 double GetNEventsSelected_JetFramework_gen_weighted(TFile* file_O2Analysis, const char analysisWorkflow[]) {
-  return ((TH1F*)file_O2Analysis->Get((TString)analysisWorkflow+"/h_mcColl_counts_weight"))->GetBinContent(6);
+  int ibinFinalSelection = hmcCollHistIsObsolete ? 4 : 6;
+  return ((TH1F*)file_O2Analysis->Get((TString)analysisWorkflow+"/h_mcColl_counts_weight"))->ibinFinalSelection(4);
 }
 
 
