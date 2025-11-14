@@ -73,10 +73,13 @@ const bool useMatrixOverflows = false; // false by default, haven't tried true r
 
 const int usePtOverflowForKineEff = 0; // false by default, not tested yet, might be better to be at 1; only matters if applyEfficiencies is 1 or 3, and by default this is not the case
 
+// MC split closure test: mcd as input from file_O2Analysis_ppSimDetectorEffect_unfoldingControl with Response from file_O2Analysis_MCfileForMatrix
+bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
+
+
 // Debugging and checks:
 const bool doManualErrorPropagForKineEff = false; // false is likely better, but hasn't been tested yet
 const bool useFineBinningTest = false;
-bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt_rhoareasubtracted distrib on file), rather than real data, and as comparison to gen (with h_jet_pt_part distrib on file); weighted control MC, and control for PbPb are not yet implemented
 const bool drawIntermediateResponseMatrices = false;
 bool comparePbPbWithRun2 = false; // if doComparisonMcpFoldedWithFluct == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
 
@@ -86,7 +89,6 @@ bool smoothenMCP = false;
 bool transposeResponseHistogramsInDrawing = false;  // default is false; if set to true, then one can just rotate the result matrices 90 degrees to have the correct visualisation of the response as a matrix, rather than as a histogram as is default (when false) 
 
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
-
 
 float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
