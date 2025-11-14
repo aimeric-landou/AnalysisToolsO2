@@ -63,8 +63,8 @@ const bool doWidthScalingAtEnd = true;                          //
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
 const bool normGenAndMeasByNEvtsBeforeUnfolding = false;
 
-const bool normaliseDistribsAfterUnfolding = true; // keep true; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without the counts are 1Ei, with it they are 1E-j, so should be set to true
-const bool normaliseDistribsBeforeUnfolding = true; // keep true; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without the counts are 1Ei, with they are 1E-j, so should be set to true
+const bool normaliseDistribsAfterUnfolding = true; // if true: Njets per event ; if false: Njets total ; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; 
+const bool normaliseDistribsBeforeUnfolding = true; // if true: Njets per event ; if false: Njets total ; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without
 
 const bool useManualRespMatrixSettingMethod = true; // keep true; false uses Joonsuk's resp matrix setup with roounfold methods; if set to true, both refold methods are constistent; if set to false, the roounfold one is identical as if true, but the manual one becomes different and bad; EDIT 25/04/2025: Joonsuk's method I haven't kept updated, and now gives bad results on trivial refolding test
 const bool normaliseRespYSliceForRefold = true; // keep true; THAT IS APPARENTLY REQUIRED TO REFOLD MANUALLY! even though the initial resp matrix used for the unfolding isn't normalised like this
