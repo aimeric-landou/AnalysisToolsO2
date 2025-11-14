@@ -1,3 +1,5 @@
+// This is a template. To use the JetSpectrum_DrawingMacro.C, rename this file to JetSpectrum_settings.h and edit it how you want.
+
 #ifndef JETSPECTRUM_SETTINGS_H
 #define JETSPECTRUM_SETTINGS_H
 
@@ -30,7 +32,6 @@ const float centralityRange[2] = {0, 10};
 
 
 
-char mergingPrior[] = "noPriorMerging";     // prior options: mcpPriorMerging, mcdPriorMerging, measuredPriorMerging, noPriorMerging, testAliPhysics //// THIS stemmed from amisunderstanding of what was being done by Marta; should be kept to noPriorMerging
 char unfoldingPrior[] = "mcpPriorUnfolding";     // prior options: mcpPriorUnfolding, mcdPriorUnfolding, measuredPriorUnfolding, noPriorUnfolding, testAliPhysics /////// if using mcp as prior, should have the leading track cut like data
 const bool doYSliceNormToOneDetResp = true; // should be true in Pb-Pb analysis (done by marta) (because fluct. response matrix is probability distrib; in pp where we only have detector response, it's best to keep matrix of number of events as svd paper seems to advise: less weight on matrix entries with single count; if this is set to FALSE then noPriorUnfolding should be used, as det response already comes with weighting so it'd be done twice)
 const bool doYSliceNormToOneCombinedResp = false; // should be false (not done by marta); breaks unfolding with svd if true 
@@ -45,10 +46,11 @@ const bool matrixTransformationOrder = 0; // use 0
 char unfoldingMethod[] = "Svd"; // unfolding method options: Bayes, Svd
 char optionsAnalysis[100] = "";
 
-const bool isDataPbPb = true; // if false -> pp
-const bool doBkgSubtractionInData = true;
+const bool doComparisonMcpFoldedWithFluct = false; // if true, uses file_O2Analysis_ppSimDetectorEffect_unfoldingControl mcp distribution, folds it with the background fluctuation matrix, unfolds it with the merged det x bkg response matrix, and compares it to the mcp distribution in file_O2Analysis_ppSimDetectorEffect_unfoldingControl
+// 13/11/2025: check this comparison; for some reason it's not a ratio of 1 when running on pp even though the bkg fluctuation matrix is identity
+const bool doBkgSubtractionInData = false;
 const bool doBkgSubtractionInMC = false;
-const bool useFactorisedMatrix = true; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
+const bool useFactorisedMatrix = false; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
 const bool mcIsWeighted = true; // use if the MC has been weighted to have more high pt jets?
 bool applyFakes = true; // only applied if useManualRespMatrixSettingMethod is true; 18/03: if false?
 int applyEfficiencies = 2; // 2 is best; kinematic efficiency is already be handled by roounfold (02/04/2025; one can check simply with a pp unfolding with just det matrix and fine-ish binning like "// Joonsuk binning for pp with smaller rec window to test kinematic efficiency")
@@ -58,10 +60,10 @@ const bool doWidthScalingEarly = false;                         // to avoid pT b
 const bool doWidthScalingAtEnd = true;                          //
 
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
-const bool normGenAndMeasByNEvtsBeforeUnfolding = false;
+const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised
 
-const bool normaliseDistribsAfterUnfolding = true; // keep true; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without the counts are 1Ei, with it they are 1E-j, so should be set to true
-const bool normaliseDistribsBeforeUnfolding = true; // keep true; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without the counts are 1Ei, with they are 1E-j, so should be set to true
+const bool normaliseUnfoldingResultsAtEnd = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; 
+const bool normaliseDistribsInComparisonPlots = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; without
 
 const bool useManualRespMatrixSettingMethod = true; // keep true; false uses Joonsuk's resp matrix setup with roounfold methods; if set to true, both refold methods are constistent; if set to false, the roounfold one is identical as if true, but the manual one becomes different and bad; EDIT 25/04/2025: Joonsuk's method I haven't kept updated, and now gives bad results on trivial refolding test
 const bool normaliseRespYSliceForRefold = true; // keep true; THAT IS APPARENTLY REQUIRED TO REFOLD MANUALLY! even though the initial resp matrix used for the unfolding isn't normalised like this
@@ -70,12 +72,15 @@ const bool useMatrixOverflows = false; // false by default, haven't tried true r
 
 const int usePtOverflowForKineEff = 0; // false by default, not tested yet, might be better to be at 1; only matters if applyEfficiencies is 1 or 3, and by default this is not the case
 
+// MC split closure test: mcd as input from file_O2Analysis_ppSimDetectorEffect_unfoldingControl with Response from file_O2Analysis_MCfileForMatrix
+bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
+
+
 // Debugging and checks:
 const bool doManualErrorPropagForKineEff = false; // false is likely better, but hasn't been tested yet
 const bool useFineBinningTest = false;
-bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt_rhoareasubtracted distrib on file), rather than real data, and as comparison to gen (with h_jet_pt_part distrib on file); weighted control MC, and control for PbPb are not yet implemented
 const bool drawIntermediateResponseMatrices = false;
-bool comparePbPbWithRun2 = true; // if isDataPbPb == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
+bool comparePbPbWithRun2 = false; // if doComparisonMcpFoldedWithFluct == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
 
 bool smoothenEfficiency = false;
 bool smoothenMCP = false;
@@ -84,6 +89,7 @@ bool transposeResponseHistogramsInDrawing = false;  // default is false; if set 
 
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
+bool controlMC_useMcpCollCountForNorm = false; //if controlMC is true, controlMC_useMcpCollCountForNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
 
 float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}

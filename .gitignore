@@ -5,4 +5,8 @@
 *_C.so
 *_C.d
 
+.DS_Store
+.vscode
+
 *_inputs.h
+*_settings.h
