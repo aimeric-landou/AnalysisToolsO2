@@ -133,7 +133,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
         mkdir("pngFolder/ResponseMatrices", 0700);
     }
     
-    TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+    TString priorInfo = (TString)unfoldingPrior;
 
     TString* pdfNamePost = new TString("ResponseMatrices/responseMatrix_combined_postWeighting"+(TString)partialUniqueSpecifier);
     TString* pdfNamePost_logz = new TString("ResponseMatrices/responseMatrix_combined_postWeighting"+(TString)partialUniqueSpecifier+"_logz");
@@ -270,7 +270,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
     // plot svd d distribution
     TH1D* H1D_D = tsvdUnfold->GetD();
     TString inputUnfoldingName = (options.find("inputIsMCPFoldedTest") != std::string::npos) ? "_mcpFoldedTestInput" : "";
-    TString* pdfName_regparam = new TString("Svd_regularisationd_distribution_"+(TString)partialUniqueSpecifier+"_"+(TString)mergingPrior+"_"+(TString)unfoldingPrior+inputUnfoldingName);
+    TString* pdfName_regparam = new TString("Svd_regularisationd_distribution_"+(TString)partialUniqueSpecifier+"_"+(TString)unfoldingPrior+inputUnfoldingName);
     TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextJetRadius(arrayRadius[iRadius]), ""));
     std::array<std::array<float, 2>, 2> drawnWindowSvdParam = {{{0, 30}, {0.01, 10000}}}; // {{xmin, xmax}, {ymin, ymax}}
     Draw_TH1_Histogram(H1D_D, textContext, pdfName_regparam, texSvdK, texSvdDvector_k, texCollisionDataInfo, drawnWindowSvdParam, legendPlacementAuto, contextPlacementAuto, "logy");
@@ -323,7 +323,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
         mkdir("pngFolder/ResponseMatrices", 0700);
     }
     
-    TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+    TString priorInfo = (TString)unfoldingPrior;
 
     TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_postUnfolding"+(TString)partialUniqueSpecifier);
     TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_postUnfolding"+(TString)partialUniqueSpecifier+"_logz");
@@ -447,7 +447,7 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1
         mkdir("pngFolder/ResponseMatrices", 0700);
     }
 
-    TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+    TString priorInfo = (TString)unfoldingPrior;
 
     TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_duringRefolding"+(TString)partialUniqueSpecifier);
     TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_duringRefolding"+(TString)partialUniqueSpecifier+"_logz");

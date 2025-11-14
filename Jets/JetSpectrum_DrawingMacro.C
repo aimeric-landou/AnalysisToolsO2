@@ -88,7 +88,7 @@ void JetSpectrum_DrawingMacro() {
   // TString* Extra = new TString("");
 
   // gathers the analysis options in a single char[]
-  snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s,%s", mergingPrior, unfoldingPrior, unfoldingMethod);
+  snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s", unfoldingPrior, unfoldingMethod);
   cout << "Analysis options are: " << optionsAnalysis << endl;
 
   mcCollHistIsObsolete = inputMcCollHistIsObsolete;
@@ -418,7 +418,7 @@ void Draw_kinematicEfficiency(int iRadius, std::string options) {
 
     Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency[iDataset], H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning[iDataset], name_H1D_kinematicEfficiency, iRadius);
   }
-  TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+  TString priorInfo = (TString)unfoldingPrior;
 
   TString partialUniqueSpecifier = (TString)"R="+Form("%.1f",arrayRadius[iRadius]);
   TString* pdfName = new TString("kinematicEfficiency_"+partialUniqueSpecifier+priorInfo);
@@ -450,7 +450,7 @@ void Draw_ResponseMatrices_Fluctuations(int iDataset, int iRadius) {
 
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
 
-  TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+  TString priorInfo = (TString)unfoldingPrior;
 
   std::error_code errPDF, errPNG, errEPS;
   CreateDirectoryRecursive((std::string)"pdfFolder/ResponseMatrices", errPDF);
@@ -509,7 +509,7 @@ void Draw_ResponseMatrices_detectorResponse(int iDataset, int iRadius) {
   Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
   cout << "Draw_ResponseMatrices_detectorResponse 2" << endl;
 
-  TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+  TString priorInfo = (TString)unfoldingPrior;
 
 
   std::error_code errPDF, errPNG, errEPS;
@@ -566,7 +566,7 @@ void Draw_ResponseMatrices_DetectorAndFluctuationsCombined(int iDataset, int iRa
   Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
   // FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 
-  TString priorInfo = (TString)(TString)mergingPrior+"-"+(TString)unfoldingPrior;
+  TString priorInfo = (TString)unfoldingPrior;
 
 
   std::error_code errPDF, errPNG, errEPS;
@@ -827,7 +827,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   if (controlMC){
     unfoldingCode += "_controlMC";
   }
-  TString unfoldingInfo = (TString)unfoldingMethod+"-k="+Form("%i", unfoldParameter)+"-"+(TString)mergingPrior+"-"+(TString)unfoldingPrior+"-"+unfoldingCode+"-matrixTransfo"+matrixTransformationOrder;
+  TString unfoldingInfo = (TString)unfoldingMethod+"-k="+Form("%i", unfoldParameter)+"-"+(TString)unfoldingPrior+"-"+unfoldingCode+"-matrixTransfo"+matrixTransformationOrder;
 
   std::error_code errPDF, errPNG, errEPS;
   CreateDirectoryRecursive((std::string)"pdfFolder/IterationsDump", errPDF);

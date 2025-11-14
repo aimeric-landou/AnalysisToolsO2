@@ -78,7 +78,7 @@ void JetSpectrum_systematics() {
 
 
   char optionsAnalysis_withoutUnfoldingMethod[100] = "";
-  snprintf(optionsAnalysis_withoutUnfoldingMethod, sizeof(optionsAnalysis_withoutUnfoldingMethod), "%s,%s", mergingPrior, unfoldingPrior);
+  snprintf(optionsAnalysis_withoutUnfoldingMethod, sizeof(optionsAnalysis_withoutUnfoldingMethod), "%s", unfoldingPrior);
 
 
   const int nUnfoldingMethods = 2;
