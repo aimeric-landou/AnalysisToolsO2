@@ -60,7 +60,7 @@ const bool doWidthScalingEarly = false;                         // to avoid pT b
 const bool doWidthScalingAtEnd = true;                          //
 
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
-const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised IF normaliseDistribsInComparisonPlots is also true (probably should remove influence of this)
+const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised
 
 const bool normaliseUnfoldingResultsAtEnd = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; 
 const bool normaliseDistribsInComparisonPlots = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; without
