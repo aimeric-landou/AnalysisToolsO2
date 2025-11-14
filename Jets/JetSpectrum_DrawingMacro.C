@@ -1292,7 +1292,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
   if (controlMC){
     unfoldingCode += "_controlMC";
   }
-  TString unfoldingInfo = (TString)unfoldingMethod+"-k="+Form("%i", unfoldParameterInput)+"-"+(TString)mergingPrior+"-"+(TString)unfoldingPrior+"-"+unfoldingCode+"-matrixTransfo"+matrixTransformationOrder;
+  TString unfoldingInfo = (TString)unfoldingMethod+"-k="+Form("%i", unfoldParameterInput)+"-"+(TString)unfoldingPrior+"-"+unfoldingCode+"-matrixTransfo"+matrixTransformationOrder;
 
   std::error_code errPDF, errPNG, errEPS;
   CreateDirectoryRecursive((std::string)"pdfFolder/IterationsDump", errPDF);
