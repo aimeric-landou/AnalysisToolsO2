@@ -96,7 +96,7 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
   // prior choice; none by default (flat)
   TH1D* priorSpectrumWeighting;
   if (options.find("mcpPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       if (matrixTransformationOrder == 0 || matrixTransformationOrder == 3) {
         Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, false, options); 
       } else {
@@ -118,7 +118,7 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
     
   }
   if (options.find("mcdPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       if (matrixTransformationOrder == 0 || matrixTransformationOrder == 3) {
         Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options);
       } else {
@@ -134,7 +134,7 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
     WeightMatrixWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting, doUnfoldingPriorDivision);
   }
   if (options.find("measuredPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       if (matrixTransformationOrder == 0 || matrixTransformationOrder == 3) {
         Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options);
       } else {
@@ -150,7 +150,7 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
     WeightMatrixWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting, doUnfoldingPriorDivision);
   }
   if (options.find("testAliPhysics") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       if (matrixTransformationOrder == 0 || matrixTransformationOrder == 3) {
         Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options);
       } else {
@@ -407,7 +407,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
   // prior choice; none by default (flat)
   TH1D* priorSpectrumWeighting;
   if (options.find("mcpPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, false, options); 
     } else {
       Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(priorSpectrumWeighting, iDataset, iRadius, false, options); 
@@ -415,7 +415,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
     WeightMatrixWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting, doUnfoldingPriorDivision);
   }
   if (options.find("mcdPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options); 
     } else {
       Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEnd(priorSpectrumWeighting, iDataset, iRadius, options); 
@@ -423,7 +423,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
     WeightMatrixWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting, doUnfoldingPriorDivision);
   }
   if (options.find("measuredPriorUnfolding") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options); 
     } else {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(priorSpectrumWeighting, iDataset, iRadius, options); 
@@ -431,7 +431,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
     WeightMatrixWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting, doUnfoldingPriorDivision);
   }
   if (options.find("testAliPhysics") != std::string::npos) {
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(priorSpectrumWeighting, iDataset, iRadius, options); 
     } else {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(priorSpectrumWeighting, iDataset, iRadius, options); 

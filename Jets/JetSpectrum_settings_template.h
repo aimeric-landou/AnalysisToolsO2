@@ -61,10 +61,10 @@ const bool doWidthScalingEarly = false;                         // to avoid pT b
 const bool doWidthScalingAtEnd = true;                          //
 
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
-const bool normGenAndMeasByNEvtsBeforeUnfolding = false;
+const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised IF normaliseDistribsInComparisonPlots is also true (probably should remove influence of this)
 
-const bool normaliseDistribsAfterUnfolding = true; // if true: Njets per event ; if false: Njets total ; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; 
-const bool normaliseDistribsBeforeUnfolding = true; // if true: Njets per event ; if false: Njets total ; both normaliseDistribsAfterUnfolding and normaliseDistribsBeforeUnfolding should be the same, else refolding test fails; without
+const bool normaliseUnfoldingResultsAtEnd = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; 
+const bool normaliseDistribsInComparisonPlots = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; without
 
 const bool useManualRespMatrixSettingMethod = true; // keep true; false uses Joonsuk's resp matrix setup with roounfold methods; if set to true, both refold methods are constistent; if set to false, the roounfold one is identical as if true, but the manual one becomes different and bad; EDIT 25/04/2025: Joonsuk's method I haven't kept updated, and now gives bad results on trivial refolding test
 const bool normaliseRespYSliceForRefold = true; // keep true; THAT IS APPARENTLY REQUIRED TO REFOLD MANUALLY! even though the initial resp matrix used for the unfolding isn't normalised like this

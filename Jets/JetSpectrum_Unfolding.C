@@ -56,7 +56,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   TH1D* mcp;
   TH1D* mcd;
 
-  if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     // Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); now fed as input to function
     Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEndAndEvtNorm(mcp, iDataset, iRadius, false, options);
     Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEndAndEvtNorm(mcd, iDataset, iRadius, options);
@@ -361,7 +361,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
 std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
   std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
   cout << "Get_Pt_spectrum_unfolded_preWidthScalingAtEnd test 1" << endl;
-  if (normaliseDistribsAfterUnfolding){
+  if (normaliseUnfoldingResultsAtEnd){
     if (!controlMC && options.find("inputIsMC") == std::string::npos) { // if option controlMC is false, and if inputIsMC has not been found in options; necessary check for the mcp-folded unfolding test as we want to normalise by the number of events in the MC file
       NormaliseRawHistToNEvents(H1D_jetPt_unfolded, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
     } else {
@@ -572,7 +572,7 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
   Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfoldedThenRefolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
-  if (normaliseDistribsAfterUnfolding){
+  if (normaliseUnfoldingResultsAtEnd){
     if (!controlMC) {
       NormaliseRawHistToNEvents(H1D_jetPt_unfoldedThenRefolded, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
     } else {
@@ -700,7 +700,7 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtE
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
   Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfoldedThenRefolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
-  if (normaliseDistribsAfterUnfolding){
+  if (normaliseUnfoldingResultsAtEnd){
     if (!controlMC) {
       NormaliseRawHistToNEvents(H1D_jetPt_unfoldedThenRefolded, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
     } else {
@@ -803,7 +803,7 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH
 void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpFolded, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
+  if (normaliseDistribsInComparisonPlots) {
     if (mcIsWeighted) {
       NormaliseRawHistToNEvents(H1D_jetPt_mcpFolded, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
     } else {

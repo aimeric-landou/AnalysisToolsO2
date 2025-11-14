@@ -448,29 +448,30 @@ void Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(TH1D*
 void Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
 
-
-  if (normaliseDistribsBeforeUnfolding) {
-    if (!controlMC) {
-      NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
-    } else {        
-      if (mcIsWeighted) {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+  if (!controlMC) {
+    NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
+  } else {        
+    if (mcIsWeighted) {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       } else {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      }
+    } else {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      } else {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       }
     }
   }
 }
 void Get_Pt_spectrum_bkgCorrected_recBinning(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt);
@@ -481,30 +482,31 @@ void Get_Pt_spectrum_bkgCorrected_recBinning(TH1D* &H1D_jetPt, int iDataset, int
 void Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
 
-
-  if (normaliseDistribsBeforeUnfolding) {
-    if (!controlMC) {
-      NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
-    } else {
-      if (mcIsWeighted) {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+  if (!controlMC) {
+    NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
+  } else {
+    if (mcIsWeighted) {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       } else {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      }
+    } else {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      } else {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       }
     }
   }
 }
 
 void Get_Pt_spectrum_bkgCorrected_genBinning(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt);
@@ -516,28 +518,30 @@ void Get_Pt_spectrum_bkgCorrected_genBinning(TH1D* &H1D_jetPt, int iDataset, int
 void Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (!controlMC) {
-      NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
-    } else {
-      if (mcIsWeighted) {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+  if (!controlMC) {
+    NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
+  } else {
+    if (mcIsWeighted) {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       } else {
-        if (!controlMC_useMcpCollCountForNorm) {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        } else {
-          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-        }
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      }
+    } else {
+      if (!controlMC_useMcpCollCountForNorm) {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+      } else {
+        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
       }
     }
   }
 }
 void Get_Pt_spectrum_bkgCorrected_fineBinning(TH1D* &H1D_jetPt, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(H1D_jetPt, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt);
@@ -550,24 +554,26 @@ void Get_Pt_spectrum_bkgCorrected_fineBinning(TH1D* &H1D_jetPt, int iDataset, in
 void Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
   Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+  if (mcIsWeighted) {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
     } else {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+    }
+  } else {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+    } else {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
     }
   }
 }
 void Get_Pt_spectrum_mcp_genBinning(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
-  Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  } else {
+    Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcp);
@@ -579,24 +585,26 @@ void Get_Pt_spectrum_mcp_genBinning(TH1D* &H1D_jetPt_mcp, int iDataset, int iRad
 void Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
   Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+  if (mcIsWeighted) {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
     } else {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+    }
+  } else {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+    } else {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
     }
   }
 }
 void Get_Pt_spectrum_mcp_fineBinning(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
-  Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  } else {
+    Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcp);
@@ -608,16 +616,18 @@ void Get_Pt_spectrum_mcp_fineBinning(TH1D* &H1D_jetPt_mcp, int iDataset, int iRa
 void Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcd_fineBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcd_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcd);
@@ -629,16 +639,18 @@ void Get_Pt_spectrum_mcd_fineBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRa
 void Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcd_recBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcd_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcd);
@@ -650,16 +662,18 @@ void Get_Pt_spectrum_mcd_recBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRad
 void Get_Pt_spectrum_mcd_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcd_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcd, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcd_genBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcd_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcd_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcd, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcd_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcd, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcd);
@@ -671,16 +685,18 @@ void Get_Pt_spectrum_mcd_genBinning(TH1D* &H1D_jetPt_mcd, int iDataset, int iRad
 void Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcdMatched_genBinning(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcdMatched);
@@ -692,16 +708,18 @@ void Get_Pt_spectrum_mcdMatched_genBinning(TH1D* &H1D_jetPt_mcdMatched, int iDat
 void Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcdMatched_recBinning(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcdMatched);
@@ -713,16 +731,18 @@ void Get_Pt_spectrum_mcdMatched_recBinning(TH1D* &H1D_jetPt_mcdMatched, int iDat
 void Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcdMatched, GetNEventsSelected_JetFramework( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcdMatched_fineBinning(TH1D* &H1D_jetPt_mcdMatched, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcdMatched);
@@ -734,16 +754,18 @@ void Get_Pt_spectrum_mcdMatched_fineBinning(TH1D* &H1D_jetPt_mcdMatched, int iDa
 void Get_Pt_spectrum_mcpMatched_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcpMatched, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcpMatched_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcpMatched_genBinning(TH1D* &H1D_jetPt_mcpMatched, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcpMatched_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcpMatched_genBinning_preWidthScalingAtEnd(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcpMatched_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcpMatched);
@@ -755,16 +777,18 @@ void Get_Pt_spectrum_mcpMatched_genBinning(TH1D* &H1D_jetPt_mcpMatched, int iDat
 void Get_Pt_spectrum_mcpMatched_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcpMatched, int iDataset, int iRadius, std::string options) {
   Get_Pt_spectrum_mcpMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    } else {
-      NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-    }
+  if (mcIsWeighted) {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+  } else {
+    NormaliseRawHistToNEvents(H1D_jetPt_mcpMatched, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
   }
 }
 void Get_Pt_spectrum_mcpMatched_fineBinning(TH1D* &H1D_jetPt_mcpMatched, int iDataset, int iRadius, std::string options) {
-  Get_Pt_spectrum_mcpMatched_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcpMatched_fineBinning_preWidthScalingAtEnd(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  } else {
+    Get_Pt_spectrum_mcpMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcpMatched);
@@ -776,24 +800,26 @@ void Get_Pt_spectrum_mcpMatched_fineBinning(TH1D* &H1D_jetPt_mcpMatched, int iDa
 void Get_Pt_spectrum_mcp_recBinning_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
   Get_Pt_spectrum_mcp_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
 
-  if (normaliseDistribsBeforeUnfolding) {
-    if (mcIsWeighted) {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+  if (mcIsWeighted) {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
     } else {
-      if (!fcontrolMC) {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
-      } else {
-        NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
-      }
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+    }
+  } else {
+    if (!fcontrolMC) {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_MCfileForMatrix[iDataset], analysisWorkflowMC));
+    } else {
+      NormaliseRawHistToNEvents(H1D_jetPt_mcp, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
     }
   }
 }
 void Get_Pt_spectrum_mcp_recBinning(TH1D* &H1D_jetPt_mcp, int iDataset, int iRadius, bool fcontrolMC, std::string options) {
-  Get_Pt_spectrum_mcp_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  if (normaliseDistribsInComparisonPlots) {
+    Get_Pt_spectrum_mcp_recBinning_preWidthScalingAtEnd(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  } else {
+    Get_Pt_spectrum_mcp_recBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp, iDataset, iRadius, fcontrolMC, options);
+  }
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_mcp);

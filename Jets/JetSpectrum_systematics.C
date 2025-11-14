@@ -166,7 +166,7 @@ void Get_systematics_UnfoldMethod(TH1D* &hSystematicUncertainty, TH1D* &hSystema
 
 
   TH1D* measuredInput;
-  if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
     if (useFineBinningTest) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
@@ -246,7 +246,7 @@ void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, char** unfoldingMe
   snprintf(optionsAnalysis_withUnfoldingMethod, sizeof(optionsAnalysis_withUnfoldingMethod), "%s,%s", options.c_str(), (const char*)unfoldingMethod);
 
   TH1D* measuredInput;
-  if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
     if (useFineBinningTest) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);

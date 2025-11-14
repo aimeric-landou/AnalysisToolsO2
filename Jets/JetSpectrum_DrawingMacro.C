@@ -306,7 +306,7 @@ void Draw_Pt_spectrum_raw(int iDataset, int iRadius, std::string options) {
 
   TString* yAxisLabel;
   yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding) {
+  if (normaliseDistribsInComparisonPlots) {
     yAxisLabel = texJetPtYield_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
@@ -342,7 +342,7 @@ void Draw_Pt_spectrum_mcp(int iDataset, int iRadius, std::string options) {
 
   TString* yAxisLabel;
   yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding) {
+  if (normaliseDistribsInComparisonPlots) {
     yAxisLabel = texJetPtYield_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
@@ -370,7 +370,7 @@ void Draw_Pt_spectrum_mcdMatched(int iDataset, int iRadius, std::string options)
 
   TString* yAxisLabel;
   yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding) {
+  if (normaliseDistribsInComparisonPlots) {
     yAxisLabel = texJetPtYield_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
@@ -702,7 +702,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
 
   TH1D* measuredInput;
-  if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
     if (useFineBinningTest) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
@@ -806,7 +806,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
     // cout << "Integral mcp       : " << H1D_jetPt_mcp_recBinControl->Integral(1, H1D_jetPt_mcp_recBinControl->GetNbinsX()) << endl;
   
     cout << "comparison mcp folded with fluctuations then unfolded vs mcp" << endl; 
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpFolded2, iDataset, iRadius, options);
     } else{
       Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(H1D_jetPt_mcpFolded2, iDataset, iRadius, options);
@@ -851,7 +851,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   TString dummyLegend[1] = {""};
 
   TString* yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding || normaliseDistribsAfterUnfolding) { //should probably check if having both on doesn't lead to double normalisation
+  if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
     yAxisLabel = texJetPtYield_EventNorm;
   }
 
@@ -977,7 +977,7 @@ void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, in
   int unfoldParameterInput = 0;
 
   TH1D* measuredInput;
-  if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
     if (useFineBinningTest) {
       Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
@@ -1034,7 +1034,7 @@ void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, in
   TString* pdfName = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_"+partialUniqueSpecifier+"_Pt_unfolded_"+unfoldingInfo);
 
   TString* yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding || normaliseDistribsAfterUnfolding) { //should probably check if having both on doesn't lead to double normalisation
+  if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
     yAxisLabel = texJetPtYield_EventNorm;
   }
   Draw_TH1_Histograms(H1D_jetPt_unfolded, unfoldingIterationLegend, nUnfoldIteration, textContext, pdfName, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy");
@@ -1183,7 +1183,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     }
 
     TH1D* measuredInput[nDatasets];
-    if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    if (!normGenAndMeasByNEvtsForUnfoldingInput) {
       Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput[iDataset], iDataset, iRadius, options); 
       if (useFineBinningTest) {
         Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput[iDataset], iDataset, iRadius, options);
@@ -1270,7 +1270,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     //   // cout << "Integral mcp       : " << H1D_jetPt_mcp_recBinControl->Integral(1, H1D_jetPt_mcp_recBinControl->GetNbinsX()) << endl;
     
     //   cout << "comparison mcp folded with fluctuations then unfolded vs mcp" << endl; 
-    //   if (!normGenAndMeasByNEvtsBeforeUnfolding) {
+    //   if (!normGenAndMeasByNEvtsForUnfoldingInput) {
     //     Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpFolded2, iDataset, iRadius, options);
     //   } else{
     //     Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(H1D_jetPt_mcpFolded2, iDataset, iRadius, options);
@@ -1316,7 +1316,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
   TString dummyLegend[1] = {""};
 
   TString* yAxisLabel = texCount;
-  if (normaliseDistribsBeforeUnfolding || normaliseDistribsAfterUnfolding) { //should probably check if having both on doesn't lead to double normalisation
+  if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
     yAxisLabel = texJetPtYield_EventNorm;
   }
 
