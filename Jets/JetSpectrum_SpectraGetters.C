@@ -452,11 +452,19 @@ void Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(TH1D* &H1D_jet
   if (normaliseDistribsBeforeUnfolding) {
     if (!controlMC) {
       NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
-    } else {
+    } else {        
       if (mcIsWeighted) {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       } else {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       }
     }
   }
@@ -479,9 +487,17 @@ void Get_Pt_spectrum_bkgCorrected_genBinning_preWidthScalingAtEnd(TH1D* &H1D_jet
       NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
     } else {
       if (mcIsWeighted) {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       } else {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       }
     }
   }
@@ -505,9 +521,17 @@ void Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(TH1D* &H1D_je
       NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData));
     } else {
       if (mcIsWeighted) {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen_weighted( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       } else {
-        NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        if (!controlMC_useMcpCollCountForNorm) {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        } else {
+          NormaliseRawHistToNEvents(H1D_jetPt, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
+        }
       }
     }
   }

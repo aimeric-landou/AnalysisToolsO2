@@ -90,6 +90,8 @@ bool transposeResponseHistogramsInDrawing = false;  // default is false; if set 
 
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
+bool controlMC_useMcpCollCountForNorm = false; //if controlMC is true, controlMC_useMcpCollCountForNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
+
 float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
