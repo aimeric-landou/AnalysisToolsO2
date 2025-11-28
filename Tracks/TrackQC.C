@@ -12,6 +12,7 @@
 #include "TRatioPlot.h"
 #include "TLegend.h"
 #include "TH1.h"
+#include "TProfile.h"
 #include "THnSparse.h"
 // #include <RooUnfold.h>
 // #include "RooUnfoldResponse.h"
@@ -257,7 +258,7 @@ void Draw_Pt_DatasetComparison(std::string options) {
     // H1D_trackPt_rebinned[iDataset] = (TH1D*)H1D_trackPt[iDataset]->Rebin(2.,"trackPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]);
     
 
-    int nBinsLogRough = 100;
+    int nBinsLogRough = 40;
     std::vector<double> O2H1DPtLogBinsVector = MakeVariableBinning_logarithmic(H1D_trackPt[iDataset], nBinsLogRough);
     int nBinsLogResult = O2H1DPtLogBinsVector.size()-1;
     // std::vector<double> O2H1DPtLogBinsVector = MakeVariableBinning_logarithmic(0.5, 100, nBinsLogRough);
@@ -313,6 +314,8 @@ void Draw_Pt_DatasetComparison(std::string options) {
   TString* pdfName_ratio = new TString("track_Pt_DataComp"+pdfNameNorm+"_ratio");
   TString* pdfName_ratio_zoom = new TString("track_Pt_DataComp"+pdfNameNorm+"_ratio_zoom");
 
+  std::array<std::array<float, 2>, 2> drawnWindowCustomRatio_zoom = {{{0.1, 100}, {0.9, 1.1}}}; // {{xmin, xmax}, {ymin, ymax}}
+
 
   Draw_TH1_Histograms(H1D_trackPt_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPtX, textYaxis, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
   if (divideSuccess == true) {
@@ -320,7 +323,7 @@ void Draw_Pt_DatasetComparison(std::string options) {
       Draw_TH1_Histograms(H1D_trackPt_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPtX, texRatio, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,zoomToOneMedium1");
     } else {
       Draw_TH1_Histograms(H1D_trackPt_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "noMarkerFirst,logx"+histDatasetComparisonStructure);
-      Draw_TH1_Histograms(H1D_trackPt_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio_zoom, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "noMarkerFirst,logx,zoomToOneMedium2"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_trackPt_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio_zoom, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowCustomRatio_zoom, legendPlacementAuto, contextPlacementAuto, "noMarkerFirst,logx,zoomToOneMedium2"+histDatasetComparisonStructure);
     }
   }
   else {
@@ -907,6 +910,7 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
   TH1D* H1D_sigmapt_pt_median[nDatasets];
 
   TH1D* H1D_sigmapt_pt_mean_withProfile_concatenated[nDatasets];
+  TH1D* H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[nDatasets];
 
   double rebin_xMin = 0;
   double rebin_xMiddle = 10;
@@ -942,6 +946,7 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
     double* xbins_new = &xbinsVectorCombination[0];
     cout << "xbinsVectorCombination.size() = " << xbinsVectorCombination.size() << endl;
 
+    cout << "test1" << endl;
 
 
     H1D_sigmapt_pt_mean_withProfile[iDataset] = (TH1D*)H2D_sigmapt_pt[iDataset]->ProfileX("H1D_sigmapt_pt_rebinned_mean_withProfile"+Datasets[iDataset]+DatasetsNames[iDataset], 0, -1, "e");
@@ -949,6 +954,7 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
 
     TH1D H1D_sigmapt_pt_mean_withProfile_concatenated_temp("H1D_sigmapt_pt_mean_withProfile_concatenated_temp"+Datasets[iDataset]+DatasetsNames[iDataset], "H1D_sigmapt_pt_mean_withProfile_concatenated_temp"+Datasets[iDataset]+DatasetsNames[iDataset], xbinsVectorCombination.size()-1, xbins_new);
     H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset] = (TH1D*)H1D_sigmapt_pt_mean_withProfile_concatenated_temp.Clone("H1D_sigmapt_pt_mean_withProfile_concatenated"+Datasets[iDataset]+DatasetsNames[iDataset]);
+    cout << "test2" << endl;
 
     // y-axis
     std::vector<double> ybinsVector = GetTH1Bins((TH1D*)H2D_sigmapt_pt[iDataset]->ProjectionY("H1D_sigmapt_pt_y"+Datasets[iDataset]+DatasetsNames[iDataset], 0, -1, "e"));
@@ -957,6 +963,7 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
     TH2D H2D_sigmapt_pt_concatenated_temp("H2D_sigmapt_pt_concatenated_temp"+Datasets[iDataset]+DatasetsNames[iDataset], "H2D_sigmapt_pt_concatenated_temp"+Datasets[iDataset]+DatasetsNames[iDataset], xbinsVectorCombination.size()-1, xbins_new, ybinsVector.size()-1, ybins_new);
     H2D_sigmapt_pt_concatenated[iDataset] = (TH2D*)H2D_sigmapt_pt_concatenated_temp.Clone("H2D_sigmapt_pt_concatenated"+Datasets[iDataset]+DatasetsNames[iDataset]);
 
+    cout << "test3" << endl;
 
     double binContent, binError;
     int iBinLowY_OldHist, iBinHighY_OldHist;
@@ -972,6 +979,7 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
         // } 
       }
     }
+    cout << "test4" << endl;
 
     for(int iBinX = 1; iBinX <= H2D_sigmapt_pt_high_rebinnedX[iDataset]->GetNbinsX(); iBinX++){
       // H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset]->SetBinContent(H2D_sigmapt_pt[iDataset]->GetNbinsX()+iBinX, H1D_sigmapt_pt_high_mean_withProfile[iDataset]->GetBinContent(iBinX));
@@ -985,8 +993,9 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
         // } 
       }
     }
+    cout << "test5" << endl;
 
-    H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset] = (TH1D*)H2D_sigmapt_pt_concatenated[iDataset]->ProfileX("H1D_sigmapt_pt_concatenated_rebinned_mean_withProfile"+Datasets[iDataset]+DatasetsNames[iDataset], 0, -1, "e");
+    H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset] = (TH1D*)((TProfile*)H2D_sigmapt_pt_concatenated[iDataset]->ProfileX("H1D_sigmapt_pt_concatenated_rebinned_mean_withProfile"+Datasets[iDataset]+DatasetsNames[iDataset], 0, -1, "e"))->ProjectionX("H1D_sigmapt_pt_concatenated_rebinned_mean_withProfile_th1"+Datasets[iDataset]+DatasetsNames[iDataset]);
 
 
 
@@ -1007,12 +1016,16 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
 
   TString* pdfName = new TString("track_sigmapt_vs_pt_DataComp");
   TString* pdfName_logy = new TString("track_sigmapt_vs_pt_DataComp_logy");
+    cout << "test6" << endl;
 
   TString* pdfName_mean_withProfile = new TString("track_sigmapt_mean_vs_pt_DataComp_withProfile");
   TString* pdfName_mean_withProfile_logy = new TString("track_sigmapt_mean_vs_pt_DataComp_withProfile_logy");
+  TString* pdfName_mean_withProfile_ratio = new TString("track_sigmapt_mean_vs_pt_DataComp_withProfile_ratio");
+  TString* pdfName_mean_withProfile_ratio_zoom = new TString("track_sigmapt_mean_vs_pt_DataComp_withProfile_ratio_zoom");
 
   // TString* pdfName_median = new TString("track_sigmapt_median_vs_pt_DataComp");
   // TString* pdfName_median_logy = new TString("track_sigmapt_median_vs_pt_DataComp_logy");
+    cout << "test7" << endl;
 
   // TString textContext(contextDatasetComp(""));
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, *texDatasetsComparisonType, ""));
@@ -1024,6 +1037,41 @@ void Draw_Sigmapt_vs_pt_DatasetComp() {
   // Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated, DatasetsNames, nDatasets, textContext, pdfName_mean_withProfile, texPtX, texSigmaPtMean, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx");
   std::array<std::array<float, 2>, 2> drawnWindowSigmaAverage = {{{0.1, 100}, {0.005, 2}}}; // {{xmin, xmax}, {ymin, ymax}}
   Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated, DatasetsNames, nDatasets, textContext, pdfName_mean_withProfile_logy, texPtX, texSigmaPtMean, texCollisionDataInfo, drawnWindowSigmaAverage, legendPlacementAuto, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
+    cout << "test8" << endl;
+
+  std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.2, 0.2}, {0.4, 0.45}}}; // {{{x1, y1}, {x2, y2}}}
+
+  bool divideSuccess;
+  TString DatasetsNamesPairRatio[nDatasets];
+  int nHistPairRatio = (int)nDatasets / 2;;
+  for(int iDataset = 0; iDataset < nDatasets; iDataset++){
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
+      if (iDataset < nHistPairRatio) {
+        DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
+        H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset] = (TH1D*)H1D_sigmapt_pt_mean_withProfile_concatenated[2*iDataset]->Clone("H1D_sigmapt_pt_concatenated_rebinned_mean_withProfile_ratios"+Datasets[2*iDataset]+DatasetsNames[2*iDataset]);
+        H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset]->Reset("M");
+        divideSuccess = H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset]->Divide(H1D_sigmapt_pt_mean_withProfile_concatenated[2*iDataset], H1D_sigmapt_pt_mean_withProfile_concatenated[2*iDataset+1], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+      }
+    } else {
+      H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset] = (TH1D*)H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset]->Clone("H1D_sigmapt_pt_concatenated_rebinned_mean_withProfile_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]);
+      H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset]->Reset("M");
+      divideSuccess = H1D_sigmapt_pt_mean_withProfile_concatenated_ratios[iDataset]->Divide(H1D_sigmapt_pt_mean_withProfile_concatenated[iDataset], H1D_sigmapt_pt_mean_withProfile_concatenated[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+    }
+  }
+  if (divideSuccess == true) {
+    std::array<std::array<float, 2>, 2> drawnWindowCustomRatio = {{{0.1, 100}, {0, 2}}}; // {{xmin, xmax}, {ymin, ymax}}
+    std::array<std::array<float, 2>, 2> drawnWindowCustomRatio_zoom = {{{0.1, 100}, {0.7, 1.3}}}; // {{xmin, xmax}, {ymin, ymax}}
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
+      Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_mean_withProfile_ratio, texPtX, texRatio, texCollisionDataInfo, drawnWindowCustomRatio, legendPlacementCustom, contextPlacementAuto, "logx");
+      Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_mean_withProfile_ratio_zoom, texPtX, texRatio, texCollisionDataInfo, drawnWindowCustomRatio_zoom, legendPlacementCustom, contextPlacementAuto, "logx");
+    } else {
+      Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated_ratios, DatasetsNames, nDatasets, textContext, pdfName_mean_withProfile_ratio, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowCustomRatio, legendPlacementCustom, contextPlacementAuto, "logx, noMarkerFirst"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_sigmapt_pt_mean_withProfile_concatenated_ratios, DatasetsNames, nDatasets, textContext, pdfName_mean_withProfile_ratio_zoom, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowCustomRatio_zoom, legendPlacementCustom, contextPlacementAuto, "logx, noMarkerFirst"+histDatasetComparisonStructure);
+    }
+  }
+  else {
+    cout << "Divide failed in Draw_Sigmapt_vs_pt_DatasetComp" << endl;
+  }
 
   // Draw_TH1_Histograms(H1D_sigmapt_pt_median, DatasetsNames, nDatasets, textContext, pdfName_median, texPtX, texSigmaPtMedian, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx");
   // Draw_TH1_Histograms(H1D_sigmapt_pt_median, DatasetsNames, nDatasets, textContext, pdfName_median_logy, texPtX, texSigmaPtMedian, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logx,logy");
