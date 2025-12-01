@@ -206,7 +206,7 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
   // - "zoomToOneLarge" : if in the options string, the Y range is [0,2.2]
   // - "zoomToOneMedium1" : if in the options string, the Y range is [0.6,1.54]
   // - "logy" : if in the options string, then the y axis of the plot is set to a log scale (except for the ratio plot)
-  // - "noMarkerFirst" : if in the options string, then the first histogram of the collection isn't plotted
+  // - "noMarkerFirst", "noMarkerSecond"  : if in the options string, then the first/second histogram of the collection isn't plotted
 
   int largeCollectionThreshold = 14;
   int collectionSizeColorThreshold = 6;
@@ -555,11 +555,23 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
           padMainHist->cd();
         }
       }
-      if (i == 0 && options.find("noMarkerFirst") != std::string::npos) { // if i=0 requires and if option noMarkerFirst is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+      if (i == 0 && options.find("noMarkerFirst") != std::string::npos) { // if i=0 and if option noMarkerFirst is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
         histograms_collection[i]->SetMarkerStyle(1);
+        histograms_collection[i]->SetLineColorAlpha(kWhite, 100);
         if (options.find("ratioInSameCanvas") != std::string::npos) {
           padRatio->cd();
           histograms_collection_ratios[i]->SetMarkerStyle(1);
+          histograms_collection_ratios[i]->SetLineColorAlpha(kWhite, 100);
+          padMainHist->cd();
+        }
+      }
+      if (i == 1 && options.find("noMarkerSecond") != std::string::npos) { // if i=1 and if option noMarkerSecond is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+        histograms_collection[i]->SetMarkerStyle(1);
+        histograms_collection[i]->SetLineColorAlpha(kWhite, 100);
+        if (options.find("ratioInSameCanvas") != std::string::npos) {
+          padRatio->cd();
+          histograms_collection_ratios[i]->SetMarkerStyle(1);
+          histograms_collection_ratios[i]->SetLineColorAlpha(kWhite, 100);
           padMainHist->cd();
         }
       }
@@ -613,16 +625,34 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
         padMainHist->cd();
       }
           
-      if (i == 0 && options.find("noMarkerFirst") != std::string::npos) { // if i=0 requires and if option noMarkerFirst is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+      if (i == 0 && options.find("noMarkerFirst") != std::string::npos) { // if i=0 and if option noMarkerFirst is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
         histograms_collection[i]->SetMarkerStyle(1);
+        histograms_collection[i]->SetLineColorAlpha(kWhite, 100);
         if (options.find("ratioInSameCanvas") != std::string::npos) {
           padRatio->cd();
           histograms_collection_ratios[i]->SetMarkerStyle(1);
+          histograms_collection_ratios[i]->SetLineColorAlpha(kWhite, 100);
+          padMainHist->cd();
+        }
+      }
+      if (i == 1 && options.find("noMarkerSecond") != std::string::npos) { // if i=1 and if option noMarkerSecond is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+        histograms_collection[i]->SetMarkerStyle(1);
+        histograms_collection[i]->SetLineColorAlpha(kWhite, 100);
+        if (options.find("ratioInSameCanvas") != std::string::npos) {
+          padRatio->cd();
+          histograms_collection_ratios[i]->SetMarkerStyle(1);
+          histograms_collection_ratios[i]->SetLineColorAlpha(kWhite, 100);
           padMainHist->cd();
         }
       }
     }
-    leg->AddEntry(histograms_collection[i], legendList_string[i], "LP");
+    if (i == 0 && options.find("noMarkerFirst") != std::string::npos) { // if i=1 and if option noMarkerSecond is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+      continue;
+    }
+    if (i == 1 && options.find("noMarkerSecond") != std::string::npos) { // if i=1 and if option noMarkerSecond is there (!= std::string::npos means it found find it in the elements 0 to npos-1, where npos is the size of the string options)
+      continue;
+    }
+      leg->AddEntry(histograms_collection[i], legendList_string[i], "LP");
     if (options.find("ratioInSameCanvas") != std::string::npos) {
       padRatio->cd();
       legRatios->AddEntry(histograms_collection_ratios[i], legendList_string_ratios[i], "LP");
