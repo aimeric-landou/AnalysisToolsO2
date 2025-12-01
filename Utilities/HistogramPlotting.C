@@ -496,7 +496,7 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
   int nColors = gStyle->GetNumberOfColors();
   int histoPaletteColor;
   for (int i = 0; i < collectionSize; i++) {
-    if (options.find("twoByTwoDatasetPairs") == std::string::npos) { // if hasn't found "twoByTwoDatasetPairs" in options
+    if (options.find("twoByTwoDatasetPairs") == std::string::npos && options.find("twoRatioSetsInOne") == std::string::npos) { // if hasn't found "twoByTwoDatasetPairs" in options
       if (collectionSize >= collectionSizeColorThreshold) {
         histoPaletteColor = (float)nColors / collectionSize * (int)i;
         histograms_collection[i]->SetLineColor(gStyle->GetColorPalette(histoPaletteColor));
