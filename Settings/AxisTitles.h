@@ -133,9 +133,9 @@ TString* texBinSpacing = new TString("Area steps");
 TString* texJetRatioAreaJetVsNGhost = new TString("#it{A}_{jet}^{O2}/ #it{A}_{jet}^{0.005*nGhost}");
 
 TString* texRatioUnfolded = new TString("ratio to unfolded");
-TString* texRatioMcpUnfolded = new TString("mcp / unfolded");
+TString* texRatioUnfoldedMcp = new TString("unfolded / mcp");
 TString* texRatioRun2Unfolded = new TString("run2 / run3");
-TString* texRatioMeasuredUnfolded = new TString("measured / unfolded");
+TString* texRatioUnfoldedMeasured = new TString("unfolded / measured");
 TString* texRatioRefoldedMeasured = new TString("refolded / measured");
 TString* texRatioMcpFoldedVsMcp = new TString("mcp-folded / mcp");
 TString* texRatioMcpFoldedUnfoldedMcp = new TString("mcp-folded unfolded / mcp");
