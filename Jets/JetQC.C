@@ -258,7 +258,7 @@ void JetQC() {
 
   const std::array<std::array<float, 2>, 2> drawnWindowBkgFluctVsArea = {{{-999, -999}, {-50, 150}}}; // {{xmin, xmax}, {ymin, ymax}}
 
-  // Draw_BkgFluctuations_vs_Centrality_DatasetComp(drawnWindowBkgFluctVsArea);
+  Draw_BkgFluctuations_vs_Centrality_DatasetComp(drawnWindowBkgFluctVsArea);
   // // Draw_SelectedMultiplicity_vs_Centrality_DatasetComp();
 
   std::array<std::array<float, 2>, 2> drawnWindowBkgFluctZoom = {{{-10, 20}, 
@@ -270,8 +270,8 @@ void JetQC() {
   }
   for(int iCentBin = 0; iCentBin < nCentralityBins; iCentBin++){
     float centRange[2] = {arrayCentralityBinning[iCentBin], arrayCentralityBinning[iCentBin+1]};
-    // Draw_Rho_CentralityProjection_DatasetComp(centRange, "normEntries");
-    // Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(centRange, drawnWindowBkgFluctZoom);
+    Draw_Rho_CentralityProjection_DatasetComp(centRange, "normEntries");
+    Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(centRange, drawnWindowBkgFluctZoom);
   }
 
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
@@ -2208,9 +2208,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_CentralityComp(int iDatas
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nCentralityBins];
-  TF1 *gaussFinal[nCentralityBins];
-  TF1 *gaussDrawn[nCentralityBins]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nCentralityBins);
+  std::vector<TF1*> gaussFinal(nCentralityBins);
+  std::vector<TF1*> gaussDrawn(nCentralityBins); // drawn over the full range
   // TF1 *GaussPlusPolynom[nCentralityBins];
   // TF1 *bkgparab[nCentralityBins];
   TFitResultPtr fFitResult[nCentralityBins];
@@ -2351,9 +2351,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(float* centRa
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nDatasets];
-  TF1 *gaussFinal[nDatasets];
-  TF1 *gaussDrawn[nDatasets]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nDatasets);
+  std::vector<TF1*> gaussFinal(nDatasets);
+  std::vector<TF1*> gaussDrawn(nDatasets); // drawn over the full range
   // TF1 *GaussPlusPolynom[nDatasets];
   // TF1 *bkgparab[nDatasets];
   TFitResultPtr fFitResult[nDatasets];
@@ -2520,9 +2520,9 @@ void Draw_Rho_withFit_NTracksProjection(int iDataset) { /// should be bkgfluct v
 
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nTracksBins];
-  TF1 *gaussFinal[nTracksBins];
-  TF1 *gaussDrawn[nTracksBins]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nTracksBins);
+  std::vector<TF1*> gaussFinal(nTracksBins);
+  std::vector<TF1*> gaussDrawn(nTracksBins); // drawn over the full range
   // TF1 *GaussPlusPolynom[nTracksBins];
   // TF1 *bkgparab[nTracksBins];
   TFitResultPtr fFitResult[nTracksBins];
@@ -3103,9 +3103,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_MethodComp(float* centRan
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nMethodRC];
-  TF1 *gaussFinal[nMethodRC];
-  TF1 *gaussDrawn[nMethodRC]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nMethodRC);
+  std::vector<TF1*> gaussFinal(nMethodRC);
+  std::vector<TF1*> gaussDrawn(nMethodRC); // drawn over the full range
   // TF1 *GaussPlusPolynom[nMethodRC];
   // TF1 *bkgparab[nMethodRC];
   TFitResultPtr fFitResult[nMethodRC];
@@ -3672,9 +3672,9 @@ void Draw_PtPeakPosition_vs_leadTrackCut(float* etaRange, float jetRadiusForJetF
 
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nDatasets];
-  TF1 *gaussFinal[nDatasets];
-  TF1 *gaussDrawn[nDatasets]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nDatasets);
+  std::vector<TF1*> gaussFinal(nDatasets);
+  std::vector<TF1*> gaussDrawn(nDatasets); // drawn over the full range
   // TF1 *GaussPlusPolynom[nDatasets];
   // TF1 *bkgparab[nDatasets];
   TFitResultPtr fFitResult[nDatasets];

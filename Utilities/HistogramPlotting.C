@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <array>
+#include <vector>
 #include "TGaxis.h"
 #include <string>
 #include <filesystem>
@@ -200,7 +201,7 @@ void CentralityLegend(TString* centralityLegend, const float arrayCentralityInte
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TString* legendList_string, TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, TF1** optionalFitCollection) {
+void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TString* legendList_string, TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
   // has options:
   // - "autoratio" : if in the options string, the Y range is chosen automatically based on the difference to 1
   // - "zoomToOneLarge" : if in the options string, the Y range is [0,2.2]
@@ -238,12 +239,12 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
   }
   padMainHist->cd();
 
-  float minY_collection[collectionSize];
-  float maxY_collection[collectionSize];
-  float minY_ratio_collection[collectionSize];
-  float maxY_ratio_collection[collectionSize];
-  float minX_collection[collectionSize];
-  float maxX_collection[collectionSize];
+  std::vector<float> minY_collection(collectionSize);
+  std::vector<float> maxY_collection(collectionSize);
+  std::vector<float> minY_ratio_collection(collectionSize);
+  std::vector<float> maxY_ratio_collection(collectionSize);
+  std::vector<float> minX_collection(collectionSize);
+  std::vector<float> maxX_collection(collectionSize);
 
   for (int i = 0; i < collectionSize; i++) {
     if (options.find("autoXrange") != std::string::npos) {
@@ -294,13 +295,13 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
   float minY_ratio;
 
   yDownMarginScaling = 1;
-  maxX = findMaxFloat(maxX_collection, collectionSize);
-  minX = findMinFloat(minX_collection, collectionSize);
-  maxY = findMaxFloat(maxY_collection, collectionSize);
-  minY = findMinFloat(minY_collection, collectionSize);
+  maxX = *std::max_element(maxX_collection.begin(), maxX_collection.end());
+  minX = *std::min_element(minX_collection.begin(), minX_collection.end());
+  maxY = *std::max_element(maxY_collection.begin(), maxY_collection.end());
+  minY = *std::min_element(minY_collection.begin(), minY_collection.end());
   maxY > 0 ? yUpMarginScaling = 1.5 : yUpMarginScaling = 0.6;
-  maxY_ratio = findMaxFloat(maxY_ratio_collection, collectionSize);
-  minY_ratio = findMinFloat(minY_ratio_collection, collectionSize);
+  maxY_ratio = *std::max_element(maxY_ratio_collection.begin(), maxY_ratio_collection.end());
+  minY_ratio = *std::min_element(minY_ratio_collection.begin(), minY_ratio_collection.end());
 
   if (options.find("logy") != std::string::npos) {
     yUpMarginScaling = 100;
@@ -783,28 +784,31 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
 }
 
 // ratio and distrib in same canvas (ratio just below distrib) Work in progress
-void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, TF1** optionalFitCollection) {
+void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
   Draw_TH1_Histograms_MasterFunction(histograms_collection, legendList_string, histograms_collection_ratios, legendList_string_ratios, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, drawnWindowRatio, legendPlacement, legendPlacementRatio, contextPlacement, options+(std::string)"ratioInSameCanvas", optionalFitCollection);
 }
 
 // ratio and distrib in same canvas (ratio just below distrib) Work in progress
-void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options) {
+void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options) {
   // is here to make optionalFitCollection an actual optional parameter; Draw_TH1_Histograms can be called without, and in that case optionalFitCollection is created empty for use by the actual Draw_TH1_Histograms function; it will only be used if 'options' has fit in it
-  TF1* optionalFitCollectionDummy[collectionSize];
+  // TF1* optionalFitCollectionDummy[collectionSize];
+  std::vector<TF1*> optionalFitCollectionDummy(collectionSize);
   Draw_TH1_Histograms_ratioInSameCanvas(histograms_collection, legendList_string, histograms_collection_ratios, legendList_string_ratios, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, drawnWindowRatio, legendPlacement, legendPlacementRatio, contextPlacement, options, optionalFitCollectionDummy);
 }
 
-void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options, TF1** optionalFitCollection) {
+void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
   TH1D* histograms_collection_ratios_dummy[collectionSize];
+  // std::vector<TH1D*> histograms_collection_ratios_dummy(collectionSize);
   const TString* legendList_string_ratios_dummy;
   std::array<float, 2> drawnWindowRatioDummy;
   std::array<std::array<float, 2>, 2> legendPlacementRatioDummy;
   Draw_TH1_Histograms_MasterFunction(histograms_collection, legendList_string, histograms_collection_ratios_dummy, legendList_string_ratios_dummy, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, drawnWindowRatioDummy, legendPlacement, legendPlacementRatioDummy, contextPlacement, options, optionalFitCollection);
 }
 
-void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options) {
+void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options) {
   // is here to make optionalFitCollection an actual optional parameter; Draw_TH1_Histograms can be called without, and in that case optionalFitCollection is created empty for use by the actual Draw_TH1_Histograms function; it will only be used if 'options' has fit in it
-  TF1* optionalFitCollectionDummy[collectionSize];
+  // TF1* optionalFitCollectionDummy[collectionSize];
+  std::vector<TF1*> optionalFitCollectionDummy(collectionSize);
   Draw_TH1_Histograms(histograms_collection, legendList_string, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacement, options, optionalFitCollectionDummy);
 }
 
@@ -815,7 +819,7 @@ void Draw_TH1_Histogram(TH1D* histogram, TString Context, TString* pdfName, TStr
   Draw_TH1_Histograms(singleHistArray, dummyLegend, dummyCollectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacement, options);
 }
 
-void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList_string, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 3> drawnWindow2D, double* th2Contours, int th2ContourNumber, std::string options, TPolyLine* optionalLine) {
+void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 3> drawnWindow2D, double* th2Contours, int th2ContourNumber, std::string options, TPolyLine* optionalLine) {
 
   double width = collectionSize*900;
   double height = 800;
@@ -824,7 +828,8 @@ void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList
 
   canvas->Divide(collectionSize,1);
 
-  TH2D* contourHist[collectionSize];
+  // TH2D* contourHist[collectionSize];
+  std::vector<TH2D*> contourHist(collectionSize);
 
   // draws histograms from collection
   for (int i = 0; i < collectionSize; i++) {
@@ -969,7 +974,7 @@ void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList
   // canvas->SaveAs("epsFolder/"+*pdfName+".eps");
 }
 
-void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList_string, int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 3> drawnWindow2D, double* th2Contours, int th2ContourNumber, std::string options) {
+void Draw_TH2_Histograms(TH2D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 3> drawnWindow2D, double* th2Contours, int th2ContourNumber, std::string options) {
   // is here to make optionalFitCollection an actual optional parameter; Draw_TH1_Histograms can be called without, and in that case optionalFitCollection is created empty for use by the actual Draw_TH1_Histograms function; it will only be used if 'options' has fit in it
   TPolyLine* optionalLine;
   Draw_TH2_Histograms(histograms_collection, legendList_string, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow2D, th2Contours, th2ContourNumber, options, optionalLine);

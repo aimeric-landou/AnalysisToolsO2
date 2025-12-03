@@ -629,7 +629,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   TGraph* Graph_jetPt_run2_MLPaperFile;
   TH1D* H1D_jetPt_run2_MLPaperFile = new TH1D("H1D_jetPt_run2_MLPaperFile", "H1D_jetPt_run2_MLPaperFile", nBinPtJetsGen_run2[iRadius], ptBinsJetsGen_run2[iRadius]);
   TH1D* H1D_jetPt_run2_MLPaperFile_rebinned;
-  TF1* TF1_jetPt_run2_MLPaperFile_fit[1];
+  std::vector<TF1*> TF1_jetPt_run2_MLPaperFile_fit(1);
   TH1D* H1D_jetPt_ratio_mcp;
   TH1D* H1D_jetPt_ratio_run2_fitRebin[2];
   TH1D* H1D_jetPt_ratio_run2_shapeComp[2];
@@ -1205,12 +1205,12 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     } else {
       Get_Pt_spectrum_bkgCorrected_fineBinning(H1D_jetPt_measured_genBinning[iDataset], iDataset, iRadius, options);
     }
-    H1D_jetPt_ratio_measured[iDataset] = (TH1D*)H1D_jetPt_measured_genBinning[iDataset]->Clone("H1D_jetPt_ratio_measured"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
-    divideSuccessMeasured[iDataset] = H1D_jetPt_ratio_measured[iDataset]->Divide(H1D_jetPt_unfolded[iDataset]);
+    H1D_jetPt_ratio_measured[iDataset] = (TH1D*)H1D_jetPt_unfolded[iDataset]->Clone("H1D_jetPt_ratio_measured"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
+    divideSuccessMeasured[iDataset] = H1D_jetPt_ratio_measured[iDataset]->Divide(H1D_jetPt_measured_genBinning[iDataset]);
 
     cout << "comparison with mcp truth" << endl; 
-    H1D_jetPt_ratio_mcp[iDataset] = (TH1D*)H1D_jetPt_mcp[iDataset]->Clone("H1D_jetPt_ratio_mcp"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
-    divideSuccessMcp[iDataset] = H1D_jetPt_ratio_mcp[iDataset]->Divide(H1D_jetPt_unfolded[iDataset]);
+    H1D_jetPt_ratio_mcp[iDataset] = (TH1D*)H1D_jetPt_unfolded[iDataset]->Clone("H1D_jetPt_ratio_mcp"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
+    divideSuccessMcp[iDataset] = H1D_jetPt_ratio_mcp[iDataset]->Divide(H1D_jetPt_mcp[iDataset]);
 
     cout << "comparison with refolded" << endl; 
     if (!useFineBinningTest) {
