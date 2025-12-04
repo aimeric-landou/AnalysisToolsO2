@@ -60,12 +60,12 @@ const bool doWidthScalingEarly = false;                         // to avoid pT b
 const bool doWidthScalingAtEnd = true;                          //
 
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
-const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised
-
+const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised IF normaliseDistribsInComparisonPlots is also true (probably should remove influence of this)
 const bool normaliseUnfoldingResultsAtEnd = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; 
 const bool normaliseDistribsInComparisonPlots = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; without
 
 const bool useManualRespMatrixSettingMethod = true; // keep true; false uses Joonsuk's resp matrix setup with roounfold methods; if set to true, both refold methods are constistent; if set to false, the roounfold one is identical as if true, but the manual one becomes different and bad; EDIT 25/04/2025: Joonsuk's method I haven't kept updated, and now gives bad results on trivial refolding test
+// joonsuk's seems to have better unfolded/mcp ratio, but worse unfolded/refolded ratio; d distribution is bad with joonsuk's
 const bool normaliseRespYSliceForRefold = true; // keep true; THAT IS APPARENTLY REQUIRED TO REFOLD MANUALLY! even though the initial resp matrix used for the unfolding isn't normalised like this
 
 const bool useMatrixOverflows = false; // false by default, haven't tried true recently
@@ -73,7 +73,7 @@ const bool useMatrixOverflows = false; // false by default, haven't tried true r
 const int usePtOverflowForKineEff = 0; // false by default, not tested yet, might be better to be at 1; only matters if applyEfficiencies is 1 or 3, and by default this is not the case
 
 // MC split closure test: mcd as input from file_O2Analysis_ppSimDetectorEffect_unfoldingControl with Response from file_O2Analysis_MCfileForMatrix
-bool controlMC = false; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
+bool controlMC = true; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
 
 
 // Debugging and checks:
@@ -82,6 +82,9 @@ const bool useFineBinningTest = false;
 const bool drawIntermediateResponseMatrices = false;
 bool comparePbPbWithRun2 = false; // if doComparisonMcpFoldedWithFluct == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
 
+bool setDetectorMatrixToIdentity = false; // false by default unless doing debugging
+bool foldMcpWithFluct_alsoFoldWithDetResp = false; // false by default unless doing debugging; not well implemented yet
+
 bool smoothenEfficiency = false;
 bool smoothenMCP = false;
 
@@ -89,7 +92,7 @@ bool transposeResponseHistogramsInDrawing = false;  // default is false; if set 
 
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
-bool controlMC_useMcpCollCountForNorm = false; //if controlMC is true, controlMC_useMcpCollCountForNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
+bool controlMC_useMcpCollCountForNorm = true; //if controlMC is true, controlMC_useMcpCollCountForNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
 
 float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}

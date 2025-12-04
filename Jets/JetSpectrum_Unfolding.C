@@ -284,6 +284,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
 
   H1D_jetPt_unfolded = (TH1D*)hist_unfold->Clone("H1D_jetPt_unfolded"+partialUniqueSpecifier);
 
+  //applying efficiciencies and purity
   bool divideSuccessEff;
   TH1D* H1D_jetEfficiency;
   if (!useFineBinningTest){ 
@@ -741,20 +742,21 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH
   // Get_Pt_spectrum_mcp_genBinning(H1D_jetPt_mcp_control, iDataset, iRadius, true, options);
   // Get_Pt_spectrum_mcp_genBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp_control, iDataset, iRadius, true, options);
   // if (useFineBinningTest) {
-    Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp_control, iDataset, iRadius, true, options);
+  bool useControlMC = true;
+  Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcp_control, iDataset, iRadius, useControlMC, options);
   // }
 
-
-  // applying efficiency loss and fake enhancement
-  bool divideSuccessEff;
-  TH1D* H1D_jetEfficiency;
+  // we do not apply efficiencies nor fakes on this folding exercise with fluctuations
+  // applying efficiency loss and fake enhancement -> nope
+  // bool divideSuccessEff;
+  // TH1D* H1D_jetEfficiency;
   // if (!useFineBinningTest){ 
   //   divideSuccessEff = Get_Pt_JetEfficiency(H1D_jetEfficiency, iDataset, iRadius, options);
   // } else {
-    divideSuccessEff = Get_Pt_JetEfficiency_fineBinning(H1D_jetEfficiency, iDataset, iRadius, options);
+  //  divideSuccessEff = Get_Pt_JetEfficiency_fineBinning(H1D_jetEfficiency, iDataset, iRadius, options);
   // }
 
-  // we do not apply efficiencies on this folding exercise with fluctuations
+  // we do not apply efficiencies nor fakes on this folding exercise with fluctuations
   // if (applyEfficiencies > 0) {
   //   if (applyEfficiencies == 2 || applyEfficiencies == 3) {
   //     if (divideSuccessEff){
@@ -771,10 +773,20 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH
 
   TH2D* refoldingResponseMatrix;
   Get_PtResponseMatrix_Fluctuations(refoldingResponseMatrix, iDataset, iRadius);
-  // cout << "Integral Line fluct matrix: " << refoldingResponseMatrix->Integral(1, refoldingResponseMatrix->GetNbinsX(), 10, 10) << endl;
+  cout << "Integral Line 1 fluct matrix: " << refoldingResponseMatrix->Integral(1, refoldingResponseMatrix->GetNbinsX(), 1, 1) << endl;
+  cout << "Integral Line 10 fluct matrix: " << refoldingResponseMatrix->Integral(1, refoldingResponseMatrix->GetNbinsX(), 10, 10) << endl;
+  cout << "Integral Line 20 fluct matrix: " << refoldingResponseMatrix->Integral(1, refoldingResponseMatrix->GetNbinsX(), 20, 20) << endl;
 
   TH1D* H1D_jetPt_mcp_control_folded = (TH1D*)GetMatrixVectorProductTH2xTH1(refoldingResponseMatrix, H1D_jetPt_mcp_control).Clone("Get_Pt_spectrum_mcpFoldedWithFluctuationsThenUnfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier);
   // TH1D* H1D_jetPt_mcp_control_folded = (TH1D*)H1D_jetPt_mcp_control->Clone("Get_Pt_spectrum_mcpFoldedWithFluctuationsThenUnfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier);
+
+  if (foldMcpWithFluct_alsoFoldWithDetResp) {
+    TH2D* H2D_jetPtResponseMatrix_detectorResponse;
+    TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
+    Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
+    Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, refoldingResponseMatrix, iDataset, iRadius, options);
+    H1D_jetPt_mcp_control_folded = (TH1D*)GetMatrixVectorProductTH2xTH1(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H1D_jetPt_mcp_control).Clone("Get_Pt_spectrum_mcpFoldedWithFluctuationsThenUnfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier);
+  }
 
   if (!useFineBinningTest) {
     H1D_jetPt_mcpFolded = (TH1D*)H1D_jetPt_mcp_control_folded->Rebin(nBinPtJetsRec[iRadius],"H1D_jetPt_mcp_control_folded_recBinning_mcpFoldedWithFluctuationsThenUnfolded"+partialUniqueSpecifier, ptBinsJetsRec[iRadius]);
