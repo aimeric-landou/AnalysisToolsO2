@@ -77,8 +77,6 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(TH2D* &H2D
 void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, std::string options) {
   // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for an example that works, by marta verveij
 
-  // function should be removed when time allows as it doesn't do anything more than that Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise()
-
   Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
   FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 }
