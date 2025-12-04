@@ -106,20 +106,16 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   TH2D* H2D_jetPtResponseMatrix_fluctuations;
   TH2D* H2D_jetPtResponseMatrix_detectorResponse;
   TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
-  TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning;
   
-  Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
-  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
+  Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius); // gets fluct matrix in fine binning 
+  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius); // gets det matrix in fine binning 
   // compute matrixFluctuations times matrixDetector
 
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation
-  if (useFineBinningTest) {
-    ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, iDataset, iRadius, options);
-  }
-  
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  // FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
+  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation
+  FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+
+  // Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
 
   if (drawIntermediateResponseMatrices) {
     TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_postWeighting = (TH2D*)H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined->Clone("H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_postWeighting"+partialUniqueSpecifier);
@@ -166,11 +162,8 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
 
     // // based on Marta's work: https://twiki.cern.ch/twiki/bin/viewauth/ALICE/JEJetSpectrumUnfolding
 
-    if (useFineBinningTest) {
-      response = new RooUnfoldResponse(0, 0, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning); // measuredInput and mcp_rebinned are here to take inneficiencies and fakes into account; or is it really what's happening? 'Alternatively, the response matrix can be constructed from a pre-existing TH2D 2-dimensional histogram (with truth and measured distribution TH1D histograms for normalisation).' from https://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html, and I'm already normalising so maybe tehre's no need for more normalisation
-    } else {
-      response = new RooUnfoldResponse(0, 0, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined); // measuredInput and mcp_rebinned are here to take inneficiencies and fakes into account; or is it really what's happening? 'Alternatively, the response matrix can be constructed from a pre-existing TH2D 2-dimensional histogram (with truth and measured distribution TH1D histograms for normalisation).' from https://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html, and I'm already normalising so maybe tehre's no need for more normalisation
-    }
+    response = new RooUnfoldResponse(0, 0, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined); // measuredInput and mcp_rebinned are here to take inneficiencies and fakes into account; or is it really what's happening? 'Alternatively, the response matrix can be constructed from a pre-existing TH2D 2-dimensional histogram (with truth and measured distribution TH1D histograms for normalisation).' from https://hepunx.rl.ac.uk/~adye/software/unfold/RooUnfold.html, and I'm already normalising so maybe tehre's no need for more normalisation
+
 
     cout << "Get_Pt_spectrum_unfolded(): should I use response->UseOverflow() ? using it gives a ratio unfolded/mcp much higher than without using it" << endl;
     if (useMatrixOverflows) {
@@ -180,11 +173,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
 
   } else {
     TH2D *Respt;
-    if (useFineBinningTest){
-      Respt = H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning;
-    } else {
-      Respt = H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
-    }
+    Respt = H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
     TH1D *mcdMatched = (TH1D*)Respt->ProjectionX("Respt_projX", 1, Respt->GetNbinsY());
     TH1D *mcpMatched = (TH1D*)Respt->ProjectionY("Respt_projY", 1, Respt->GetNbinsX());
     TH1D *fake = (TH1D*)mcd->Clone();
@@ -420,20 +409,17 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1
   TH2D* H2D_jetPtResponseMatrix_fluctuations;
   TH2D* H2D_jetPtResponseMatrix_detectorResponse;
   TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
-  TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning;
   TH1D* H1D_kinematicEfficiency;
 
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
   Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
 
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation
-  if (useFineBinningTest) {
-    ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, iDataset, iRadius, options);
-  }
+  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
+  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation
+  FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  // FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+
+  // Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
   
 
   if (drawIntermediateResponseMatrices) {
@@ -505,11 +491,7 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1
 
   TH2D* refoldingResponseMatrix;
   if (useManualRespMatrixSettingMethod) {
-    if (useFineBinningTest) {
-      refoldingResponseMatrix = (TH2D*)H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning->Clone("refoldingResponseMatrix"+partialUniqueSpecifier);
-    } else {
-      refoldingResponseMatrix = (TH2D*)H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined->Clone("refoldingResponseMatrix"+partialUniqueSpecifier);
-    }
+    refoldingResponseMatrix = (TH2D*)H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined->Clone("refoldingResponseMatrix"+partialUniqueSpecifier);
   } else {
     if (useMatrixOverflows) {
       refoldingResponseMatrix = (TH2D*)unfold->response()->Hresponse();
@@ -622,17 +604,16 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtE
   TH2D* H2D_jetPtResponseMatrix_fluctuations;
   TH2D* H2D_jetPtResponseMatrix_detectorResponse;
   TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
-  TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning;
   TH1D* H1D_kinematicEfficiency;
 
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
   Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
 
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation
+  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
+  Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency, H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, partialUniqueSpecifier, iRadius); // I want the efficiency before the reweighting and normalisation to get the kinematic efficiency
+  FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  // FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+  // Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
 
   bool divideSuccessEff;
   TH1D* H1D_jetEfficiency;
@@ -784,7 +765,7 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH
     TH2D* H2D_jetPtResponseMatrix_detectorResponse;
     TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
     Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
-    Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, refoldingResponseMatrix, iDataset, iRadius, options);
+    Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, refoldingResponseMatrix, iDataset, iRadius, options);
     H1D_jetPt_mcp_control_folded = (TH1D*)GetMatrixVectorProductTH2xTH1(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H1D_jetPt_mcp_control).Clone("Get_Pt_spectrum_mcpFoldedWithFluctuationsThenUnfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier);
   }
 

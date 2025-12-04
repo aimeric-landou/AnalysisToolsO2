@@ -409,7 +409,7 @@ void Draw_kinematicEfficiency(int iRadius, std::string options) {
     Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse[iDataset], iDataset, iRadius);
 
     Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations[iDataset], iDataset, iRadius);
-    Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning[iDataset], H2D_jetPtResponseMatrix_detectorResponse[iDataset], H2D_jetPtResponseMatrix_fluctuations[iDataset], iDataset, iRadius, options);
+    Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning[iDataset], H2D_jetPtResponseMatrix_detectorResponse[iDataset], H2D_jetPtResponseMatrix_fluctuations[iDataset], iDataset, iRadius, options);
 
     Get_ResponseMatrix_Pt_KinematicEffiency(H1D_kinematicEfficiency[iDataset], H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning[iDataset], name_H1D_kinematicEfficiency, iRadius);
   }
@@ -558,8 +558,8 @@ void Draw_ResponseMatrices_DetectorAndFluctuationsCombined(int iDataset, int iRa
 
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
   Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  // FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
+  // FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 
   TString priorInfo = (TString)unfoldingPrior;
 

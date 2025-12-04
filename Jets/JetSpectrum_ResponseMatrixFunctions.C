@@ -24,14 +24,14 @@
 //////////////////////////////////////////////////////////////////////////// Response matrix functions ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, __attribute__ ((unused)) std::string options) {
+void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, __attribute__ ((unused)) std::string options) {
   // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for ann example that works, by marta verveij
 
   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
   // matrix product of fluct response times det response; assumes the two are of the same size binning wise
   // Careful: xy of hist and ij of Resp(i,j) are inverted ! hist(j,i) = matrix(i,j) and so if matrix(i,j)=SUM(matrixA(i,k)matrixB(k,j)) then hist(j,i)=SUM(histA(k,i)histB(j,k)), and if we replace j,i by gen,rec we get hist(gen,rec)=SUM(histA(k,rec)histB(gen,k))
-  H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning = (TH2D*)GetMatrixProductTH2xTH2(H2D_jetPtResponseMatrix_fluctuations, H2D_jetPtResponseMatrix_detectorResponse).Clone("Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning"+partialUniqueSpecifier);
+  H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning = (TH2D*)GetMatrixProductTH2xTH2(H2D_jetPtResponseMatrix_fluctuations, H2D_jetPtResponseMatrix_detectorResponse).Clone("Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise"+partialUniqueSpecifier);
 
   if (drawIntermediateResponseMatrices) {
     struct stat st1{};
@@ -74,15 +74,13 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(TH2D* &H2D
 }
 
 
-void Get_PtResponseMatrix_DetectorAndFluctuationsCombined(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, std::string options) {
-  // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for ann example that works, by marta verveij
+void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, std::string options) {
+  // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for an example that works, by marta verveij
 
-  // function should be removed when time allows as it doesn't do anything more than that Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning()
+  // function should be removed when time allows as it doesn't do anything more than that Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise()
 
-  TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
-
-  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_fineBinning(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
-  FinaliseResponseMatrix(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
+  FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 }
 
 void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
@@ -359,21 +357,37 @@ void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset
   }
 }
 
-void FinaliseResponseMatrix(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
+void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
   if (matrixTransformationOrder == 0) {
-    ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    }
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
   } else if (matrixTransformationOrder == 1) {
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    }
   } else if (matrixTransformationOrder == 2) {
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    }
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
   } else if (matrixTransformationOrder == 3) {
-    ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    }
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
   }
