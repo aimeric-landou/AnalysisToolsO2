@@ -433,7 +433,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
   }
 }
 
-void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detectorResponse, int iDataset, int iRadius, std::string options = (std::string)"") {
+void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detectorResponse, int iDataset, int iRadius, std::string options) {
   TH3D* H3D_jetRpartPtdetPt;
   TH2D* H2D_jetPtMcdjetPtMcd;
 

@@ -406,7 +406,7 @@ void Draw_kinematicEfficiency(int iRadius, std::string options) {
   for (int iDataset = 0; iDataset < nDatasets; ++iDataset) {
     TString name_H1D_kinematicEfficiency = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
-    Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse[iDataset], iDataset, iRadius);
+    Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse[iDataset], iDataset, iRadius, "");
 
     Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations[iDataset], iDataset, iRadius);
     Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning[iDataset], H2D_jetPtResponseMatrix_detectorResponse[iDataset], H2D_jetPtResponseMatrix_fluctuations[iDataset], iDataset, iRadius, options);
@@ -501,7 +501,7 @@ void Draw_ResponseMatrices_detectorResponse(int iDataset, int iRadius) {
 
   TH2D* H2D_jetPtResponseMatrix_detectorResponse;
   cout << "Draw_ResponseMatrices_detectorResponse 1" << endl;
-  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
+  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius, "");
   cout << "Draw_ResponseMatrices_detectorResponse 2" << endl;
 
   TString priorInfo = (TString)unfoldingPrior;
@@ -557,7 +557,7 @@ void Draw_ResponseMatrices_DetectorAndFluctuationsCombined(int iDataset, int iRa
 
 
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius);
-  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius);
+  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius, "");
   Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
   // FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
 
