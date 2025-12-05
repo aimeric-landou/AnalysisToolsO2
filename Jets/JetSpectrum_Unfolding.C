@@ -108,7 +108,8 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
   
   Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius); // gets fluct matrix in fine binning 
-  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius); // gets det matrix in fine binning 
+  std::string optionsDetResp = options.find("useIdentityForDetResp") != std::string::npos ? (std::string)"useIdentityForDetResp" : (std::string)"";
+  Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius, optionsDetResp); // gets det matrix in fine binning 
   // compute matrixFluctuations times matrixDetector
 
   Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);

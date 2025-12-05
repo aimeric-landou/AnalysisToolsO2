@@ -84,8 +84,10 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2
 void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
    TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
  
-  // before this, all y-slices (ie pt gen slices) have been normalised to 1;means each pt gen slice has a proba of 1
-  // withthis function, we give each slice a weight so that they have different normalisation values, corresponding to the prior 
+  // before this, all y-slices (ie pt gen slices) have been normalised to 1; means each pt gen slice has a proba of 1
+  // actually is this true?
+
+  // with this function, we give each slice a weight so that they have different normalisation values, corresponding to the prior 
 
   // TH2D* H2D_jetPtResponseMatrix_preReweightWithPrior = H2D_jetPtResponseMatrix->Clone();
 
@@ -171,7 +173,6 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
   // cout << "H2D_jetPtResponseMatrix->Integral(1, N, 1, 1)" << H2D_jetPtResponseMatrix->Integral(1, H2D_jetPtResponseMatrix->GetNbinsX(), 1, 1) << endl;
   // cout << "H2D_jetPtResponseMatrix->Integral(0, -1, 1, 1)" << H2D_jetPtResponseMatrix->Integral(0, -1, 1, 1) << endl;
   // cout << "((((((((((((((((((((((((()))))))))))))))))))))))))" << endl;
-
 
   if (drawIntermediateResponseMatrices) {
     TH2D* H2D_jetPtResponseMatrix_postReweightWithPrior = (TH2D*)H2D_jetPtResponseMatrix->Clone("H2D_jetPtResponseMatrix_postReweightWithPrior"+partialUniqueSpecifier);
@@ -358,9 +359,9 @@ void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset
 void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
   if (matrixTransformationOrder == 0) {
     if (useFineBinningTest) {
-      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    } else {
       ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     }
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
@@ -368,23 +369,23 @@ void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResp
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     if (useFineBinningTest) {
-      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    } else {
       ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     }
   } else if (matrixTransformationOrder == 2) {
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     if (useFineBinningTest) {
-      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    } else {
       ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     }
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
   } else if (matrixTransformationOrder == 3) {
     if (useFineBinningTest) {
-      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
-    } else {
       ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
+    } else {
+      ReweightResponseMatrixWithPrior_modular(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     }
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
@@ -432,7 +433,7 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
   }
 }
 
-void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detectorResponse, int iDataset, int iRadius) {
+void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detectorResponse, int iDataset, int iRadius, std::string options = (std::string)"") {
   TH3D* H3D_jetRpartPtdetPt;
   TH2D* H2D_jetPtMcdjetPtMcd;
 
@@ -490,7 +491,7 @@ void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detect
 
   // H2D_jetPtResponseMatrix_detectorResponse = (TH2D*)H2D_gen_det_geoMatched_rebinned->Clone("H2D_jetPtResponseMatrix_detectorResponse"+partialUniqueSpecifier); // should be using the one below; this one is just a test
 
-  if (setDetectorMatrixToIdentity == true || doComparisonMcpFoldedWithFluct == true){
+  if (setDetectorMatrixToIdentity == true || options.find("useIdentityForDetResp") != std::string::npos) {
     TH2D H2D_identity = TH2D("H2D_response_"+partialUniqueSpecifier, "H2D_response_"+partialUniqueSpecifier, nBinPtJetsFine[iRadius], ptBinsJetsFine[iRadius], nBinPtJetsFine[iRadius], ptBinsJetsFine[iRadius]);
     for(int iBinRec = 0; iBinRec <= H2D_identity.GetNbinsX()+1; iBinRec++){
       H2D_identity.SetBinContent(iBinRec, iBinRec, 1);
