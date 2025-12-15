@@ -408,8 +408,8 @@ void WeightMatrixWithPrior(TH2D* H2D_hist, TH1D* priorSpectrum, bool doPriorDivi
     }
   }
 
+  // division
   if (doPriorDivision){ 
-    // weights y-slices with priorSpectrum 
     double genSliceNorm, genSliceNormError;
     // double genSliceNorm = priorSpectrum->IntegralAndError(0, -1, genSliceNormError);
     genSliceNorm = priorSpectrum->IntegralAndError(1, priorSpectrum->GetNbinsX(), genSliceNormError); // I think we only prior the 1, N bins
