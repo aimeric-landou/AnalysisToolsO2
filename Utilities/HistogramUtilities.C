@@ -74,7 +74,7 @@ std::vector<double> GetTH1Bins(TH1* H1_histo) {
 
 // looks like it doesn't change my result, so my rebinning is good
 // what they do here is renormalise each gen slice to 1; which we do outside of this function
-TH2D* RebinVariableBins2D_aliPhysics(TH2D* hRMFine, int nBinsX, int nBinsY, double* binsX, double* binsY, bool useFunctionWeight){ // AliAnaChargedJetResponseMaker::MakeResponseMatrixRebin  in https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx#L769
+TH2D* RebinVariableBins2D_aliPhysics(TH2D* hRMFine, int nBinsX, int nBinsY, double* binsX, double* binsY, __attribute__ ((unused)) bool useFunctionWeight){ // AliAnaChargedJetResponseMaker::MakeResponseMatrixRebin  in https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx#L769
   TH2D hRM("H2D_hist_rebinned", "H2D_hist_rebinned", nBinsX, binsX, nBinsY, binsY);
 
   // Rebin matrix hRMFine to dimensions of hRM

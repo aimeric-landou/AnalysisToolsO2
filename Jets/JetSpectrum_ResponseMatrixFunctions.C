@@ -297,7 +297,7 @@ void MergeResponseMatrixBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int i
 
 
 
-void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
+void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, __attribute__ ((unused)) std::string options) {
   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
   if (doYSliceNormToOneCombinedResp) {

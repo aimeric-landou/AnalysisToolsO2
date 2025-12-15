@@ -82,7 +82,7 @@ TString contextCustomThreeFields(TString mainContext, TString secondaryContext, 
   return texContextFinal;
 }
 
-TString contextCustomTwoFields(TString mainContext, TString secondaryContext, std::string options){
+TString contextCustomTwoFields(TString mainContext, TString secondaryContext, __attribute__ ((unused)) std::string options){
   TString texContextFinal;
   texContextFinal = "#splitline{"+mainContext+"}{"+secondaryContext+"}";
   return texContextFinal;
@@ -90,7 +90,7 @@ TString contextCustomTwoFields(TString mainContext, TString secondaryContext, st
 
 }
 
-TString contextCustomOneField(TString mainContext, std::string options){
+TString contextCustomOneField(TString mainContext, __attribute__ ((unused)) std::string options){
   TString texContextFinal;
   texContextFinal = "#splitline{"+mainContext+"}{}";
   return texContextFinal;
