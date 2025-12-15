@@ -11,6 +11,7 @@ const TString jetLevel[nJetLevel] = {"data", "mcd", "mcp"};
 const int nRadius = 3;
 const TString RadiusLegend[nRadius] = {"R = 0.2", "R = 0.4", "R = 0.6"};
 const float arrayRadius[nRadius] = {0.2, 0.4, 0.6};
+const float arrayRadiusPdfName[nRadius] = {02, 04, 06};
 const int nRandomConeTypes = 5;
 const TString randomConeTypeList[nRandomConeTypes] = {"", "withoutleadingjet", "randomtrackdirection", "randomtrackdirectionwithoutoneleadingjets", "randomtrackdirectionwithouttwoleadingjets"};
 

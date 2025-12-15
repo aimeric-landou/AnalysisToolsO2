@@ -46,8 +46,8 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(TH2D* &H2D
     TH2D* H2D_jetPtResponseMatrix_fineBinningPreTransforms = (TH2D*)H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning->Clone("H2D_jetPtResponseMatrix_fineBinningPreTransforms"+partialUniqueSpecifier);
 
     TString priorInfo = (TString)unfoldingPrior;
-    TString* pdfName_preRebin = new TString("ResponseMatrices/responseMatrix_combined_fineBinningPreTransforms"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-    TString* pdfName_preRebin_logz = new TString("ResponseMatrices/responseMatrix_combined_fineBinningPreTransforms"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+    TString* pdfName_preRebin = new TString("ResponseMatrices/responseMatrix_combined_fineBinningPreTransforms"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+    TString* pdfName_preRebin_logz = new TString("ResponseMatrices/responseMatrix_combined_fineBinningPreTransforms"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
     TString texCombinedMatrix = contextCustomOneField((TString)"Combined matrix - "+(TString)*texEnergy, "");
     TString textContextMatrixDetails = contextCustomFourFields((TString)"Detector response: "+(TString)*texCollisionMCType, "", (TString)"Fluctuations response: "+*texCollisionDataType, contextJetRadius(arrayRadius[iRadius]), "");
@@ -187,8 +187,8 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
     }
     
     TString priorInfo = (TString)unfoldingPrior;
-    TString* pdfName_preRebin = new TString("ResponseMatrices/responseMatrix_combined_postReweightWithPrior"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-    TString* pdfName_preRebin_logz = new TString("ResponseMatrices/responseMatrix_combined_postReweightWithPrior"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+    TString* pdfName_preRebin = new TString("ResponseMatrices/responseMatrix_combined_postReweightWithPrior"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+    TString* pdfName_preRebin_logz = new TString("ResponseMatrices/responseMatrix_combined_postReweightWithPrior"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
 
     TString texCombinedMatrix = contextCustomOneField((TString)"Combined matrix - "+(TString)*texEnergy, "");
@@ -264,8 +264,8 @@ void MergeResponseMatrixBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int i
     }
 
     TString priorInfo = (TString)unfoldingPrior;
-    TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_postRebin"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-    TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_postRebin"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+    TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_postRebin"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+    TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_postRebin"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
 
     TString texCombinedMatrix = contextCustomOneField((TString)"Combined matrix - "+(TString)*texEnergy, "");
@@ -316,6 +316,16 @@ void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset
       }
     }
   }
+  if (scaleRespByXWidth) {
+    double binWidthX;
+    for(int iBinRec = 1; iBinRec <= H2D_jetPtResponseMatrix->GetNbinsX(); iBinRec++){
+      binWidthX = H2D_jetPtResponseMatrix->GetXaxis()->GetBinWidth(iBinRec);
+      for(int iBinGen = 1; iBinGen <= H2D_jetPtResponseMatrix->GetNbinsY(); iBinGen++){
+        H2D_jetPtResponseMatrix->SetBinContent(iBinRec, iBinGen, 1./binWidthX * H2D_jetPtResponseMatrix->GetBinContent(iBinRec, iBinGen));
+        H2D_jetPtResponseMatrix->SetBinError(iBinRec, iBinGen, 1./binWidthX * H2D_jetPtResponseMatrix->GetBinError(iBinRec, iBinGen));
+      }
+    }
+  }
 
   if (drawIntermediateResponseMatrices) {
     TH2D* H2D_jetPtResponseMatrix_postYSliceNormAndWidthNorm = (TH2D*)H2D_jetPtResponseMatrix->Clone("NormYSlicesAndScaleRespByWidth"+partialUniqueSpecifier);
@@ -330,8 +340,8 @@ void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset
     }
 
     TString priorInfo = (TString)unfoldingPrior;
-    TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_postYSliceNormAndWidthNorm"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-    TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_postYSliceNormAndWidthNorm"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+    TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined_postYSliceNormAndWidthNorm"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+    TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined_postYSliceNormAndWidthNorm"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
 
     TString texCombinedMatrix = contextCustomOneField((TString)"Combined matrix - "+(TString)*texEnergy, "");
