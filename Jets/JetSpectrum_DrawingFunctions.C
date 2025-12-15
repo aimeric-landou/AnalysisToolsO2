@@ -1,3 +1,6 @@
+#ifndef JETSPECTRUM_DRAWINGFUNCTIONS_C
+#define JETSPECTRUM_DRAWINGFUNCTIONS_C
+
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TFile.h"
@@ -49,102 +52,10 @@
 #include <stdlib.h>     /* abort, NULL */
 using namespace std;
 
-// Misc utilities
-void SetStyle(Bool_t graypalette=kFALSE);
-void LoadLibs();
-
-void IterationLegend(TString* iterationLegend, int unfoldIterationMin, int unfoldIterationMax, int step);
-
-void Draw_ResponseMatrices_Fluctuations(int iDataset, int iRadius);
-void Draw_ResponseMatrices_detectorResponse(int iDataset, int iRadius);
-void Draw_ResponseMatrices_DetectorAndFluctuationsCombined(int iDataset, int iRadius, std::string options);
-
-void Draw_Pt_spectrum_raw(int iDataset, int iRadius, std::string options);
-void Draw_Pt_spectrum_mcp(int iDataset, int iRadius, std::string options);
-void Draw_Pt_spectrum_mcdMatched(int iDataset, int iRadius, std::string options);
-void Draw_Pt_spectrum_unfolded_FluctResponseOnly(int iDataset, int iRadius, std::string options);
-void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfoldParameterInput, std::string options);
-void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParameterInput, std::string options);
-void Draw_Pt_TestSpectrum_unfolded(int iDataset, int iRadius, std::string options);
-void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options);
-
-void Draw_Pt_efficiency_jets(int iRadius, std::string options);
-void Draw_kinematicEfficiency(int iRadius, std::string options);
-void Draw_FakeRatio(int iRadius, std::string options);
-
-/////////////////////////////////////////////////////
-///////////////////// Main Macro ////////////////////
-/////////////////////////////////////////////////////
-
-void JetSpectrum_DrawingMacro() {
-  // Load necessary libraries
-  LoadLibs();
-  // Set the default style
-  SetStyle();
-
-  // gathers the analysis options in a single char[]
-  snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s", unfoldingPrior, unfoldingMethod);
-  cout << "Analysis options are: " << optionsAnalysis << endl;
-
-  mcCollHistIsObsolete = inputMcCollHistIsObsolete;
-
-  int iDataset = 0;
-  int iRadius = 0;
-
-  Draw_ResponseMatrices_Fluctuations(iDataset, iRadius);
-  Draw_ResponseMatrices_detectorResponse(iDataset, iRadius);
-  Draw_ResponseMatrices_DetectorAndFluctuationsCombined(iDataset, iRadius, optionsAnalysis);
-
-  // Draw_ResponseMatrices_Fluctuations(1, iRadius);
-  // Draw_ResponseMatrices_detectorResponse(1, iRadius);
-  // Draw_ResponseMatrices_DetectorAndFluctuationsCombined(1, iRadius, optionsAnalysis);
-
-  // // Draw_Pt_spectrum_unfolded_FluctResponseOnly(iDataset, iRadius, optionsAnalysis); // NOT FIXED YET - result meaningless
-  // Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_raw(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
-  // Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_mcp(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
-  // Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis);
-  // Draw_Pt_spectrum_mcdMatched(iDataset, iRadius, optionsAnalysis+(std::string)"noEventNormNorBinWidthScaling");
-
-  // Draw_Pt_efficiency_jets(iRadius, optionsAnalysis);
-  // Draw_kinematicEfficiency(iRadius, optionsAnalysis);
-  // Draw_FakeRatio(iRadius, optionsAnalysis);
-
-  // int unfoldParameterInput = 5;
-  // Draw_Pt_spectrum_unfolded_singleDataset(iDataset, iRadius, unfoldParameterInput, optionsAnalysis);
-  int unfoldParameterInput2 = 8;
-  Draw_Pt_spectrum_unfolded_singleDataset(iDataset, iRadius, unfoldParameterInput2, optionsAnalysis);
-  // Draw_Pt_spectrum_unfolded_datasetComparison(iRadius, unfoldParameterInput2, optionsAnalysis);
-  // int unfoldParameterInput3 = 10;
-  // Draw_Pt_spectrum_unfolded_singleDataset(iDataset, iRadius, unfoldParameterInput3, optionsAnalysis);
-
-  // int unfoldParameterInputMin = 4;
-  // int unfoldParameterInputMax = 45;
-  // int unfoldParameterInputStep = 3;
-  // Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(iDataset, iRadius, unfoldParameterInputMin, unfoldParameterInputMax, unfoldParameterInputStep, optionsAnalysis);
-
-}
 
 /////////////////////////////////////////////////////
 /////////////////// Misc utilities //////////////////
 /////////////////////////////////////////////////////
-
-void LoadLibs() {
-  // gSystem->Load("libCore.so");  
-  // gSystem->Load("libGeom.so");
-  // gSystem->Load("libPhysics.so");
-  // gSystem->Load("libVMC");
-  // gSystem->Load("libTree");
-  // gSystem->Load("libMinuit");
-  // gSystem->Load("libSTEERBase");
-  // gSystem->Load("libESD");
-  // gSystem->Load("libAOD");
-  // gSystem->Load("libANALYSIS");
-  // gSystem->Load("libANALYSISalice");
-  // gSystem->Load("libCORRFW");
-  // gSystem->Load("libPWGTools");
-}
 
 void SetStyle(Bool_t graypalette) {
   cout << "Setting style!" << endl;
@@ -187,11 +98,8 @@ void SetStyle(Bool_t graypalette) {
   gStyle->SetLegendFont(42);
 }
 
-
-
-
 void IterationLegend(TString* iterationLegend, int unfoldIterationMin, int unfoldIterationMax, int step){
-  const int nUnfoldIteration = std::floor((unfoldIterationMax - unfoldIterationMin + 1)/step);
+  const int nUnfoldIteration = std::floor((unfoldIterationMax - unfoldIterationMin)/step) + 1;
   std::stringstream ss;
   ss.precision(2);
   for(int iUnfoldIteration = 0; iUnfoldIteration < nUnfoldIteration; iUnfoldIteration++){
@@ -201,9 +109,6 @@ void IterationLegend(TString* iterationLegend, int unfoldIterationMin, int unfol
     ss.clear();
   }
 }
-
-
-
 
 std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
   ////////////////////////////////// Fit initialisation //////////////////////////////////
@@ -464,9 +369,9 @@ void Draw_ResponseMatrices_Fluctuations(int iDataset, int iRadius) {
   //     mkdir("epsFolder/ResponseMatrices", 0700);
   // }
 
-  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
   // TString* pdfNameFullRes_logz = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+Form("%.1f",arrayRadius[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"FullRes_logz");
-  TString* pdfName = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+  TString* pdfName = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
   // TString* pdfNameFullRes = new TString("ResponseMatrices/responseMatrix_fluctuationsBackground_"+(TString)"_R="+Form("%.1f",arrayRadius[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_FullRes");
 
 
@@ -525,7 +430,7 @@ void Draw_ResponseMatrices_detectorResponse(int iDataset, int iRadius) {
   // }
 
   TString* pdfName = new TString("ResponseMatrices/responseMatrix_detectorEffects_"+jetType[iJetType]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_detectorEffects_"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_detectorEffects_"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
   TString texCombinedMatrix = contextCustomOneField((TString)"ALICE Simulation", ""); // Response matrix - "+(TString)*texEnergy
   TString textContextMatrixDetails = contextCustomFiveFields((TString)"Detector response ", "", (TString)*texCollisionMCType, (TString)*texEnergy, (TString)contextJetRadius(arrayRadius[iRadius]), "");
@@ -581,8 +486,8 @@ void Draw_ResponseMatrices_DetectorAndFluctuationsCombined(int iDataset, int iRa
   //     mkdir("epsFolder/ResponseMatrices", 0700);
   // }
 
-  TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
-  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined"+(TString)"_R="+Form("%.1f",arrayRadiusPdfName[iRadius])+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
+  TString* pdfName = new TString("ResponseMatrices/responseMatrix_combined"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo);
+  TString* pdfName_logz = new TString("ResponseMatrices/responseMatrix_combined"+(TString)"_R="+arrayRadiusPdfName[iRadius]+"_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_"+priorInfo+"_logz");
 
   TString texCombinedMatrix = contextCustomOneField((TString)"Combined matrix - "+(TString)*texEnergy, "");
   TString textContextMatrixDetails = contextCustomFourFields((TString)"Detector response: "+(TString)*texCollisionMCType, "", (TString)"Fluctuations response: "+*texCollisionDataType, contextJetRadius(arrayRadius[iRadius]), "");
@@ -937,7 +842,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
 void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options) {
 
-  const int nUnfoldIteration = std::floor((unfoldIterationMax - unfoldIterationMin + 1)/step);
+  const int nUnfoldIteration = std::floor((unfoldIterationMax - unfoldIterationMin)/step) + 1;
 
   TH1D* H1D_jetPt_measured;
   TH1D* H1D_jetPt_measured_genBinning;
@@ -1396,3 +1301,6 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
 
 // WARNING FOR EFFICIENCIES I SHOULD REREAD THIS BELOW!!
 // hMcEfficiency_vsPt->Divide(hMcSignalCount_vsPt,TrueV0PtSpectrum_AnalysisBins, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency
+
+
+#endif
