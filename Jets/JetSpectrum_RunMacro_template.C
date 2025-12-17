@@ -1,3 +1,5 @@
+// This is a template. To use the JetSpectrum drawing functions, rename this file to JetSpectrum_RunMacro.C and edit it how you want and run "root pathToFolderAnalysisToolsO2/Jets/JetSpectrum_RunMacro.C+"
+
 #include "./JetSpectrum_DrawingFunctions.h"
 #include "./JetSpectrum_DrawingFunctions.C"
 
