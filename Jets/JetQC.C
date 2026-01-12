@@ -181,9 +181,9 @@ void JetQC() {
   //   float PtRangeZoom5060[2] = {50, 60};
   //   float PtRangeZoom8090[2] = {80, 90};
 
-    Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
-    Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEntries");
-    Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
+    // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
+    // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEntries");
+    // Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
 
     // Draw_Constituent_Pt_DatasetComparison(ptRange, jetRadiusForDataComp);
 
@@ -258,7 +258,7 @@ void JetQC() {
 
   const std::array<std::array<float, 2>, 2> drawnWindowBkgFluctVsArea = {{{-999, -999}, {-50, 150}}}; // {{xmin, xmax}, {ymin, ymax}}
 
-  Draw_BkgFluctuations_vs_Centrality_DatasetComp(drawnWindowBkgFluctVsArea);
+  // Draw_BkgFluctuations_vs_Centrality_DatasetComp(drawnWindowBkgFluctVsArea);
   // // Draw_SelectedMultiplicity_vs_Centrality_DatasetComp();
 
   std::array<std::array<float, 2>, 2> drawnWindowBkgFluctZoom = {{{-10, 20}, 
@@ -270,8 +270,8 @@ void JetQC() {
   }
   for(int iCentBin = 0; iCentBin < nCentralityBins; iCentBin++){
     float centRange[2] = {arrayCentralityBinning[iCentBin], arrayCentralityBinning[iCentBin+1]};
-    Draw_Rho_CentralityProjection_DatasetComp(centRange, "normEntries");
-    Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(centRange, drawnWindowBkgFluctZoom);
+    // Draw_Rho_CentralityProjection_DatasetComp(centRange, "normEntries");
+    // Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(centRange, drawnWindowBkgFluctZoom);
   }
 
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
@@ -800,9 +800,9 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
     // H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(5.,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh));
 
 
-    int nBinPtJets = 16;
-    double ptBinsJets[17] = {-10., -5., 0., 5., 10., 15., 20., 25., 30., 35., 40., 50., 60., 80., 100., 140., 200.};
-    H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(nBinPtJets,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh), ptBinsJets);
+    // int nBinPtJets = 16;
+    // double ptBinsJets[17] = {-10., -5., 0., 5., 10., 15., 20., 25., 30., 35., 40., 50., 60., 80., 100., 140., 200.};
+    H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(1. ,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh));
 
 
     if (options.find("normEntries") != std::string::npos) {
@@ -849,7 +849,7 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
   // TString textContext(contextDatasetCompAndRadiusAndVarRange(jetRadius, etaRange, "eta"));
   TString textContext(contextCustomThreeFields(*texDatasetsComparisonCommonDenominator, "", "#splitline{"+contextJetRadius(jetRadius)+"}{"+contextEtaRange(etaRange)+"}", ""));
 
-  std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{-999, -999}}};
+  std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{10E-9, 40}}};
   std::array<std::array<float, 2>, 2> drawnWindowZoom = {{{-10, 200},{0.6, 1.6}}};
 
   std::array<std::array<float, 2>, 2> legendPlacement = {{{0.65, 0.6}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
