@@ -11,7 +11,7 @@ const TString jetLevel[nJetLevel] = {"data", "mcd", "mcp"};
 const int nRadius = 3;
 const TString RadiusLegend[nRadius] = {"R = 0.2", "R = 0.4", "R = 0.6"};
 const float arrayRadius[nRadius] = {0.2, 0.4, 0.6};
-const float arrayRadiusPdfName[nRadius] = {02, 04, 06};
+const TString arrayRadiusPdfName[nRadius] = {"02", "04", "06"};
 const int nRandomConeTypes = 5;
 const TString randomConeTypeList[nRandomConeTypes] = {"", "withoutleadingjet", "randomtrackdirection", "randomtrackdirectionwithoutoneleadingjets", "randomtrackdirectionwithouttwoleadingjets"};
 
@@ -118,6 +118,7 @@ double ptBinsJetsRec_run2[nRadius][30] = {{20., 25., 30., 35., 40., 45., 50., 55
 int nBinPtJetsRec_run2[nRadius] = {19,19,19};
 double ptBinsJetsGen_run2[nRadius][30] = {{20., 30., 40., 50., 60., 70., 85., 100., 120., 140.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.}};
 int nBinPtJetsGen_run2[nRadius] = {9,9,9};
+double ptMaxFit = 120;
 
 // // pT binning for jets - gen = rec
 // double ptBinsJetsRec[nRadius][30] = {{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.}};

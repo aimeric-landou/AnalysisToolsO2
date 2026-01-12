@@ -25,6 +25,8 @@
 
 
 bool  Get_ResponseMatrix_Pt_KinematicEffiency(TH1D* &H1D_kinematicEfficiency, TH2D* H2D_jetPtResponseMatrix_fineBinning, TString name_H1D_kinematicEfficiency, int iRadius){
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_ResponseMatrix_Pt_KinematicEffiency()" << endl;};
+
   // assumes the response matrix has the fine binning, and will get the kinematic efficiency for rec axis binning equals to ptBinsJetsRec
   bool divideSuccess; 
 
@@ -79,12 +81,17 @@ bool  Get_ResponseMatrix_Pt_KinematicEffiency(TH1D* &H1D_kinematicEfficiency, TH
     }
     divideSuccess = H1D_kinematicEfficiency->Divide(H1D_kinematicEfficiency, H1D_denominator, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency (purity similar to efficiency)
   }
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_ResponseMatrix_Pt_KinematicEffiency()" << endl;};
+
   return divideSuccess;
 }
 
 
 
+
 bool  Get_Pt_JetEfficiency(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options){
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetEfficiency()" << endl;};
+
   TH1D* H1D_jetPt_mcp;
   TH1D* H1D_jetPt_mcpMatched;
   bool divideSuccess;
@@ -106,9 +113,14 @@ bool  Get_Pt_JetEfficiency(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, 
       }
     }
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_JetEfficiency()" << endl;};
+
   return divideSuccess;
 }
 bool  Get_Pt_JetEfficiency_fineBinning(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options){
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetEfficiency_fineBinning()" << endl;};
+
   TH1D* H1D_jetPt_mcp;
   TH1D* H1D_jetPt_mcpMatched;
   bool divideSuccess;
@@ -130,10 +142,15 @@ bool  Get_Pt_JetEfficiency_fineBinning(TH1D* &H1D_jetEfficiency, int iDataset, i
       }
     }
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_JetEfficiency_fineBinning()" << endl;};
+
   return divideSuccess;
 }
 
 bool Get_Pt_JetFakes(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options){ // the purity
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetFakes()" << endl;};
+
   TH1D* H1D_jetPt_mcd;
   TH1D* H1D_jetPt_mcdMatched;
   bool divideSuccess;
@@ -147,9 +164,13 @@ bool Get_Pt_JetFakes(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string
     cout << "################## Get_Pt_JetFakes FAILED!!!!! ##################" << endl;
   }
 
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_JetFakes()" << endl;};
+
   return divideSuccess;
 }
 bool Get_Pt_JetFakes_fineBinning(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options){
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetFakes_fineBinning()" << endl;};
+
   TH1D* H1D_jetPt_mcd;
   TH1D* H1D_jetPt_mcdMatched;
   bool divideSuccess;
@@ -163,6 +184,8 @@ bool Get_Pt_JetFakes_fineBinning(TH1D* &H1D_jetFakes, int iDataset, int iRadius,
     cout << "################## Get_Pt_JetFakes FAILED!!!!! ##################" << endl;
   }
   return divideSuccess;
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_JetFakes_fineBinning()" << endl;};
 }
 
 #endif

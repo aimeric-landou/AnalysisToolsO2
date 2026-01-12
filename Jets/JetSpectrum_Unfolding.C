@@ -48,6 +48,7 @@ int GetSvdBestRegularisationParameter_notYetSatisfying(TSVDUnfold* unfoldTSvd){
 
 
 std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm()" << endl;};
   //for now makes the assumption gen and rec have the same pT binning
 
   TString partialUniqueSpecifier = Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1d",iDataset)+"_R="+Form("%.1f",arrayRadius[iRadius]);
@@ -269,7 +270,10 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
     unfoldParameter = unfoldParameterInput;
     hist_unfold = (TH1D*)(unfoldBayes->Hreco());
     unfold = unfoldBayes;
-  } 
+  } else {
+    cout << "unfolding technique name is wrong, please change it" << endl;
+    exit(EXIT_SUCCESS);
+  }
 
 
   H1D_jetPt_unfolded = (TH1D*)hist_unfold->Clone("H1D_jetPt_unfolded"+partialUniqueSpecifier);
@@ -345,11 +349,14 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   // if (doWidthScalingEarly) {
   //   TransformRawHistToYield(H1D_jetPt_unfolded);
   // }
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm()" << endl;};
 
   std::pair<int, RooUnfold*> unfoldInfo(unfoldParameter, unfold);
   return unfoldInfo;
 }
 std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded_preWidthScalingAtEnd()" << endl;};
+
   std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
   cout << "Get_Pt_spectrum_unfolded_preWidthScalingAtEnd test 1" << endl;
   if (normaliseUnfoldingResultsAtEnd){
@@ -373,9 +380,12 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &
   }
    cout << "Get_Pt_spectrum_unfolded_preWidthScalingAtEnd test 2" << endl;
 
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_unfolded_preWidthScalingAtEnd()" << endl;};
   return unfoldInfo;
 }
 std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded()" << endl;};
+
   std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
   if (doWidthScalingAtEnd) {
@@ -383,6 +393,8 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, T
   }
 
   TransformYieldToEtaDifferentialYield(H1D_jetPt_unfolded, deltaJetEta[iRadius]);
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_unfolded()" << endl;};
 
   return unfoldInfo;
 }
@@ -393,6 +405,8 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, T
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm()" << endl;};
+
   TH1D* H1D_jetPt_unfolded;
   // TH1D* H1D_jetPt_raw[nRadius];
   TString partialUniqueSpecifier = Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1d",iDataset)+"_R="+Form("%.1f",arrayRadius[iRadius]);
@@ -575,10 +589,14 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEnd(TH1D* &H1D_je
       }
     }
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm()" << endl;};
 }
 
 
 void Get_Pt_spectrum_dataUnfoldedThenRefolded(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_dataUnfoldedThenRefolded()" << endl;};
+
   Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEnd(H1D_jetPt_unfoldedThenRefolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
   if (doWidthScalingAtEnd) {
@@ -586,10 +604,14 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded(TH1D* &H1D_jetPt_unfoldedThenRefol
   }
   
   TransformYieldToEtaDifferentialYield(H1D_jetPt_unfoldedThenRefolded, deltaJetEta[iRadius]);
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_dataUnfoldedThenRefolded()" << endl;};
 }
 
 
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEndAndEvtNorm()" << endl;};
+
   // ApplyToTruth function doesn't apply errors on folding
 
   // Matches exactly with the manual method IF NO PRIOR
@@ -679,8 +701,11 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtE
   //not sure I should normalise --> probably not as H1D_jetPt_unfolded is already normalised in Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm
 
   // cout << "still not giving back the measured used as input to the unfolding; got an issue somewhere" << endl;
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEndAndEvtNorm()" << endl;};
 }
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEnd()" << endl;};
+
   Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfoldedThenRefolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
   if (normaliseUnfoldingResultsAtEnd){
@@ -702,8 +727,11 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtE
       }
     }
   }
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEnd()" << endl;};
 }
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod(TH1D* &H1D_jetPt_unfoldedThenRefolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod()" << endl;};
+
   Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod_preWidthScalingAtEnd(H1D_jetPt_unfoldedThenRefolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
 
   if (doWidthScalingAtEnd) {
@@ -711,6 +739,8 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod(TH1D* &H1D_jetPt_u
   }
 
   TransformYieldToEtaDifferentialYield(H1D_jetPt_unfoldedThenRefolded, deltaJetEta[iRadius]);
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod()" << endl;};
 }
 
 
@@ -718,6 +748,8 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod(TH1D* &H1D_jetPt_u
 
 
 void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm()" << endl;};
+
   TString partialUniqueSpecifier = Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1d",iDataset)+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
   TH1D* H1D_jetPt_mcp_control;
@@ -793,8 +825,12 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH
   if (doWidthScalingEarly) {
     TransformRawHistToYield(H1D_jetPt_mcpFolded);
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm()" << endl;};
 }
 void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd()" << endl;};
+
   Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_mcpFolded, iDataset, iRadius, options);
 
   if (normaliseDistribsInComparisonPlots) {
@@ -804,8 +840,11 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(TH1D* &H1D_j
       NormaliseRawHistToNEvents(H1D_jetPt_mcpFolded, GetNEventsSelected_JetFramework_gen( file_O2Analysis_ppSimDetectorEffect_unfoldingControl[iDataset], analysisWorkflow_unfoldingControl));
     }
   }
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd()" << endl;};
 }
 void Get_Pt_spectrum_mcpFoldedWithFluctuations(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_mcpFoldedWithFluctuations()" << endl;};
+
   Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(H1D_jetPt_mcpFolded, iDataset, iRadius, options);
 
   if (doWidthScalingAtEnd) {
@@ -813,6 +852,7 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations(TH1D* &H1D_jetPt_mcpFolded, int i
   }
 
   TransformYieldToEtaDifferentialYield(H1D_jetPt_mcpFolded, deltaJetEta[iRadius]);
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_mcpFoldedWithFluctuations()" << endl;};
 }
 
 #endif

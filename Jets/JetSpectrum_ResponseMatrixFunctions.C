@@ -26,7 +26,7 @@
 
 void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, __attribute__ ((unused)) std::string options) {
   // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for ann example that works, by marta verveij
-
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise()" << endl;};
   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
   // matrix product of fluct response times det response; assumes the two are of the same size binning wise
@@ -71,18 +71,23 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(TH2D* &H2D
   }
   // cout << "bin(topleft 1,N) = " << H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning->GetBinContent(1,H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning->GetNbinsY()) << endl;
   // cout << "bin(bottom left 1,1) = " << H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined_fineBinning->GetBinContent(1,1) << endl;
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise()" << endl;};
 }
 
 
 void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, TH2D* H2D_jetPtResponseMatrix_detectorResponse, TH2D* H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise()" << endl;};
   // https://github.com/alisw/AliPhysics/blob/master/PWGJE/PWGJE/AliAnaChargedJetResponseMaker.cxx for an example that works, by marta verveij
 
   Get_PtResponseMatrix_DetectorAndFluctuationsCombined_preFinalise(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, H2D_jetPtResponseMatrix_detectorResponse, H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, options);
   FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined, iDataset, iRadius, options);
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise()" << endl;};
 }
 
 void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
-   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
+  if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_modular()" << endl;};
+
+  TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
  
   // before this, all y-slices (ie pt gen slices) have been normalised to 1; means each pt gen slice has a proba of 1
   // actually is this true?
@@ -211,12 +216,16 @@ void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int
     Draw_TH2_Histogram(MatrixResponse, textContextMatrixDetails, pdfName_preRebin, xLabel, yLabel, &texCombinedMatrix, drawnWindow2DAuto, th2ContoursNone, contourNumberNone, "");
     Draw_TH2_Histogram(MatrixResponse, textContextMatrixDetails, pdfName_preRebin_logz, xLabel, yLabel, &texCombinedMatrix, drawnWindow2DAuto, th2ContoursNone, contourNumberNone, "logz");
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT ReweightResponseMatrixWithPrior_modular()" << endl;};
 }
 
 
 
 void MergeResponseMatrixBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
-  // Merge bins of the combined response matrix with fine binning to get the coarse one
+  if (showFunctionInAndOutLog) {cout << "--- IN  MergeResponseMatrixBins()" << endl;};
+  
+   // Merge bins of the combined response matrix with fine binning to get the coarse one
   TH1D* priorSpectrumMerging;
   bool debugBool = false;
 
@@ -293,11 +302,14 @@ void MergeResponseMatrixBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int i
   // cout << "Should I normalise the combined matrix?" << endl;
   // cout << "     Marta doesn't do it, but it looks like I need it due to merging (some bins are very large)" << endl;
   // cout << "     it's actually done in AliAnaChargedJetResponseMaker::MakeResponseMatrixRebin" << endl;
+  if (showFunctionInAndOutLog) {cout << "--- OUT MergeResponseMatrixBins()" << endl;};
 }
 
 
 
 void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, __attribute__ ((unused)) std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  NormYSlicesAndScaleRespByWidth()" << endl;};
+
   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
 
   if (doYSliceNormToOneCombinedResp) {
@@ -364,9 +376,13 @@ void NormYSlicesAndScaleRespByWidth(TH2D* &H2D_jetPtResponseMatrix, int iDataset
     Draw_TH2_Histogram(MatrixResponse, textContextMatrixDetails, pdfName, xLabel, yLabel, &texCombinedMatrix, drawnWindow2DAuto, th2ContoursNone, contourNumberNone, "");
     Draw_TH2_Histogram(MatrixResponse, textContextMatrixDetails, pdfName_logz, xLabel, yLabel, &texCombinedMatrix, drawnWindow2DAuto, th2ContoursNone, contourNumberNone, "logz");
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT NormYSlicesAndScaleRespByWidth()" << endl;};
 }
 
 void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins()" << endl;};
+
   if (matrixTransformationOrder == 0) {
     if (useFineBinningTest) {
       ReweightResponseMatrixWithPrior_fineBinningOnly(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
@@ -400,10 +416,13 @@ void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResp
     NormYSlicesAndScaleRespByWidth(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
     MergeResponseMatrixBins(H2D_jetPtResponseMatrix, iDataset, iRadius, options);
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins()" << endl;};
 }
 
 void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options) {
-  //not 
+  if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_fineBinningOnly()" << endl;};
+
   // before this, all y-slices (ie pt gen slices) have been normalised to 1;means each pt gen slice has a proba of 1
   // withthis function, we give each slice a weight so that they have different normalisation values, corresponding to the prior 
 
@@ -441,9 +460,13 @@ void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMat
     }
     H2D_jetPtResponseMatrix = (TH2D*)NormalizeResponsMatrixYaxisWithPrior(H2D_jetPtResponseMatrix, priorSpectrumWeighting)->Clone(H2D_jetPtResponseMatrix->GetName()+(TString)"_testAliPhysics");
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT ReweightResponseMatrixWithPrior_fineBinningOnly()" << endl;};
 }
 
 void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detectorResponse, int iDataset, int iRadius, std::string options) {
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_detectorResponse()" << endl;};
+
   TH3D* H3D_jetRpartPtdetPt;
   TH2D* H2D_jetPtMcdjetPtMcd;
 
@@ -521,9 +544,13 @@ void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detect
   // }
   // cout << "............................................................." <<endl;
   // cout << "............................................................." <<endl;
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_detectorResponse()" << endl;};
 }
 
 void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius) { 
+  if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_Fluctuations()" << endl;};
+
   // see Hiroki Yokoyama thesis
   // iRadius is for chosing the pT binning
   TString partialUniqueSpecifier = Datasets[iDataset]+"_R="+Form("%.1f",arrayRadius[iRadius]);
@@ -590,6 +617,8 @@ void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuatio
 
     H2D_jetPtResponseMatrix_fluctuations = (TH2D*)H2D_response.Clone("H2D_jetPtResponseMatrix_fluctuations"+partialUniqueSpecifier);
   }
+
+  if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_Fluctuations()" << endl;};
 }
 
 #endif

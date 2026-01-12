@@ -201,7 +201,7 @@ void CentralityLegend(TString* centralityLegend, const float arrayCentralityInte
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TString* legendList_string, TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
+void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TString* legendList_string, TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TGraphErrors*> optionalFitCollection) {
   // has options:
   // - "autoratio" : if in the options string, the Y range is chosen automatically based on the difference to 1
   // - "zoomToOneLarge" : if in the options string, the Y range is [0,2.2]
@@ -674,15 +674,15 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
   // draws fit functions if requested
   if (options.find("fitCollection") != std::string::npos) {
     for (int i = 0; i < collectionSize; i++) {
-      optionalFitCollection[i]->SetNpx(2000);
-      optionalFitCollection[i]->Draw("same");
-      optionalFitCollection[i]->SetLineColor(histograms_collection[i]->GetLineColor());
+      // optionalFitCollection[i]->SetNpx(2000);
+      optionalFitCollection[i]->Draw("E, same");
+      optionalFitCollection[i]->SetLineColorAlpha(histograms_collection[i]->GetLineColor(), 0.08);
     }
   }
   if (options.find("fitSingle") != std::string::npos) {
-    optionalFitCollection[0]->SetNpx(2000);
-    optionalFitCollection[0]->Draw("same");
-    optionalFitCollection[0]->SetLineColor(colors[collectionSize]);
+    // optionalFitCollection[0]->SetNpx(2000);
+    optionalFitCollection[0]->Draw("E, same");
+    optionalFitCollection[0]->SetLineColorAlpha(colors[collectionSize], 0.08);
   }
 
   if (collectionSize >= 2) {
@@ -784,7 +784,7 @@ void Draw_TH1_Histograms_MasterFunction(TH1D** histograms_collection, const TStr
 }
 
 // ratio and distrib in same canvas (ratio just below distrib) Work in progress
-void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
+void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options, std::vector<TGraphErrors*> optionalFitCollection) {
   Draw_TH1_Histograms_MasterFunction(histograms_collection, legendList_string, histograms_collection_ratios, legendList_string_ratios, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, drawnWindowRatio, legendPlacement, legendPlacementRatio, contextPlacement, options+(std::string)"ratioInSameCanvas", optionalFitCollection);
 }
 
@@ -792,11 +792,11 @@ void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const T
 void Draw_TH1_Histograms_ratioInSameCanvas(TH1D** histograms_collection, const TString* legendList_string,TH1D** histograms_collection_ratios, const TString* legendList_string_ratios, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<float, 2> drawnWindowRatio, std::array<std::array<float, 2>, 2> legendPlacement, std::array<std::array<float, 2>, 2> legendPlacementRatio, std::array<float, 2> contextPlacement, std::string options) {
   // is here to make optionalFitCollection an actual optional parameter; Draw_TH1_Histograms can be called without, and in that case optionalFitCollection is created empty for use by the actual Draw_TH1_Histograms function; it will only be used if 'options' has fit in it
   // TF1* optionalFitCollectionDummy[collectionSize];
-  std::vector<TF1*> optionalFitCollectionDummy(collectionSize);
+  std::vector<TGraphErrors*> optionalFitCollectionDummy(collectionSize);
   Draw_TH1_Histograms_ratioInSameCanvas(histograms_collection, legendList_string, histograms_collection_ratios, legendList_string_ratios, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, drawnWindowRatio, legendPlacement, legendPlacementRatio, contextPlacement, options, optionalFitCollectionDummy);
 }
 
-void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options, std::vector<TF1*> optionalFitCollection) {
+void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options, std::vector<TGraphErrors*> optionalFitCollection) {
   TH1D* histograms_collection_ratios_dummy[collectionSize];
   // std::vector<TH1D*> histograms_collection_ratios_dummy(collectionSize);
   const TString* legendList_string_ratios_dummy;
@@ -808,7 +808,7 @@ void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList
 void Draw_TH1_Histograms(TH1D** histograms_collection, const TString* legendList_string, const int collectionSize, TString Context, TString* pdfName, TString* &texXtitle, TString* &texYtitle, TString* texCollisionDataInfo, std::array<std::array<float, 2>, 2> drawnWindow, std::array<std::array<float, 2>, 2> legendPlacement, std::array<float, 2> contextPlacement, std::string options) {
   // is here to make optionalFitCollection an actual optional parameter; Draw_TH1_Histograms can be called without, and in that case optionalFitCollection is created empty for use by the actual Draw_TH1_Histograms function; it will only be used if 'options' has fit in it
   // TF1* optionalFitCollectionDummy[collectionSize];
-  std::vector<TF1*> optionalFitCollectionDummy(collectionSize);
+  std::vector<TGraphErrors*> optionalFitCollectionDummy(collectionSize);
   Draw_TH1_Histograms(histograms_collection, legendList_string, collectionSize, Context, pdfName, texXtitle, texYtitle, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacement, options, optionalFitCollectionDummy);
 }
 
