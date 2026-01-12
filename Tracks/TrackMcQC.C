@@ -47,7 +47,7 @@ void LoadLibs();
 //////////// QC plot functions
 // Dataset comparison
 
-void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit);
+void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit, bool useLargeLegendWindow);
 void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit);
 void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool useSplit);
 void Draw_Efficiency_Eta_PtRangeComparison(float* ptRange, int nPtRanges, int iDataset, std::string options);
@@ -107,7 +107,8 @@ void TrackMcQC() {
   bool useSplit = false; //set to true if you want to see the influence of split
   float etaRange[2] = {-0.9, 0.9};
   float ptRange[2] = {0.15, 100};
-  Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit);
+  bool useLargeLegendWindow = false;
+  Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit, useLargeLegendWindow);
   Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
   Draw_Efficiency_Phi_DatasetComparison(ptRange, etaRange, useSplit);
 
@@ -145,11 +146,11 @@ void TrackMcQC() {
   // float ptRange[2] = {0.150, 100};
   // float etaRange[2] = {-0.9, 0.9};
   // // Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, entriesNorm");
-  Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, evtNorm");
+  // Draw_Pt_gen_DatasetComparison(etaRange, "primaries, ratio, evtNorm");
   // // Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, entriesNorm");
-  Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, evtNorm");
+  // Draw_Eta_gen_DatasetComparison(ptRange, "primaries, ratio, evtNorm");
   // // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, entriesNorm");
-  Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, evtNorm");
+  // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "primaries, ratio, evtNorm");
   // // Draw_Pt_gen_DatasetComparison(etaRange, "secondaries, ratio");
   // // Draw_Eta_gen_DatasetComparison(ptRange, "secondaries, ratio");
   // // Draw_Phi_gen_DatasetComparison(ptRange, etaRange, "secondaries, ratio");
@@ -260,7 +261,7 @@ TString contextTrackDatasetComp(std::string options){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
+void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit, bool useLargeLegendWindow) {
   TH3D* H3D_trackPtEtaPhi_mcparticles[nDatasets];
   TH3D* H3D_trackPtEtaPhi_assoctracks[nDatasets];
   TH3D* H3D_trackPtEtaPhi_assoctracks_split[nDatasets];
@@ -336,9 +337,10 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
     int iBinPtNew = 0;
     int iBinPtInitialHisto = 0;
     int increment;
+    float originalBinningEnd = 2; //above that we switch to custom binning
     while(iBinPtInitialHisto < H1D_trackPt_mcparticles[iDataset]->GetNbinsX()){
       lastPt = xbinsInitialLow[iBinPtInitialHisto];
-      if (lastPt < 0.300) {
+      if (lastPt < originalBinningEnd) { // top boundary for the unchanged binning
         increment = 1;
       } else {
         increment = 1+ lastPt/H1D_trackPt_mcparticles[iDataset]->GetXaxis()->GetBinWidth(1) /8;
@@ -479,44 +481,42 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
   }
 
   TString* pdfNameEntriesNorm = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]");
+  TString* pdfNameEntriesNorm_zoom = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_zoom");
   TString* pdfNameEntriesNorm_splitCorrected = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_splitCorrected");
+  TString* pdfNameEntriesNorm_splitCorrected_zoom = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_splitCorrected_zoom");
   TString* pdfNameEntriesNorm_split = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_split");
+  TString* pdfNameEntriesNorm_split_zoom = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_split_zoom");
 
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextEtaRange(etaRange), ""));
 
-  std::array<std::array<float, 2>, 2> drawnWindowLog = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
-                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(2))/2, 
-                                                          (float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX())
-                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinWidth(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX()))}
-                                                          , {0.8, 1.2}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> drawnWindowLogZoom = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
-                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(2))/2, 
-                                                          (float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX())
-                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinWidth(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX()))}
-                                                          , {0.98, 1.02}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> legendPlacementratio = {{{0.55, 0.55}, {0.9, 0.9}}}; // {{xmin, xmax}, {ymin, ymax}}                                                   
-                                                    
-  cout << "drawnWindowLog x: {" << drawnWindowLog[0][0] << ", " << drawnWindowLog[0][1] << "}"<< endl;
-  cout << "lowEdge(0) = " << H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(0) << endl;
-  cout << "lowEdge(1) = " << H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1) << endl;
-  // std::array<std::array<float, 2>, 2> drawnWindowLog = {{{-999, -999}
-  //                                                         , {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
-  std::array<float, 2> contextPlacementEfficiency = {{0.33, 0.85}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> legendPlacementEfficiency = {{{0.45, 0.2}, {0.75, 0.6}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<float, 2> contextPlacementEfficiency = {{0.33, 0.85}};
+  std::array<std::array<float, 2>, 2> legendPlacementEfficiencyLarge = {{{0.45, 0.2}, {0.75, 0.6}}}; // {{xmin, ymin}, {xmax, ymax}}
+  std::array<std::array<float, 2>, 2> legendPlacementEfficiencyNarrow = {{{0.67, 0.2}, {0.87, 0.35}}}; // {{xmin, ymin}, {xmax, ymax}}
+  std::array<std::array<float, 2>, 2> legendPlacementEfficiencyRatioLarge = {{{0.52, 0.52}, {0.87, 0.87}}}; // {{xmin, ymin}, {xmax, ymax}}                                            
+  std::array<std::array<float, 2>, 2> legendPlacementEfficiencyRatioNarrow = {{{0.72, 0.72}, {0.87, 0.87}}}; // {{xmin, ymin}, {xmax, ymax}}                                                   
+                                   
+  std::array<float, 2> contextPlacementEfficiencyRatio = {{0.35, 0.85}};     
+
   std::array<std::array<float, 2>, 2> drawnWindowLogEff = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
                                                           +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(2))/2, 
                                                           (float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX())
                                                           +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinWidth(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX()))}
                                                           , {0, 1}}};
-  std::array<std::array<float, 2>, 2> drawnWindowLogEff_SplitCorrected = {{{-999,-999},{0, 1}}};
+  std::array<std::array<float, 2>, 2> drawnWindowLogEff_zoom = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
+                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(2))/2, 
+                                                          (float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX())
+                                                          +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinWidth(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX()))}
+                                                          , {0.65, 0.85}}};
   std::array<std::array<float, 2>, 2> drawnWindowLogEffRatio = {{{(float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1)
                                                           +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(2))/2, 
                                                           (float)(H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX())
                                                           +H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinWidth(H1D_trackPt_efficiency_concatenated[0]->GetNbinsX()))}
-                                                          , {0.7, 2.2}}};
-  std::array<std::array<float, 2>, 2> legendPlacementEfficiencyRatio = {{{0.35, 0.6}, {0.7, 0.7}}}; 
-  std::array<float, 2> contextPlacementEfficiencyRatio = {{0.35, 0.85}};     
+                                                          , {0.8, 1.2}}};
+
+  cout << "drawnWindowLog x: {" << drawnWindowLogEff[0][0] << ", " << drawnWindowLogEff[0][1] << "}"<< endl;
+  cout << "lowEdge(0) = " << H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(0) << endl;
+  cout << "lowEdge(1) = " << H1D_trackPt_efficiency_concatenated[0]->GetXaxis()->GetBinLowEdge(1) << endl;
 
   if (divideSuccess == true && divideSuccess_ptHigh == true) {
     cout << "--------- Track Efficiency vs pt: values -----------------------" << endl;
@@ -548,16 +548,19 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
 
 
   if (divideSuccess == true && divideSuccess_ptHigh == true) {
-    Draw_TH1_Histograms(H1D_trackPt_efficiency_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff, legendPlacementEfficiency, contextPlacementAuto, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackPt_efficiency_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementAuto, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackPt_efficiency_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_zoom, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementAuto, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
   }
   else {
     cout << "Divide failed in Draw_Efficiency_Pt_DatasetComparison eff" << endl;
   }
   if (useSplit == true) {
     if (divideSuccess_split == true && divideSuccess_split_ptHigh == true ) {
-      Draw_TH1_Histograms(H1D_trackPt_efficiency_splitCorrected_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_splitCorrected, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_SplitCorrected, legendPlacementEfficiency, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_trackPt_efficiency_splitCorrected_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_splitCorrected, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_trackPt_efficiency_splitCorrected_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_splitCorrected_zoom, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_zoom, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
     } else if (divideSuccess_split_notCorrected == true && divideSuccess_split__notCorrectedPtHigh ==true) {
-      Draw_TH1_Histograms(H1D_trackPt_efficiency_split_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_split, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_SplitCorrected, legendPlacementEfficiency, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_trackPt_efficiency_split_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_split, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
+      Draw_TH1_Histograms(H1D_trackPt_efficiency_split_concatenated, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_split_zoom, texPtMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_zoom, useLargeLegendWindow ? legendPlacementEfficiencyLarge : legendPlacementEfficiencyNarrow, contextPlacementEfficiency, "logx,efficiency,150MevLine"+histDatasetComparisonStructure);
     }
     else {
       cout << "Divide failed in Draw_Efficiency_Pt_DatasetComparison useSplit" << endl;    
@@ -566,11 +569,10 @@ void Draw_Efficiency_Pt_DatasetComparison(float* etaRange, bool useSplit) {
   TString* pdfName_ratio = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_ratio");
   if (divideSuccessRatio == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
-      Draw_TH1_Histograms(H1D_trackPt_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPtX, texRatio, texCollisionDataInfo, drawnWindowLogEffRatio, legendPlacementEfficiencyRatio, contextPlacementEfficiencyRatio, "logx,150MevLine,zoomToOneLarge,ratioLine");
+      Draw_TH1_Histograms(H1D_trackPt_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPtX, texRatio, texCollisionDataInfo, drawnWindowLogEffRatio, useLargeLegendWindow ? legendPlacementEfficiencyRatioLarge : legendPlacementEfficiencyRatioNarrow, contextPlacementEfficiencyRatio, "logx,150MevLine,zoomToOneLarge,ratioLine");
       TString* pdfName_ratio_zoom = new TString("track_Pt_efficiency"+dummyName[0]+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_ratio_zoom");
-      //Draw_TH1_Histograms(H1D_trackPt_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio_zoom, texPtX, texRatio, texCollisionDataInfo, drawnWindowLogZoom, legendPlacementratio, contextPlacementAuto, "logx,150MevLine,ratioLine");
     } else {
-    Draw_TH1_Histograms(H1D_trackPt_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowLog, legendPlacementratio, contextPlacementAuto, "logx,150MevLine,zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackPt_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texPtX, texRatioDatasets, texCollisionDataInfo, drawnWindowLogEffRatio, useLargeLegendWindow ? legendPlacementEfficiencyRatioLarge : legendPlacementEfficiencyRatioNarrow, contextPlacementAuto, "logx,150MevLine,zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
     }
   }
   else {
@@ -690,16 +692,21 @@ void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit) {
   }
 
   TString* pdfNameEntriesNorm = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.2f", ptRange[1])+"]");
+  TString* pdfNameEntriesNorm_zoom = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.2f", ptRange[1])+"]_zoom");
   TString* pdfNameEntriesNorm_split = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_splitTracks");
   TString* pdfNameEntriesNorm_splitCorrected = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_splitCorrected");
   std::array<std::array<float, 2>, 2> legendPlacementEta = {{{0.55, 0.55}, {0.85, 0.85}}};
   // TString* pdfNameEntriesNorm_splitAndSecondaryCorrected = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_splitAndSecondaryCorrected");
+
+  std::array<std::array<float, 2>, 2> drawnWindowLogEff_zoom = {{{-999, -999}, {0.5, 1}}};
+  std::array<std::array<float, 2>, 2> drawnWindowLogEffRatio_zoom = {{{-999, -999}, {0.8, 1.2}}};
 
   // TString textContext(contextDatasetComp(""));
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextPtRange(ptRange), ""));
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms(H1D_trackEta_efficiency, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texEtaMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowAuto, legendPlacementEta, contextPlacementAuto, "efficiency"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackEta_efficiency, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texEtaMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_zoom, legendPlacementEta, contextPlacementAuto, "efficiency"+histDatasetComparisonStructure);
   } else {
     cout << "Divide failed in Draw_Efficiency_Eta_DatasetComparison eff" << endl;
   }
@@ -714,12 +721,15 @@ void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit) {
   }
 
   TString* pdfName_ratio = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio");
+  TString* pdfName_ratio_zoom = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio_zoom");
   if (divideSuccessRatio == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       Draw_TH1_Histograms(H1D_trackEta_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texEtaMC, texRatio, texCollisionDataInfo, drawnWindowAuto, legendPlacementEta, contextPlacementAuto, "zoomToOneLarge,ratioLine");
+      Draw_TH1_Histograms(H1D_trackEta_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio_zoom, texEtaMC, texRatio, texCollisionDataInfo, drawnWindowLogEffRatio_zoom, legendPlacementEta, contextPlacementAuto, "zoomToOneLarge,ratioLine");
       TString* pdfName_ratio_zoom = new TString("track_Eta_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio_zoom");
     } else {
     Draw_TH1_Histograms(H1D_trackEta_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texEtaMC, texRatioDatasets, texCollisionDataInfo, drawnWindowAuto, legendPlacementEta, contextPlacementAuto, "zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackEta_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio_zoom, texEtaMC, texRatioDatasets, texCollisionDataInfo, drawnWindowLogEffRatio_zoom, legendPlacementEta, contextPlacementAuto, "zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
     }
   } else {
     cout << "Divide failed in Draw_Efficiency_Eta_DatasetComparison eff ratios" << endl;
@@ -838,6 +848,7 @@ void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool
   }
 
   TString* pdfNameEntriesNorm = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]"+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]");
+  TString* pdfNameEntriesNorm_zoom = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]"+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_zoom");
   TString* pdfNameEntriesNorm_split = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]"+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_split");
   TString* pdfNameEntriesNorm_splitCorrected = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]"+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_splitCorrected");
   // TString* pdfNameEntriesNorm_splitAndSecondaryCorrected = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]"+"_@eta["+Form("%.1f", etaRange[0])+","+Form("%.1f", etaRange[1])+"]_splitAndSecondaryCorrected");
@@ -846,9 +857,12 @@ void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, "#splitline{"+contextPtRange(ptRange)+"}{"+contextEtaRange(etaRange)+"}", ""));
   std::array<std::array<float, 2>, 2> legendPlacementPhi = {{{0.55, 0.55}, {0.85, 0.85}}};
 
+  std::array<std::array<float, 2>, 2> drawnWindowLogEff_zoom = {{{-999, -999}, {0.5, 1}}};
+  std::array<std::array<float, 2>, 2> drawnWindowLogEffRatio_zoom = {{{-999, -999}, {0.8, 1.2}}};
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms(H1D_trackPhi_efficiency, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texPhiMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowAuto, legendPlacementPhi, contextPlacementAuto, "efficiency"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackPhi_efficiency, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texPhiMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowLogEff_zoom, legendPlacementPhi, contextPlacementAuto, "efficiency"+histDatasetComparisonStructure);
   }
   else {
     cout << "Divide failed in Draw_Efficiency_Phi_DatasetComparison eff " << endl;
@@ -863,12 +877,15 @@ void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool
   }
 
   TString* pdfName_ratio = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio");
+  TString* pdfName_ratio_zoom = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio_zoom");
   if (divideSuccessRatio == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       Draw_TH1_Histograms(H1D_trackPhi_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPhiMC, texRatio, texCollisionDataInfo, drawnWindowAuto, legendPlacementPhi, contextPlacementAuto, "zoomToOneLarge,ratioLine");
+      Draw_TH1_Histograms(H1D_trackPhi_efficiency_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio_zoom, texPhiMC, texRatio, texCollisionDataInfo, drawnWindowLogEffRatio_zoom, legendPlacementPhi, contextPlacementAuto, "zoomToOneLarge,ratioLine");
       TString* pdfName_ratio_zoom = new TString("track_Phi_efficiency"+dummyName[0]+"_@pt["+Form("%.2f", ptRange[0])+","+Form("%.1f", ptRange[1])+"]_ratio_zoom");
     } else {
     Draw_TH1_Histograms(H1D_trackPhi_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texPhiMC, texRatioDatasets, texCollisionDataInfo, drawnWindowAuto, legendPlacementPhi, contextPlacementAuto, "zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
+    Draw_TH1_Histograms(H1D_trackPhi_efficiency_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio_zoom, texPhiMC, texRatioDatasets, texCollisionDataInfo, drawnWindowLogEffRatio_zoom, legendPlacementPhi, contextPlacementAuto, "zoomToOneLarge,noMarkerFirst,ratioLine"+histDatasetComparisonStructure);
     }
   } else {
     cout << "Divide failed in Draw_Efficiency_Phi_DatasetComparison eff ratios" << endl;
