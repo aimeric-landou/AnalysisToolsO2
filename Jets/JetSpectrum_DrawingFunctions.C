@@ -110,7 +110,39 @@ void IterationLegend(TString* iterationLegend, int unfoldIterationMin, int unfol
   }
 }
 
-std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
+TGraphErrors* getFunctionTGraphErrorsFromFitResult(double* xRangeFit, TF1* fitFunctionDrawn, TFitResultPtr fitResult, int nPointsGraph = 1000){
+  std::vector<double> xAxisGraph= {};
+  std::vector<double> yAxisGraph= {};
+  std::vector<double> yAxisGraphErrors= {};
+  // double* ;
+
+  for(int iPoint = 0; iPoint < nPointsGraph; iPoint++){
+    xAxisGraph.push_back(xRangeFit[0]+iPoint*1./nPointsGraph*(xRangeFit[1]-xRangeFit[0]));
+    yAxisGraph.push_back(fitFunctionDrawn->Eval(xAxisGraph.back()));
+    yAxisGraphErrors.push_back(0);
+  }
+  double oneSigmaInterval = 0.683;
+  fitResult->GetConfidenceIntervals(nPointsGraph, 1, 1, &xAxisGraph[0], &yAxisGraphErrors[0], oneSigmaInterval, false);
+  TGraphErrors* fitFunctionTGraphErrors = new TGraphErrors(nPointsGraph, &xAxisGraph[0], &yAxisGraph[0], nullptr, &yAxisGraphErrors[0]);
+  return fitFunctionTGraphErrors;
+}
+
+TGraphErrors* getFunctionTGraphErrorsFromCovMatrix(double* xRangeFit, TF1* fitFunctionDrawn, TMatrixDSym* covMatrix, int nPointsGraph = 1000){
+  std::vector<double> xAxisGraph= {};
+  std::vector<double> yAxisGraph= {};
+  std::vector<double> yAxisGraphErrors= {};
+  // double* ;
+
+  for(int iPoint = 0; iPoint < nPointsGraph; iPoint++){
+    xAxisGraph.push_back(xRangeFit[0]+iPoint*1./nPointsGraph*(xRangeFit[1]-xRangeFit[0]));
+    yAxisGraph.push_back(fitFunctionDrawn->Eval(xAxisGraph.back()));
+    yAxisGraphErrors.push_back(fitFunctionDrawn->EvalUncertainty(xAxisGraph.back(), covMatrix));
+  }
+  TGraphErrors* fitFunctionTGraphErrors = new TGraphErrors(nPointsGraph, &xAxisGraph[0], &yAxisGraph[0], nullptr, &yAxisGraphErrors[0]);
+  return fitFunctionTGraphErrors;
+}
+
+std::tuple<TF1*, TMatrixDSym, TFitResultPtr> TsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
   TF1 *fitFunctionInit;
@@ -119,8 +151,8 @@ std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, do
 
   TFitResultPtr fFitResult;
 
-  double parfitFunctionInit[5]; //linear background
-  double parfitFunctionFinal[5]; //linear background
+  double parfitFunctionInit[5];
+  double parfitFunctionFinal[5];
 
   ////////////////////////////////////////////////////////////////////
   //////////////////////////// Fit start /////////////////////////////
@@ -154,6 +186,12 @@ std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, do
   fFitResult = histogramInput->Fit(fitFunctionFinal, "R0QPS"); // P: Use Pearson chi-square method, using expected errors instead of the observed one given by TH1::GetBinError (default case). The expected error is instead estimated from the square-root of the bin function value. (WL for weithged likelihood is currently bugged in root, the fit crashes)
   // gauss->Draw("same");
   fitFunctionFinal->GetParameters(&parfitFunctionFinal[0]);
+  TMatrixDSym covMatrixFit = fFitResult->GetCovarianceMatrix();
+
+  Double_t *pDataSmall = covMatrixFit.GetMatrixArray();
+  for (int i = 0; i < 2*2; i++) {
+    cout << "i = " << i << ", covMatrixFit[i]" << pDataSmall[i] << endl;
+  }
 
   fitFunctionDrawn = new TF1("fitFunctionDrawn_", "x*(1+1/([0]*[1])*x)**(-[0])", xRangeFit[0], xRangeFit[1]);
   // fitFunctionDrawn = new TF1("fitFunctionDrawn_", "[0]*exp(([1]-x)**[2])", xRangeFit[0], xRangeFit[1]);
@@ -163,6 +201,16 @@ std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, do
 
   // cout << "init:  n = " << parfitFunctionInit[0] << ", T = " << parfitFunctionInit[1]<< endl;
   // cout << "final: n = " << parfitFunctionFinal[0] << ", T = " << parfitFunctionFinal[1]<< endl;
+
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> fitFunctionAndFitParams(fitFunctionDrawn, covMatrixFit, fFitResult);
+  return fitFunctionAndFitParams;
+}
+
+std::pair<TH1D*, TGraphErrors*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> tsallisFitFunctionResult = TsallisFit(histogramInput, nBinsX, binsX, xRangeFit);
+  TF1* fitFunctionDrawn = std::get<0>(tsallisFitFunctionResult);
+  TFitResultPtr fitResult = std::get<2>(tsallisFitFunctionResult);
+  TGraphErrors* fitFunctionTGraphErrors = getFunctionTGraphErrorsFromFitResult(xRangeFit, fitFunctionDrawn, fitResult);
 
   ///////////////////////////////////////////////////////////////////////////////////
   //////////////////////////// Rebin of input histogram /////////////////////////////
@@ -177,11 +225,11 @@ std::pair<TH1D*, TF1*> RebinWithTsallisFit(TH1D* &histogramInput, int nBinsX, do
     double oneSigmaInterval = 0.683;
     double errorEval[1] = {0};
     double xEval[1] = {(double)histogramRebinned->GetXaxis()->GetBinCenter(iBin)};
-    fFitResult->GetConfidenceIntervals(1, 1, 1, xEval, errorEval, oneSigmaInterval, false);
+    fitResult->GetConfidenceIntervals(1, 1, 1, xEval, errorEval, oneSigmaInterval, false);
     histogramRebinned->SetBinError(iBin, errorEval[0]);
   }
 
-  std::pair<TH1D*, TF1*> rebinResultAndFitFunction(histogramRebinned, fitFunctionDrawn);
+  std::pair<TH1D*, TGraphErrors*> rebinResultAndFitFunction(histogramRebinned, fitFunctionTGraphErrors);
   return rebinResultAndFitFunction;
 }
 
@@ -207,7 +255,7 @@ void Draw_Pt_spectrum_raw(int iDataset, int iRadius, std::string options) {
   TString* yAxisLabel;
   yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots) {
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
     yAxisLabel = texCount;
@@ -243,7 +291,7 @@ void Draw_Pt_spectrum_mcp(int iDataset, int iRadius, std::string options) {
   TString* yAxisLabel;
   yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots) {
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
     yAxisLabel = texCount;
@@ -271,7 +319,7 @@ void Draw_Pt_spectrum_mcdMatched(int iDataset, int iRadius, std::string options)
   TString* yAxisLabel;
   yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots) {
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
   if (options.find("noEventNormNorBinWidthScaling") != std::string::npos) {
     yAxisLabel = texCount;
@@ -534,11 +582,16 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   TGraph* Graph_jetPt_run2_MLPaperFile;
   TH1D* H1D_jetPt_run2_MLPaperFile = new TH1D("H1D_jetPt_run2_MLPaperFile", "H1D_jetPt_run2_MLPaperFile", nBinPtJetsGen_run2[iRadius], ptBinsJetsGen_run2[iRadius]);
   TH1D* H1D_jetPt_run2_MLPaperFile_rebinned;
-  std::vector<TF1*> TF1_jetPt_run2_MLPaperFile_fit(1);
+  std::vector<TGraphErrors*> TGraph_jetPt_run2_MLPaperFile_fit = {};
+  std::vector<TGraphErrors*> TGraph_jetPt_unfolded_run2Comp_fits = {};
   TH1D* H1D_jetPt_ratio_mcp;
   TH1D* H1D_jetPt_ratio_run2_fitRebin[2];
   TH1D* H1D_jetPt_ratio_run2_shapeComp[2];
   TH1D* H1D_jetPt_ratio_run2[2];
+  TH1D* H1D_jetPt_unfolded_run2Comp_xT[2];
+  TH1D* H1D_jetPt_ratio_run2Comp_xT;
+  TH1D* H1D_jetPt_unfolded_run2Comp_fits[2];
+  TH1D* H1D_jetPt_ratio_run2Comp_fits;
   TH1D* H1D_jetPt_ratio_measured;
   TH1D* H1D_jetPt_ratio_measuredRefolded[2];
   TH1D* H1D_jetPt_ratio_mcpFoldedMcp;
@@ -581,6 +634,8 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   bool divideSuccessRun2_fitRebin[2];
   bool divideSuccessRun2_shapeComp;
   bool divideSuccessRun2[2];
+  bool divideSuccessRun2_xt;
+  bool divideSuccessRun2_fits;  
   bool divideSuccessMeasured;
   bool divideSuccessMeasuredRefolded[2];
   bool divideSuccessMcpFoldedMcp;
@@ -635,19 +690,20 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   divideSuccessMcp = H1D_jetPt_ratio_mcp->Divide(H1D_jetPt_mcp);
 
   cout << "comparison with run2" << endl; 
+  std::vector<double> xtBinningVector = {0};
   if (comparePbPbWithRun2) {
     // comparison with run2 results rebinned using a fit (errors look way underestimated; tsallis function not great aboe 100+ GeV; where should one eval the function inside a bin? probably not just the center)
     H1D_jetPt_unfolded_run2Comp_fitRebin[0] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_unfolded_run2Comp_fitRebin"+partialUniqueSpecifier);
-    double fitPtRange[2] = {ptBinsJetsGen_run2[iRadius][0], ptBinsJetsGen_run2[iRadius][nBinPtJetsGen_run2[iRadius]]};
-    std::pair<TH1D*, TF1*> pairResult = RebinWithTsallisFit(H1D_jetPt_run2_MLPaperFile, nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius], fitPtRange);
-    H1D_jetPt_run2_MLPaperFile_rebinned = pairResult.first;
-    TF1_jetPt_run2_MLPaperFile_fit[0] = pairResult.second;
+    double fitPtRange[2] = {ptBinsJetsGen_run2[iRadius][0], ptMaxFit}; //-1 because Tsallis shape only accurate until 120GeV or so
+    std::pair<TH1D*, TGraphErrors*> pairResult_run2 = RebinWithTsallisFit(H1D_jetPt_run2_MLPaperFile, nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius], fitPtRange);
+    H1D_jetPt_run2_MLPaperFile_rebinned = pairResult_run2.first;
+    TGraph_jetPt_run2_MLPaperFile_fit.push_back(pairResult_run2.second);
     H1D_jetPt_unfolded_run2Comp_fitRebin[1] = (TH1D*)H1D_jetPt_run2_MLPaperFile_rebinned->Clone("H1D_jetPt_unfolded_run2_rebinned_fitRebin"+partialUniqueSpecifier);
     H1D_jetPt_unfolded_run2Comp_fitRebin[2] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_unfolded_run2_fitRebin"+partialUniqueSpecifier);
     // H1D_jetPt_unfolded_run2Comp[2] = (TH1D*)H1D_jetPt_run2_HannaBossiLauraFile->Clone("H1D_jetPt_unfolded_run2Comp_HannaBossiLauraFile"+partialUniqueSpecifier);
-    H1D_jetPt_ratio_run2_fitRebin[0] = (TH1D*)H1D_jetPt_run2_MLPaperFile_rebinned->Clone("H1D_jetPt_ratio_run2_MLPaperFile_fitRebin"+partialUniqueSpecifier);
+    H1D_jetPt_ratio_run2_fitRebin[0] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_ratio_run2_fitRebin"+partialUniqueSpecifier);
     // H1D_jetPt_ratio_run2[1] = (TH1D*)H1D_jetPt_run2_HannaBossiLauraFile->Clone("H1D_jetPt_ratio_run2_HannaBossiLauraFile"+partialUniqueSpecifier);
-    divideSuccessRun2_fitRebin[0] = H1D_jetPt_ratio_run2_fitRebin[0]->Divide(H1D_jetPt_unfolded);
+    divideSuccessRun2_fitRebin[0] = H1D_jetPt_ratio_run2_fitRebin[0]->Divide(H1D_jetPt_run2_MLPaperFile_rebinned);
     // divideSuccessRun2[1] = H1D_jetPt_ratio_run2[1]->Divide(H1D_jetPt_unfolded);
 
 
@@ -662,17 +718,142 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
     }
     H1D_jetPt_unfolded_run2Comp[2] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_unfolded_run2"+partialUniqueSpecifier);
     // H1D_jetPt_unfolded_run2Comp[2] = (TH1D*)H1D_jetPt_run2_HannaBossiLauraFile->Clone("H1D_jetPt_unfolded_run2Comp_HannaBossiLauraFile"+partialUniqueSpecifier);
-    H1D_jetPt_ratio_run2[0] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_ratio_run2_MLPaperFile"+partialUniqueSpecifier);
+    H1D_jetPt_ratio_run2[0] = (TH1D*)H1D_jetPt_unfolded_run2Comp[1]->Clone("H1D_jetPt_ratio_run2"+partialUniqueSpecifier);
     // H1D_jetPt_ratio_run2[1] = (TH1D*)H1D_jetPt_run2_HannaBossiLauraFile->Clone("H1D_jetPt_ratio_run2_HannaBossiLauraFile"+partialUniqueSpecifier);
-    divideSuccessRun2[0] = H1D_jetPt_ratio_run2[0]->Divide(H1D_jetPt_unfolded_run2Comp[1]);
+    divideSuccessRun2[0] = H1D_jetPt_ratio_run2[0]->Divide(H1D_jetPt_run2_MLPaperFile);
     // divideSuccessRun2[1] = H1D_jetPt_ratio_run2[1]->Divide(H1D_jetPt_unfolded);
 
     H1D_jetPt_unfolded_run2Comp_shapeComp[0] = (TH1D*)H1D_jetPt_unfolded_run2Comp[1]->Clone("H1D_jetPt_unfolded_run2Comp_run3rebinned_shapeComp"+partialUniqueSpecifier);
-    H1D_jetPt_unfolded_run2Comp_shapeComp[1] = (TH1D*)H1D_jetPt_unfolded_run2Comp[2]->Clone("H1D_jetPt_unfolded_run2Comp_run2rescaled_shapeComp"+partialUniqueSpecifier);
+    H1D_jetPt_unfolded_run2Comp_shapeComp[1] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_unfolded_run2Comp_run2rescaled_shapeComp"+partialUniqueSpecifier);
     H1D_jetPt_unfolded_run2Comp_shapeComp[1]->Scale(H1D_jetPt_unfolded_run2Comp_shapeComp[0]->GetBinContent(1)/H1D_jetPt_unfolded_run2Comp_shapeComp[1]->GetBinContent(1));
 
-    H1D_jetPt_ratio_run2_shapeComp[0] = (TH1D*)H1D_jetPt_unfolded_run2Comp_shapeComp[1]->Clone("H1D_jetPt_unfolded_run2Comp_run2rescaled_shapeComp_ratio"+partialUniqueSpecifier);
-    divideSuccessRun2_shapeComp = H1D_jetPt_ratio_run2_shapeComp[0]->Divide(H1D_jetPt_unfolded_run2Comp_shapeComp[0]);
+    H1D_jetPt_ratio_run2_shapeComp[0] = (TH1D*)H1D_jetPt_unfolded_run2Comp_shapeComp[0]->Clone("H1D_jetPt_unfolded_run2Comp_run2rescaled_shapeComp_ratio"+partialUniqueSpecifier);
+    divideSuccessRun2_shapeComp = H1D_jetPt_ratio_run2_shapeComp[0]->Divide(H1D_jetPt_unfolded_run2Comp_shapeComp[1]);
+
+    ///////////////////////////////////////
+    // xT comparison: xT=2pT/sqrt(s) //////
+    ///////////////////////////////////////
+
+    double sqrtS_run2 = 5020; // same unit as pT
+    double sqrtS_run3 = 5360; // same unit as pT
+
+    // make xT binning
+    double binWidth = 0.001;
+    float maxPt = ptWindowDisplay[1];
+    float maxXt = 2*maxPt/sqrtS_run2; // sqrtS_run3 is larger than sqrtS_run2 so maxXtRun3 is smaller than maxXtRun2
+    for (int iBin = 1; iBin <= maxXt/binWidth; iBin++) { //pt bins of 1GeV are travelled
+      xtBinningVector.push_back(binWidth * iBin);
+    }
+    int nBinsXt = xtBinningVector.size() - 1;
+    double* xtBinning = &xtBinningVector[0];
+
+    // get fit functions
+    std::tuple<TF1*, TMatrixDSym, TFitResultPtr> tupleFitResult_run2 = TsallisFit(H1D_jetPt_run2_MLPaperFile, nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius], fitPtRange);
+    TF1* TF1_jetPt_run2_fit = std::get<0>(tupleFitResult_run2);
+    TMatrixDSym covMatrix_run2_fit = std::get<1>(tupleFitResult_run2);
+    double fitPtRange_run3[2] = {ptBinsJetsGen[iRadius][0], ptBinsJetsGen[iRadius][nBinPtJetsGen[iRadius]]};
+    std::tuple<TF1*, TMatrixDSym, TFitResultPtr> tupleFitResult_run3 = TsallisFit(H1D_jetPt_unfolded, nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius], fitPtRange);
+    TF1* TF1_jetPt_run3_fit = std::get<0>(tupleFitResult_run3);
+    TMatrixDSym covMatrix_run3_fit = std::get<1>(tupleFitResult_run3);
+
+
+    // TF1_jetPt_run2_fit->SetParameters()
+
+    double parfitFunctionRun2[2];
+    double parfitFunctionRun3[2];
+    TF1_jetPt_run2_fit->GetParameters(&parfitFunctionRun2[0]);
+    TF1_jetPt_run3_fit->GetParameters(&parfitFunctionRun3[0]);
+
+    // TF1* initial function = new TF1("dNdptFunction_run2", "x*(1+1/([0]*[1])*x)**(-[0])", xtBinning[0], xtBinning[nBinsXt]);
+    // (FoG)'(x)=F'oG(x)*G'(x)
+    // [2] is dpt/dxt
+    // [3] is replacing x with xt=2pt/sqrtS
+    // TF1* dNdxtFunction_run2 = new TF1("dNdxtFunction_run2", "[2]*[3]*x*(1+1/([0]*[1])*[3]*x)**(-[0])", xtBinning[0], xtBinning[nBinsXt]); 
+    TF1* dNdxtFunction_run2 = new TF1("dNdxtFunction_run2", "x*(1+1/([0]*[1])*[2]*x)**(-[0])", xtBinning[0], xtBinning[nBinsXt]); //first [2]*[3] term, with [2] being dpt/dxt=sqrtS/2 and [3] being 2./sqrtS, cancel each other 
+    dNdxtFunction_run2->SetParameters(parfitFunctionRun2[0], parfitFunctionRun2[1], 2./sqrtS_run2); //transfor of pt -> xt in variable: xt=2*pt/sqrtS ; pt=sqrtS/2*xt ; dN/dxt(xt) = dN/dpt*dpt/dxt = dN/dpt(2*pt/sqrtS)*sqrtS/2
+    // TF1* dNdxtFunction_run3 = new TF1("dNdxtFunction_run3", "[2]*[3]*x*(1+1/([0]*[1])*[3]*x)**(-[0])", xtBinning[0], xtBinning[nBinsXt]);
+    TF1* dNdxtFunction_run3 = new TF1("dNdxtFunction_run3", "x*(1+1/([0]*[1])*[2]*x)**(-[0])", xtBinning[0], xtBinning[nBinsXt]);
+    dNdxtFunction_run3->SetParameters(parfitFunctionRun3[0], parfitFunctionRun3[1], 2./sqrtS_run2); //transfor of pt -> xt in variable: xt=2*pt/sqrtS ; pt=sqrtS/2*xt ; dN/dxt(xt) = dN/dpt*dpt/dxt = dN/dpt(2*pt/sqrtS)*sqrtS/2
+  // 2./sqrtS_run2
+
+
+    int nRowsNew = 3; // for parameters [0], [1], [2]
+    TMatrixDSym newCovMatrix_run2 = TMatrixDSym(nRowsNew);
+    TMatrixDSym newCovMatrix_run3 = TMatrixDSym(nRowsNew);
+    std::vector<double> initialisationVector;
+    for (int i = 0; i < nRowsNew*nRowsNew; i++) {
+      initialisationVector.push_back(0);
+    }
+    newCovMatrix_run2.SetMatrixArray(&initialisationVector[0]);
+    newCovMatrix_run2.SetSub(0, 0, covMatrix_run2_fit); // inserts covMatrix_run2_fit as submatrix at row0 column0; other errors are 0 given [2] and[3] are constants
+    newCovMatrix_run3.SetMatrixArray(&initialisationVector[0]);
+    newCovMatrix_run3.SetSub(0, 0, covMatrix_run3_fit); // inserts covMatrix_run2_fit as submatrix at row0 column0; other errors are 0 given [2] and[3] are constants
+
+    Double_t *pData = newCovMatrix_run2.GetMatrixArray();
+    for (int i = 0; i < nRowsNew*nRowsNew; i++) {
+      cout << "test i = " << i << ", newCovMatrix_run2[i]" << pData[i] << endl;
+    }
+
+    double xtRange[2] = {xtBinningVector.front(), xtBinningVector.back()};
+    TGraphErrors* fitFunctionTGraphErrors_run2 = getFunctionTGraphErrorsFromCovMatrix(xtRange, dNdxtFunction_run2, &newCovMatrix_run2, nBinsXt);    
+    TGraphErrors* fitFunctionTGraphErrors_run3 = getFunctionTGraphErrorsFromCovMatrix(xtRange, dNdxtFunction_run3, &newCovMatrix_run3, nBinsXt);    
+
+    // define xT histograms
+    H1D_jetPt_unfolded_run2Comp_xT[0] = new TH1D("H1D_jetPt_unfolded_run2Comp_xT_run2", "H1D_jetPt_unfolded_run2Comp_xT_run2", nBinsXt, xtBinning);
+    H1D_jetPt_unfolded_run2Comp_xT[1] = new TH1D("H1D_jetPt_unfolded_run2Comp_xT_run3", "H1D_jetPt_unfolded_run2Comp_xT_run3", nBinsXt, xtBinning);
+    H1D_jetPt_unfolded_run2Comp_xT[0]->Sumw2();
+    H1D_jetPt_unfolded_run2Comp_xT[1]->Sumw2();
+
+
+    // fill the histograms
+    double H1D_jetPt_unfolded_run2Comp_xT_errorRun2, H1D_jetPt_unfolded_run2Comp_xT_errorRun3;
+    double xtAtCenterOfBin;
+    for (int iBin = 1; iBin <= nBinsXt; iBin++) {
+      xtAtCenterOfBin = (xtBinning[iBin-1]+xtBinning[iBin])/2;
+      H1D_jetPt_unfolded_run2Comp_xT[0]->SetBinContent(iBin, dNdxtFunction_run2->Eval(xtAtCenterOfBin));
+      H1D_jetPt_unfolded_run2Comp_xT[0]->SetBinError(iBin, fitFunctionTGraphErrors_run2->GetErrorY(iBin-1));
+      H1D_jetPt_unfolded_run2Comp_xT[1]->SetBinContent(iBin, dNdxtFunction_run3->Eval(xtAtCenterOfBin));
+      H1D_jetPt_unfolded_run2Comp_xT[1]->SetBinError(iBin, fitFunctionTGraphErrors_run3->GetErrorY(iBin-1));
+      cout << "test fitFunctionTGraphErrors_run2->GetErrorY(iBin) = " << fitFunctionTGraphErrors_run2->GetErrorY(iBin-1) << endl;
+      cout << "errors of xt graph look way too small (1E-8 or 1E-10)" << endl;
+    }
+
+    //ratio
+    H1D_jetPt_ratio_run2Comp_xT = (TH1D*)H1D_jetPt_unfolded_run2Comp_xT[1]->Clone("H1D_jetPt_ratio_run2Comp_xT"+partialUniqueSpecifier);
+    divideSuccessRun2_xt = H1D_jetPt_ratio_run2Comp_xT->Divide(H1D_jetPt_unfolded_run2Comp_xT[0]); // run3/run2
+
+
+
+
+    // comparison with run2 results with fits only
+    H1D_jetPt_unfolded_run2Comp_fits[0] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_unfolded_run2Comp_fits_run2"+partialUniqueSpecifier);
+    H1D_jetPt_unfolded_run2Comp_fits[1] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_unfolded_run2Comp_fits_run3"+partialUniqueSpecifier);
+
+    std::pair<TH1D*, TGraphErrors*> pairResult_run3 = RebinWithTsallisFit(H1D_jetPt_unfolded, nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius], fitPtRange);
+    TGraph_jetPt_unfolded_run2Comp_fits.push_back(pairResult_run2.second);
+    TGraph_jetPt_unfolded_run2Comp_fits.push_back(pairResult_run3.second);
+    
+
+    double ptAtCenterOfBin;
+    int nPoints = TGraph_jetPt_unfolded_run2Comp_fits.at(0)->GetN();
+    TH1D* H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[2];
+    H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0] = new TH1D("H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted_run2", "H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted_run2", nBinPtJetsFine[iRadius], ptBinsJetsFine[iRadius]);
+    H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1] = new TH1D("H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted_run3", "H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted_run3", nBinPtJetsFine[iRadius], ptBinsJetsFine[iRadius]);
+    H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0]->Sumw2();
+    H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1]->Sumw2();
+    for (int iBin = 1; iBin <= nBinPtJetsFine[iRadius]; iBin++) {
+      ptAtCenterOfBin = (ptBinsJetsFine[iRadius][iBin-1]+ptBinsJetsFine[iRadius][iBin])/2;
+      H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0]->SetBinContent(iBin, TGraph_jetPt_unfolded_run2Comp_fits.at(0)->GetPointY(ptAtCenterOfBin));
+      H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0]->SetBinError(iBin, TGraph_jetPt_unfolded_run2Comp_fits.at(0)->GetErrorY(iBin-1));
+      H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1]->SetBinContent(iBin, TGraph_jetPt_unfolded_run2Comp_fits.at(1)->GetPointY(ptAtCenterOfBin));
+      H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1]->SetBinError(iBin, TGraph_jetPt_unfolded_run2Comp_fits.at(1)->GetErrorY(iBin-1));
+      cout << "run2 at bin "<< iBin << ":" << H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0]->GetBinContent(iBin) << endl;
+      cout << "run3 at bin "<< iBin << ":" << H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1]->GetBinContent(iBin) << endl;
+    }
+
+    //ratio
+    H1D_jetPt_ratio_run2Comp_fits = (TH1D*)H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[1]->Clone("H1D_jetPt_ratio_run2Comp_fits"+partialUniqueSpecifier);
+    divideSuccessRun2_fits = H1D_jetPt_ratio_run2Comp_fits->Divide(H1D_jetPt_unfolded_run2Comp_fits_tgraphConverted[0]); // run3/run2
   }
  
   cout << "comparison with refolded" << endl; 
@@ -751,7 +932,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
   TString* yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
 
   TString pdfTitleBase = (TString)"IterationsDump/jet_"+unfoldingInfo;//+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+"_Pt_unfolded_";
@@ -796,7 +977,7 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   if (comparePbPbWithRun2) {
     TString unfoldedRun2CompLegend_fitRebin[3] = {"unfolded Run3", "unfolded Run2 ML rebinned", "unfolded Run2 ML initial"};
     TString* pdfName_run2Comp_fitRebin = new TString(pdfTitleBase+"_run2Comp_fitRebin");
-    Draw_TH1_Histograms(H1D_jetPt_unfolded_run2Comp_fitRebin, unfoldedRun2CompLegend_fitRebin, 3, textContext, pdfName_run2Comp_fitRebin, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy,fitSingle", TF1_jetPt_run2_MLPaperFile_fit);
+    Draw_TH1_Histograms(H1D_jetPt_unfolded_run2Comp_fitRebin, unfoldedRun2CompLegend_fitRebin, 3, textContext, pdfName_run2Comp_fitRebin, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy,fitSingle", TGraph_jetPt_run2_MLPaperFile_fit);
     if (divideSuccessRun2_fitRebin[0] || divideSuccessRun2_fitRebin[1]) {
       TString* pdfName_ratio_run2_fitRebin = new TString(pdfTitleBase+"_run2Comp_fitRebin_ratio");
       Draw_TH1_Histogram(H1D_jetPt_ratio_run2_fitRebin[0], textContext, pdfName_ratio_run2_fitRebin, texPtX, texRatioRun2Unfolded, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "zoomToOneLarge, ratioLine");
@@ -816,6 +997,23 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
     if (divideSuccessRun2[0] || divideSuccessRun2[1]) {
       TString* pdfName_ratio_shapeComp_run2 = new TString(pdfTitleBase+"_run2Comp_shapeComp_ratio");
       Draw_TH1_Histogram(H1D_jetPt_ratio_run2_shapeComp[0], textContext, pdfName_ratio_shapeComp_run2, texPtX, texRatioRun2Unfolded, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "zoomToOneLarge, ratioLine");
+    }
+
+    TString unfoldedRun2CompLegend_xtComp[2] = {"Run3", "Run2"};
+    TString* pdfName_run2Comp_xtComp = new TString(pdfTitleBase+"_run2Comp_xtComp");
+    std::array<std::array<float, 2>, 2> drawnWindowXt = {{{(float)xtBinningVector.front(), (float)xtBinningVector.back()}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
+    Draw_TH1_Histograms(H1D_jetPt_unfolded_run2Comp_xT, unfoldedRun2CompLegend_shapeComp, 2, textContext, pdfName_run2Comp_xtComp, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowXt, legendPlacementAuto, contextPlacementAuto, "logy");
+    if (divideSuccessRun2_xt) {
+      TString* pdfName_ratio_xtComp_run2 = new TString(pdfTitleBase+"_run2Comp_xtComp_ratio");
+      Draw_TH1_Histogram(H1D_jetPt_ratio_run2Comp_xT, textContext, pdfName_ratio_xtComp_run2, texPtX, texRatioRun2Unfolded, texCollisionDataInfo, drawnWindowXt, legendPlacementAuto, contextPlacementAuto, "zoomToOneLarge, ratioLine");
+    }
+
+    TString unfoldedRun2CompLegend_fits[3] = {"unfolded Run2 ML", "unfolded Run3"};
+    TString* pdfName_run2Comp_fits = new TString(pdfTitleBase+"_run2Comp_fits");
+    Draw_TH1_Histograms(H1D_jetPt_unfolded_run2Comp_fits, unfoldedRun2CompLegend_fits, 2, textContext, pdfName_run2Comp_fits, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy,fitCollection", TGraph_jetPt_unfolded_run2Comp_fits);
+    if (divideSuccessRun2_fits) {
+      TString* pdfName_ratio_run2_fits = new TString(pdfTitleBase+"_run2Comp_fits_ratio");
+      Draw_TH1_Histogram(H1D_jetPt_ratio_run2Comp_fits, textContext, pdfName_ratio_run2_fits, texPtX, texRatioRun2Unfolded, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "zoomToOneExtraExtra, ratioLine");
     }
   }
 
@@ -934,7 +1132,7 @@ void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, in
 
   TString* yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
   Draw_TH1_Histograms(H1D_jetPt_unfolded, unfoldingIterationLegend, nUnfoldIteration, textContext, pdfName, texPtX, yAxisLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy");
 
@@ -1153,8 +1351,8 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
         H1D_jetPt_unfolded_run2Comp[iDataset]->SetBinContent(i, 1./scalingFactorRebin[i-1]*H1D_jetPt_unfolded_run2Comp[iDataset]->GetBinContent(i));
         H1D_jetPt_unfolded_run2Comp[iDataset]->SetBinError(i, 1./scalingFactorRebin[i-1]*H1D_jetPt_unfolded_run2Comp[iDataset]->GetBinError(i));
       }
-      H1D_jetPt_ratio_run2[iDataset] = (TH1D*)H1D_jetPt_run2_MLPaperFile->Clone("H1D_jetPt_ratio_run2_MLPaperFile"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
-      divideSuccessRun2[iDataset] = H1D_jetPt_ratio_run2[iDataset]->Divide(H1D_jetPt_unfolded_run2Comp[iDataset]);
+      H1D_jetPt_ratio_run2[iDataset] = (TH1D*)H1D_jetPt_unfolded_run2Comp[iDataset]->Clone("H1D_jetPt_ratio_run2_MLPaperFile"+partialUniqueSpecifier+datasetNameSpecifier[iDataset]);
+      divideSuccessRun2[iDataset] = H1D_jetPt_ratio_run2[iDataset]->Divide(H1D_jetPt_run2_MLPaperFile);
     }
 
     // if (doComparisonMcpFoldedWithFluct) {
@@ -1216,7 +1414,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
 
   TString* yAxisLabel = texCount;
   if (normaliseDistribsInComparisonPlots || normaliseUnfoldingResultsAtEnd) { //should probably check if having both on doesn't lead to double normalisation
-    yAxisLabel = texJetPtYield_EventNorm;
+    yAxisLabel = texJet_d2Ndptdeta_EventNorm;
   }
 
   TString pdfTitleBase = (TString)"IterationsDump/jet_DatasetComp_"+unfoldingInfo;//+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+"_Pt_unfolded_";
