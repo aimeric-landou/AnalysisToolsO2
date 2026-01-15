@@ -183,11 +183,8 @@ void JetQC() {
 
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEntries");
-<<<<<<< HEAD
     // Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
-=======
     Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
->>>>>>> 8af6bc2 (adding ratio plots in JetQC and legends in Tracks)
 
     // Draw_Constituent_Pt_DatasetComparison(ptRange, jetRadiusForDataComp);
 
