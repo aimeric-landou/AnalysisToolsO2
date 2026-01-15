@@ -183,7 +183,11 @@ void JetQC() {
 
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEntries");
+<<<<<<< HEAD
+    // Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
+=======
     Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
+>>>>>>> 8af6bc2 (adding ratio plots in JetQC and legends in Tracks)
 
     // Draw_Constituent_Pt_DatasetComparison(ptRange, jetRadiusForDataComp);
 
@@ -479,7 +483,7 @@ void Draw_Eta_RadiusComparison(int iDataset, float* PtRange) {
     H1D_jetEta[iRadius] = (TH1D*)H3D_jetRjetPtjetEta->ProjectionZ("jetEta_"+RadiusLegend[iRadius]+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh), ibinJetRadius, ibinJetRadius, ibinPt_low, ibinPt_high, "e");
     H1D_jetEta_rebinned[iRadius] = (TH1D*)H1D_jetEta[iRadius]->Rebin(1.,"jetEta_rebinned_"+RadiusLegend[iRadius]+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
 
-    NormaliseYieldToIntegral(H1D_jetEta_rebinned[iRadius]);    
+    NormaliseYieldToIntegral(H1D_jetEta_rebinned[iRadius]);
     // NormaliseYieldToNEvents(H1D_jetEta_rebinned[iRadius], GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset]));
   }
 

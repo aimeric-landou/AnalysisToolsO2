@@ -239,11 +239,13 @@ void Draw_Pt_DatasetComparison(std::string options) {
 
   TH1D* H1D_trackPt[nDatasets];
   TH1D* H1D_trackPt_rebinned[nDatasets];
+
   TH1D* H1D_trackPt_rebinned_ratios[nDatasets];
 
   bool divideSuccess = false;
 
   double Nevents; 
+
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
 
     if (trackHistsObsoleteVersion[iDataset]) {
@@ -337,7 +339,6 @@ void Draw_Pt_DatasetComparison(std::string options) {
         NormaliseYieldToIntegral(H1D_trackPt_rebinned[iDataset]);
     }
   }
-
   TString DatasetsNamesPairRatio[nDatasets];
   int nHistPairRatio = (int)nDatasets / 2;;
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
@@ -372,8 +373,6 @@ void Draw_Pt_DatasetComparison(std::string options) {
   TString* pdfName_ratio_zoom = new TString("track_Pt_DataComp"+pdfNameNorm+"_ratio_zoom");
 
   std::array<std::array<float, 2>, 2> drawnWindowCustomRatio_zoom = {{{0.1, 100}, {0.9, 1.1}}}; // {{xmin, xmax}, {ymin, ymax}}
-
-
 
 
   Draw_TH1_Histograms(H1D_trackPt_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPtX, textYaxis, texCollisionDataInfo, drawnWindowPt, legendPlacementPt, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
@@ -485,6 +484,7 @@ void Draw_Eta_DatasetComparison(float* ptRange, std::string options) {
   std::array<std::array<float, 2>, 2> legendPlacementCustom2 = {{{0.2, 0.2}, {0.7, 0.38}}}; // {{{x1, y1}, {x2, y2}}}
 
 
+
   Draw_TH1_Histograms(H1D_trackEta_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texEtaX, textYaxis, texCollisionDataInfo, drawnWindowEtaZoom, legendPlacementCustom, contextPlacementAuto, ""+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
@@ -591,9 +591,6 @@ void Draw_Phi_DatasetComparison(float* ptRange, std::string options) {
   std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.65, 0.68}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
   std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-999, -999}, {1, 5}}}; // {{xmin, xmax}, {ymin, ymax}}
 
-
-
-
   Draw_TH1_Histograms(H1D_trackPhi_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPhiX, textYaxis, texCollisionDataInfo, drawnWindowEta, legendPlacementCustom, contextPlacementAuto, "histWithLine"+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
@@ -608,6 +605,7 @@ void Draw_Phi_DatasetComparison(float* ptRange, std::string options) {
 }
 
 void Draw_Pt_CentralityComparison(int iDataset) {
+
   TH3D* H3D_trackPttrackCent;
   TH2D* H2D_trackPttrackCent;
   TH1D* H1D_trackPt[nCentralityBins];
@@ -639,6 +637,7 @@ void Draw_Pt_CentralityComparison(int iDataset) {
     H1D_trackPt_rebinned[iCentralityBin] = (TH1D*)H1D_trackPt[iCentralityBin]->Rebin(1.,"trackPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     NormaliseYieldToNEvents(H1D_trackPt_rebinned[iCentralityBin], GetNEventsSelectedCentrality_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset], arrayCentralityBinning[iCentralityBin], arrayCentralityBinning[iCentralityBin+1]));
+
     ss << "Cent " << arrayCentralityBinning[iCentralityBin] << " - " << arrayCentralityBinning[iCentralityBin+1] << " ";
     CentralityLegend[iCentralityBin] = (TString)ss.str();
     ss.str("");
@@ -1375,4 +1374,3 @@ void Draw_DcaXY_DatasetComp() {
   cout << "tesst3" << endl;
 
 }
-
