@@ -154,12 +154,12 @@ void JetQC() {
   // const int nPtMinCuts = 7;
   // float jetPtMinCut;
   // float jetPtMinCutArray[nPtMinCuts] = {-999, 0, 5, 10, 15, 20, 40.};
-  const int nPtBins = 5;
-  float jetPtMinCut, jetPtMaxCut;
-  float jetPtMinCutArray[nPtBins+1] = {0.15, 10, 20, 40, 60, 200};
-  // const int nPtBins = 1;
+  // const int nPtBins = 5;
   // float jetPtMinCut, jetPtMaxCut;
-  // float jetPtMinCutArray[nPtBins+1] = {0.15, 200};
+  // float jetPtMinCutArray[nPtBins+1] = {0.15, 10, 20, 40, 60, 200};
+  const int nPtBins = 1;
+  float jetPtMinCut, jetPtMaxCut;
+  float jetPtMinCutArray[nPtBins+1] = {0.15, 200};
 
 
   // only for leading pT analysis, those two are a bit hardcoded
@@ -479,7 +479,7 @@ void Draw_Eta_RadiusComparison(int iDataset, float* PtRange) {
     H1D_jetEta[iRadius] = (TH1D*)H3D_jetRjetPtjetEta->ProjectionZ("jetEta_"+RadiusLegend[iRadius]+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh), ibinJetRadius, ibinJetRadius, ibinPt_low, ibinPt_high, "e");
     H1D_jetEta_rebinned[iRadius] = (TH1D*)H1D_jetEta[iRadius]->Rebin(1.,"jetEta_rebinned_"+RadiusLegend[iRadius]+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
 
-    NormaliseYieldToNEntries(H1D_jetEta_rebinned[iRadius]);
+    NormaliseYieldToIntegral(H1D_jetEta_rebinned[iRadius]);    
     // NormaliseYieldToNEvents(H1D_jetEta_rebinned[iRadius], GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset]));
   }
 
@@ -800,13 +800,13 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
     // H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(5.,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh));
 
 
-    int nBinPtJets = 16;
-    double ptBinsJets[17] = {-10., -5., 0., 5., 10., 15., 20., 25., 30., 35., 40., 50., 60., 80., 100., 140., 200.};
-    H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(nBinPtJets,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh), ptBinsJets);
+    // int nBinPtJets = 16;
+    // double ptBinsJets[17] = {-10., -5., 0., 5., 10., 15., 20., 25., 30., 35., 40., 50., 60., 80., 100., 140., 200.};
+    H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(1. ,"jetPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh));
 
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPt_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetPt_rebinned[iDataset]);
       yAxisLabel = texJetPtYield_EntriesNorm;
     }
     double Nevents;
@@ -849,7 +849,7 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
   // TString textContext(contextDatasetCompAndRadiusAndVarRange(jetRadius, etaRange, "eta"));
   TString textContext(contextCustomThreeFields(*texDatasetsComparisonCommonDenominator, "", "#splitline{"+contextJetRadius(jetRadius)+"}{"+contextEtaRange(etaRange)+"}", ""));
 
-  std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{-999, -999}}};
+  std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{10E-9, 40}}};
   std::array<std::array<float, 2>, 2> drawnWindowZoom = {{{-10, 200},{0.6, 1.6}}};
   std::array<std::array<float, 2>, 2> drawnWindowZoomTwoByTwo = {{{-25, 200},{0.5, 2}}};
   std::array<std::array<float, 2>, 2> legendPlacement = {{{0.65, 0.6}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
@@ -919,19 +919,16 @@ void Draw_Eta_DatasetComparison(float jetRadius, float* PtRange, std::string opt
       cout << "Requested workflow is incorrect: it should be jet-finder-charged-qa or jet-spectra-charged" << endl;
     }
 
-
-    H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(5.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
-    cout << "getentries H3D = "<< H3D_jetRjetPtjetEta[iDataset]->GetEntries() << endl;
-    cout << "getentries H1D = "<< H1D_jetEta_rebinned[iDataset]->GetEntries() << endl;
-
     if (PtRange[0] < 40) {
       H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(5.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
     } else {
       H1D_jetEta_rebinned[iDataset] = (TH1D*)H1D_jetEta[iDataset]->Rebin(20.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
     }
+    cout << "getentries H3D = "<< H3D_jetRjetPtjetEta[iDataset]->GetEntries() << endl;
+    cout << "getentries H1D = "<< H1D_jetEta_rebinned[iDataset]->GetEntries() << endl;
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetEta_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetEta_rebinned[iDataset]);
       yAxisLabel = texJetEtaYield_EntriesNorm;
       pdfNameNorm = "normEntries";
     }
@@ -1044,7 +1041,7 @@ void Draw_Phi_DatasetComparison(float jetRadius, float* PtRange, std::string opt
     H1D_jetPhi_rebinned[iDataset] = (TH1D*)H1D_jetPhi[iDataset]->Rebin(5.,"jetPhi_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPhi_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetPhi_rebinned[iDataset]);
       yAxisLabel = texJetPhiYield_EntriesNorm;
     }
     double Nevents;
@@ -1821,7 +1818,7 @@ void Draw_Eta_CentralityComparison(float jetRadius, int iDataset) { //for now on
     H1D_jetEta_rebinned[iCentralityBin] = (TH1D*)H1D_jetEta[iCentralityBin]->Rebin(1.,"jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     H1D_jetEta_rebinned_entriesnorm[iCentralityBin] = (TH1D*)H1D_jetEta_rebinned[iCentralityBin]->Clone("jetEta_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]_entriesNorm");
-    NormaliseYieldToNEntries(H1D_jetEta_rebinned_entriesnorm[iCentralityBin]);
+    NormaliseYieldToIntegral(H1D_jetEta_rebinned_entriesnorm[iCentralityBin]);
 
     NormaliseYieldToNEvents(H1D_jetEta_rebinned[iCentralityBin], GetNEventsSelectedCentrality_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset], arrayCentralityBinning[iCentralityBin], arrayCentralityBinning[iCentralityBin+1]));
 
@@ -1869,7 +1866,7 @@ void Draw_Phi_CentralityComparison(float jetRadius, int iDataset) { //for now on
     H1D_jetPhi_rebinned[iCentralityBin] = (TH1D*)H1D_jetPhi[iCentralityBin]->Rebin(1.,"jetPhi_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     H1D_jetPhi_rebinned_entriesnorm[iCentralityBin] = (TH1D*)H1D_jetPhi_rebinned[iCentralityBin]->Clone("jetPhi_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]_entriesNorm");
-    NormaliseYieldToNEntries(H1D_jetPhi_rebinned_entriesnorm[iCentralityBin]);
+    NormaliseYieldToIntegral(H1D_jetPhi_rebinned_entriesnorm[iCentralityBin]);
 
     // NormaliseYieldToNEntries(H1D_jetPhi_rebinned[iRadius]);
     NormaliseYieldToNEvents(H1D_jetPhi_rebinned[iCentralityBin], GetNEventsSelectedCentrality_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset], arrayCentralityBinning[iCentralityBin], arrayCentralityBinning[iCentralityBin+1]));
@@ -1924,7 +1921,7 @@ void Draw_BkgFluctuations_CentralityProjection(int iDataset, std::array<std::arr
     H1D_fluctuations_rebinned[iCentralityBin] = (TH1D*)H1D_fluctuations[iCentralityBin]->Rebin(1.,"bkgFluctuationCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_fluctuations_rebinned[iCentralityBin]);
+      NormaliseYieldToIntegral(H1D_fluctuations_rebinned[iCentralityBin]);
       yAxisLabel = texEntriesNorm_BkgFluctuationYield;
     }
     if (options.find("normEvents") != std::string::npos) {
@@ -1989,7 +1986,7 @@ void Draw_Rho_CentralityProjection(int iDataset, std::string options) {
     H1D_rho_rebinned[iCentralityBin] = (TH1D*)H1D_rho[iCentralityBin]->Rebin(1.,"bkgRhoCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_rho_rebinned[iCentralityBin]);
+      NormaliseYieldToIntegral(H1D_rho_rebinned[iCentralityBin]);
       yAxisLabel = texEntriesNormRho;
     }
     if (options.find("normEvents") != std::string::npos) {
@@ -2047,7 +2044,7 @@ void Draw_Rho_CentralityProjection_DatasetComp(float* centRange, std::string opt
     H1D_rho_rebinned[iDataset] = (TH1D*)H1D_rho[iDataset]->Rebin(1.,"bkgRhoCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_rho_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_rho_rebinned[iDataset]);
       yAxisLabel = texEntriesNormRho;
     }
     if (options.find("normEvents") != std::string::npos) {
@@ -2158,7 +2155,7 @@ void Draw_Eta_PtCutComparison(float jetRadius, int iDataset, float* PtCuts, int 
     H1D_jetEta_rebinned[iBinPt] = (TH1D*)H1D_jetEta[iBinPt]->Rebin(2.,"jetEta_rebinned_"+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+Form("%.1f", PtCutLow)+"<pt");
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetEta_rebinned[iBinPt]);
+      NormaliseYieldToIntegral(H1D_jetEta_rebinned[iBinPt]);
       yAxisLabel = texJetEtaYield_EntriesNorm;
     }
     if (options.find("normEvents") != std::string::npos) {
@@ -2211,7 +2208,7 @@ void Draw_Phi_PtCutComparison(float jetRadius, int iDataset, float* PtCuts, int 
     H1D_jetPhi_rebinned[iBinPt] = (TH1D*)H1D_jetPhi[iBinPt]->Rebin(2.,"jetPhi_rebinned_"+DatasetsNames[iDataset]+Form("%.1f", jetRadius)+Form("%.1f", PtCutLow)+"<pt");
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPhi_rebinned[iBinPt]);
+      NormaliseYieldToIntegral(H1D_jetPhi_rebinned[iBinPt]);
       yAxisLabel = texJetPhiYield_EntriesNorm;
     }
     if (options.find("normEvents") != std::string::npos) {
@@ -2259,9 +2256,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_CentralityComp(int iDatas
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nCentralityBins];
-  TF1 *gaussFinal[nCentralityBins];
-  TF1 *gaussDrawn[nCentralityBins]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nCentralityBins);
+  std::vector<TF1*> gaussFinal(nCentralityBins);
+  std::vector<TF1*> gaussDrawn(nCentralityBins); // drawn over the full range
   // TF1 *GaussPlusPolynom[nCentralityBins];
   // TF1 *bkgparab[nCentralityBins];
   TFitResultPtr fFitResult[nCentralityBins];
@@ -2280,7 +2277,7 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_CentralityComp(int iDatas
     H1D_fluctuations_rebinned[iCentralityBin] = (TH1D*)H1D_fluctuations[iCentralityBin]->Rebin(1.,"bkgFluctuationCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     // if (options.find("normEntries") != std::string::npos) {
-    NormaliseYieldToNEntries(H1D_fluctuations_rebinned[iCentralityBin]);
+    NormaliseYieldToIntegral(H1D_fluctuations_rebinned[iCentralityBin]);
     yAxisLabel = texEntriesNorm_BkgFluctuationYield;
     // }
     // if (options.find("normEvents") != std::string::npos) {
@@ -2402,9 +2399,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(float* centRa
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nDatasets];
-  TF1 *gaussFinal[nDatasets];
-  TF1 *gaussDrawn[nDatasets]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nDatasets);
+  std::vector<TF1*> gaussFinal(nDatasets);
+  std::vector<TF1*> gaussDrawn(nDatasets); // drawn over the full range
   // TF1 *GaussPlusPolynom[nDatasets];
   // TF1 *bkgparab[nDatasets];
   TFitResultPtr fFitResult[nDatasets];
@@ -2436,7 +2433,7 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_DatasetComp(float* centRa
     H1D_fluctuations_rebinned[iDataset] = (TH1D*)H1D_fluctuations[iDataset]->Rebin(1.,"bkgFluctuationCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+methodRandomConeHistNames[iMethodRandomCone]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     // if (options.find("normEntries") != std::string::npos) {
-    NormaliseYieldToNEntries(H1D_fluctuations_rebinned[iDataset]);
+    NormaliseYieldToIntegral(H1D_fluctuations_rebinned[iDataset]);
     yAxisLabel = texEntriesNorm_BkgFluctuationYield;
     // }
     // if (options.find("normEvents") != std::string::npos) {
@@ -2571,9 +2568,9 @@ void Draw_Rho_withFit_NTracksProjection(int iDataset) { /// should be bkgfluct v
 
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nTracksBins];
-  TF1 *gaussFinal[nTracksBins];
-  TF1 *gaussDrawn[nTracksBins]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nTracksBins);
+  std::vector<TF1*> gaussFinal(nTracksBins);
+  std::vector<TF1*> gaussDrawn(nTracksBins); // drawn over the full range
   // TF1 *GaussPlusPolynom[nTracksBins];
   // TF1 *bkgparab[nTracksBins];
   TFitResultPtr fFitResult[nTracksBins];
@@ -2592,7 +2589,7 @@ void Draw_Rho_withFit_NTracksProjection(int iDataset) { /// should be bkgfluct v
     H1D_fluctuations_rebinned[iTracksBin] = (TH1D*)H1D_fluctuations[iTracksBin]->Rebin(1.,"bkgFluctuationCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
 
     // if (options.find("normEntries") != std::string::npos) {
-    NormaliseYieldToNEntries(H1D_fluctuations_rebinned[iTracksBin]);
+    NormaliseYieldToIntegral(H1D_fluctuations_rebinned[iTracksBin]);
     yAxisLabel = texEntriesNorm_BkgFluctuationYield;
     // }
     // if (options.find("normEvents") != std::string::npos) {
@@ -3097,7 +3094,7 @@ void Draw_Pt_PbPbToPPComparison_HARDCODED(float jetRadius, float* etaRange, std:
     // cout << "test0.35" << endl;
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPt_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetPt_rebinned[iDataset]);
       yAxisLabel = texJetPtYield_EntriesNorm;
     }
     double Nevents;
@@ -3154,9 +3151,9 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_MethodComp(float* centRan
   
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nMethodRC];
-  TF1 *gaussFinal[nMethodRC];
-  TF1 *gaussDrawn[nMethodRC]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nMethodRC);
+  std::vector<TF1*> gaussFinal(nMethodRC);
+  std::vector<TF1*> gaussDrawn(nMethodRC); // drawn over the full range
   // TF1 *GaussPlusPolynom[nMethodRC];
   // TF1 *bkgparab[nMethodRC];
   TFitResultPtr fFitResult[nMethodRC];
@@ -3188,7 +3185,7 @@ void Draw_BkgFluctuations_CentralityProjection_withFit_MethodComp(float* centRan
     H1D_fluctuations_rebinned[iMethodRC] = (TH1D*)H1D_fluctuations[iMethodRC]->Rebin(1.,"bkgFluctuationCentrality_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+methodRandomConeHistNames[iMethodRC]+"_@cent["+Form("%.0f", centRange[0])+","+Form("%.0f", centRange[1])+"]");
 
     // if (options.find("normEntries") != std::string::npos) {
-    NormaliseYieldToNEntries(H1D_fluctuations_rebinned[iMethodRC]);
+    NormaliseYieldToIntegral(H1D_fluctuations_rebinned[iMethodRC]);
     yAxisLabel = texEntriesNorm_BkgFluctuationYield;
     // }
     // if (options.find("normEvents") != std::string::npos) {
@@ -3723,9 +3720,9 @@ void Draw_PtPeakPosition_vs_leadTrackCut(float* etaRange, float jetRadiusForJetF
 
   ////////////////////////////////// Fit initialisation //////////////////////////////////
   //Fit tools initialisation
-  TF1 *gaussInit[nDatasets];
-  TF1 *gaussFinal[nDatasets];
-  TF1 *gaussDrawn[nDatasets]; // drawn over the full range
+  std::vector<TF1*> gaussInit(nDatasets);
+  std::vector<TF1*> gaussFinal(nDatasets);
+  std::vector<TF1*> gaussDrawn(nDatasets); // drawn over the full range
   // TF1 *GaussPlusPolynom[nDatasets];
   // TF1 *bkgparab[nDatasets];
   TFitResultPtr fFitResult[nDatasets];
@@ -3957,7 +3954,7 @@ void Draw_PtLeadCutStudy_PtOfRatio1(float* etaRange, std::string options, float 
     H1D_jetPt_rebinned[iDataset] = (TH1D*)H1D_jetPt[iDataset]->Rebin(1.,"jetPt_rebinned_2"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", EtaCutLow)+"<eta<"+Form("%.1f", EtaCutHigh));
 
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPt_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetPt_rebinned[iDataset]);
       yAxisLabel = texJetPtYield_EntriesNorm;
     }
     double Nevents;
@@ -4200,7 +4197,7 @@ void Draw_Pt_DatasetComparison_withRun2RitsuyaHardcoded(float* etaRange, std::st
 
     
     if (options.find("normEntries") != std::string::npos) {
-      NormaliseYieldToNEntries(H1D_jetPt_rebinned[iDataset]);
+      NormaliseYieldToIntegral(H1D_jetPt_rebinned[iDataset]);
       yAxisLabel = texJetPtYield_EntriesNorm;
     }
     double Nevents;

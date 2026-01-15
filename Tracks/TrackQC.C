@@ -122,9 +122,7 @@ void TrackQC() {
 
     float ptRange[2] = {jetPtMinCut, jetPtMaxCut};
     Draw_Eta_DatasetComparison(ptRange, "evtNorm");
-    Draw_Eta_DatasetComparison(ptRange, "evtNorm");
     // Draw_Eta_DatasetComparison(ptRange, "entriesNorm");
-    Draw_Phi_DatasetComparison(ptRange, "evtNorm");
     Draw_Phi_DatasetComparison(ptRange, "evtNorm");
     // Draw_Phi_DatasetComparison(ptRange, "entriesNorm");
 
@@ -614,12 +612,10 @@ void Draw_Pt_CentralityComparison(int iDataset) {
   TH2D* H2D_trackPttrackCent;
   TH1D* H1D_trackPt[nCentralityBins];
   TH1D* H1D_trackPt_rebinned[nCentralityBins];
-  cout << "test1" << endl;
 
   if (trackHistsObsoleteVersion[iDataset]) {
     H2D_trackPttrackCent = (TH2D*)((TH2D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h2_centrality_track_pt"))->Clone("Draw_Pt_CentralityComparison"+Datasets[iDataset]+DatasetsNames[iDataset]);
     H2D_trackPttrackCent->Sumw2();
-    cout << "test2" << endl;
   } else {
     H3D_trackPttrackCent = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_centrality_track_pt_track_eta"))->Clone("Draw_Pt_CentralityComparison"+Datasets[iDataset]+DatasetsNames[iDataset]);
     H3D_trackPttrackCent->Sumw2();
@@ -629,7 +625,6 @@ void Draw_Pt_CentralityComparison(int iDataset) {
   TString CentralityLegend[nCentralityBins];
   std::stringstream ss;
   for(int iCentralityBin = 0; iCentralityBin < nCentralityBins; iCentralityBin++){
-    cout << "test3" << endl;
 
     if (trackHistsObsoleteVersion[iDataset]) {
       ibinCent_low = H2D_trackPttrackCent->GetXaxis()->FindBin(arrayCentralityBinning[iCentralityBin]);
@@ -642,15 +637,12 @@ void Draw_Pt_CentralityComparison(int iDataset) {
     }
       
     H1D_trackPt_rebinned[iCentralityBin] = (TH1D*)H1D_trackPt[iCentralityBin]->Rebin(1.,"trackPt_rebinned_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_@cent["+Form("%.1d", ibinCent_low)+","+Form("%.1d", ibinCent_high)+"]");
-    cout << "test4" << endl;
 
     NormaliseYieldToNEvents(H1D_trackPt_rebinned[iCentralityBin], GetNEventsSelectedCentrality_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset], arrayCentralityBinning[iCentralityBin], arrayCentralityBinning[iCentralityBin+1]));
-    cout << "test5" << endl;
     ss << "Cent " << arrayCentralityBinning[iCentralityBin] << " - " << arrayCentralityBinning[iCentralityBin+1] << " ";
     CentralityLegend[iCentralityBin] = (TString)ss.str();
     ss.str("");
     ss.clear();
-    cout << "test6" << endl;
   }
 
   TString* pdfName = new TString("track_CentralityComp_"+Datasets[iDataset]+DatasetsNames[iDataset]+"_Pt");
