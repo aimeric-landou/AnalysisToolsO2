@@ -114,17 +114,17 @@ void TrackQC() {
   float jetPtMinCutArray[nPtBins+1] = {0.15, 100};
 
 
-  // Draw_Pt_DatasetComparison("evtNorm");
-  // Draw_Pt_DatasetComparison("entriesNorm");
+  Draw_Pt_DatasetComparison("evtNorm");
+  Draw_Pt_DatasetComparison("entriesNorm");
   for(int iPtBin = 0; iPtBin < nPtBins; iPtBin++){
     jetPtMinCut = jetPtMinCutArray[iPtBin];
     jetPtMaxCut = jetPtMinCutArray[iPtBin+1];
 
     float ptRange[2] = {jetPtMinCut, jetPtMaxCut};
     Draw_Eta_DatasetComparison(ptRange, "evtNorm");
-    // Draw_Eta_DatasetComparison(ptRange, "entriesNorm");
+    Draw_Eta_DatasetComparison(ptRange, "entriesNorm");
     Draw_Phi_DatasetComparison(ptRange, "evtNorm");
-    // Draw_Phi_DatasetComparison(ptRange, "entriesNorm");
+    Draw_Phi_DatasetComparison(ptRange, "entriesNorm");
 
   // Draw_Eta_DatasetComparison_trackSelComp();
   // Draw_Phi_DatasetComparison_trackSelComp();
@@ -373,6 +373,11 @@ void Draw_Pt_DatasetComparison(std::string options) {
   TString* pdfName_ratio_zoom = new TString("track_Pt_DataComp"+pdfNameNorm+"_ratio_zoom");
 
   std::array<std::array<float, 2>, 2> drawnWindowCustomRatio_zoom = {{{0.1, 100}, {0.9, 1.1}}}; // {{xmin, xmax}, {ymin, ymax}}
+  const std::array<std::array<float, 2>, 2> drawnWindowPt = {{{-999, -999}, {1e-8, 10}}}; // {{{xmin, xmax}, {ymin, ymax}}}
+  const std::array<std::array<float, 2>, 2> legendPlacementPt = {{{0.7, 0.65}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  const std::array<std::array<float, 2>, 2> drawnWindowPtRatio = {{{-999, -999}, {0, 2.65}}}; // {{{xmin, xmax}, {ymin, ymax}}}
+  const std::array<std::array<float, 2>, 2> legendPlacementPtRatio = {{{0.17, 0.72}, {0.45, 0.81}}}; // {{{x1, y1}, {x2, y2}}}
+
 
 
   Draw_TH1_Histograms(H1D_trackPt_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPtX, textYaxis, texCollisionDataInfo, drawnWindowPt, legendPlacementPt, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
@@ -478,7 +483,7 @@ void Draw_Eta_DatasetComparison(float* ptRange, std::string options) {
   TString* pdfName_ratio_zoom2 = new TString((TString)"track_Eta_DataComp_@pT["+Form("%03.0f", ptCutLow)+","+Form("%03.0f", ptCutHigh)+"]"+pdfNameNorm+"_ratio_zoom2");
 
   std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-1, 1}, {260, 390}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> drawnWindowEtaZoom = {{{-1, 1}, {25, 30}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> drawnWindowEtaZoom = {{{-1, 1}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 1}, {0.9, 1.1}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.65, 0.65}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
   std::array<std::array<float, 2>, 2> legendPlacementCustom2 = {{{0.2, 0.2}, {0.7, 0.38}}}; // {{{x1, y1}, {x2, y2}}}
@@ -589,7 +594,7 @@ void Draw_Phi_DatasetComparison(float* ptRange, std::string options) {
   std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 7}, {0.9, 1.5}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> legendPlacementCustomRatio = {{{0.53, 0.65}, {0.58, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
   std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.65, 0.68}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
-  std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-999, -999}, {1, 5}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-999, -999}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
   Draw_TH1_Histograms(H1D_trackPhi_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPhiX, textYaxis, texCollisionDataInfo, drawnWindowEta, legendPlacementCustom, contextPlacementAuto, "histWithLine"+histDatasetComparisonStructure);
   if (divideSuccess == true) {

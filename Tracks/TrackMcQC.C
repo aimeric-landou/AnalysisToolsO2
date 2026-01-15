@@ -109,9 +109,9 @@ void TrackMcQC() {
   float etaRange[2] = {-0.9, 0.9};
   float ptRange[2] = {0.15, 100};
   bool useLargeLegendWindow = false;
-  Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit, useLargeLegendWindow);
-  Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
-  Draw_Efficiency_Phi_DatasetComparison(ptRange, etaRange, useSplit);
+  // Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit, useLargeLegendWindow);
+  // Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
+  // Draw_Efficiency_Phi_DatasetComparison(ptRange, etaRange, useSplit);
 
   // Draw_Efficiency_Pt_ratio_etaNeg_etaPos_DatasetComparison(etaRange, useSplit);
   // // Draw_Efficiency_Phi_DatasetComparison_finerPhi(ptRange1, etaRange); // only works with very specific datasets created locally
