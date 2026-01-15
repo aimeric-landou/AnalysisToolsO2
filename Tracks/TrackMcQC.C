@@ -90,6 +90,7 @@ void Draw_Phi_gen_DatasetComparison_H2CentVersion(std::string options);
 void Draw_Pt_tracksReco_fromEffWorkflow_DatasetComparison(float* etaRange, std::string options);
 void Draw_Eta_tracksReco_fromEffWorkflow_DatasetComparison(float* ptRange, std::string options);
 void Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(float* ptRange, float* etaRange, std::string options);
+void Draw_PtResolution_Residuals(std::string options);
 
 /////////////////////////////////////////////////////
 ///////////////////// Main Macro ////////////////////
@@ -171,6 +172,7 @@ void TrackMcQC() {
   // Draw_Pt_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio");
   // Draw_Eta_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio");
   // Draw_Phi_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio");
+  Draw_PtResolution_Residuals("ptRes_vs_pt");
 }
 /////////////////////////////////////////////////////
 /////////////////// Misc utilities //////////////////
@@ -703,6 +705,8 @@ void Draw_Efficiency_Eta_DatasetComparison(float* ptRange, bool useSplit) {
 
   // TString textContext(contextDatasetComp(""));
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextPtRange(ptRange), ""));
+  std::array<std::array<float, 2>, 2> drawnZoom = {{{(float)H1D_trackEta_efficiency[0]->GetXaxis()->GetXmin(), (float)H1D_trackEta_efficiency[0]->GetXaxis()->GetXmax()}, 
+                                                    {0.6, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms(H1D_trackEta_efficiency, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texEtaMC, texTrackEfficiency, texCollisionDataInfo, drawnWindowAuto, legendPlacementEta, contextPlacementAuto, "efficiency"+histDatasetComparisonStructure);
@@ -855,7 +859,9 @@ void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool
 
   // TString textContext(contextDatasetComp(""));
   TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, "#splitline{"+contextPtRange(ptRange)+"}{"+contextEtaRange(etaRange)+"}", ""));
-  std::array<std::array<float, 2>, 2> legendPlacementPhi = {{{0.55, 0.55}, {0.85, 0.85}}};
+  std::array<std::array<float, 2>, 2> legendPlacementPhi = {{{0.65, 0.65}, {0.85, 0.85}}};
+  std::array<std::array<float, 2>, 2> drawnZoom = {{{(float)H1D_trackPhi_efficiency[0]->GetXaxis()->GetXmin(), (float)H1D_trackPhi_efficiency[0]->GetXaxis()->GetXmax()}, 
+                                                    {0.45, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
 
   std::array<std::array<float, 2>, 2> drawnWindowLogEff_zoom = {{{-999, -999}, {0.5, 1}}};
   std::array<std::array<float, 2>, 2> drawnWindowLogEffRatio_zoom = {{{-999, -999}, {0.8, 1.2}}};
@@ -1642,10 +1648,12 @@ void Draw_Purity_Eta_DatasetComparison(float* etaRange, bool useSplit) {
                                                     {0.9, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> drawnZoom_split = {{{(float)H1D_trackEta_primaryPurity[0]->GetXaxis()->GetXmin(), (float)H1D_trackEta_primaryPurity[0]->GetXaxis()->GetXmax()}, 
                                                     {0.996, 1.002}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> drawnZoom_prim2 = {{{(float)H1D_trackEta_primaryPurity[0]->GetXaxis()->GetXmin(), (float)H1D_trackEta_primaryPurity[0]->GetXaxis()->GetXmax()}, 
+                                                    {0.94, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms(H1D_trackEta_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texEtaMC, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "efficiency");
-    Draw_TH1_Histograms(H1D_trackEta_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texEtaMC, texTrackPurity, texCollisionDataInfo, drawnZoom_prim, legendPlacementAuto, contextPlacementAuto, "efficiency");
+    Draw_TH1_Histograms(H1D_trackEta_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texEtaMC, texTrackPurity, texCollisionDataInfo, drawnZoom_prim2, legendPlacementAuto, contextPlacementAuto, "efficiency");
   }
   else {
     cout << "Divide failed in Draw_Purity_Eta_DatasetComparison" << endl;
@@ -1725,10 +1733,12 @@ void Draw_Purity_Phi_DatasetComparison(float* etaRange, bool useSplit) {
                                                     {0.9, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> drawnZoom_split = {{{(float)H1D_trackPhi_primaryPurity[0]->GetXaxis()->GetXmin(), (float)H1D_trackPhi_primaryPurity[0]->GetXaxis()->GetXmax()}, 
                                                     {0.995, 1.005}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> drawnZoom_prim2 = {{{(float)H1D_trackPhi_primaryPurity[0]->GetXaxis()->GetXmin(), (float)H1D_trackPhi_primaryPurity[0]->GetXaxis()->GetXmax()}, 
+                                                    {0.94, 1}}}; // {{xmin, xmax}, {ymin, ymax}}
 
   if (divideSuccess == true) {
     Draw_TH1_Histograms(H1D_trackPhi_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm, texPhiRec, texTrackPurity, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "efficiency");
-    Draw_TH1_Histograms(H1D_trackPhi_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texPhiRec, texTrackPurity, texCollisionDataInfo, drawnZoom_prim, legendPlacementAuto, contextPlacementAuto, "efficiency");
+    Draw_TH1_Histograms(H1D_trackPhi_primaryPurity, DatasetsNames, nDatasets, textContext, pdfNameEntriesNorm_zoom, texPhiRec, texTrackPurity, texCollisionDataInfo, drawnZoom_prim2, legendPlacementAuto, contextPlacementAuto, "efficiency");
   }
   else {
     cout << "Divide failed in Draw_Purity_Phi_DatasetComparison" << endl;
@@ -3021,4 +3031,254 @@ void Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(float* ptRange, float
     }
   }
 }
+
+void Draw_PtResolution_Residuals(std::string options = "")
+{
+  // =========================
+  // Déclarations
+  // =========================
+  TH2D* H2D_ptRes[nDatasets];
+  TH1D* H1D_ptRes_mean[nDatasets];
+  TH1D* H1D_ptRes_mean_rebinned[nDatasets];
+  TH1D* H1D_ptRes_sigma[nDatasets];
+  TH1D* H1D_ptRes_sigma_rebinned[nDatasets];
+
+
+  // Fonction de fit (gaussienne)
+  TF1* gaus = new TF1("gaus", "gaus", -0.3, 0.3);
+
+  // =========================
+  // Loop datasets
+  // =========================
+
+  for (int iDataset = 0; iDataset < nDatasets; iDataset++) {
+
+    // --- Récupération du TH2 ---
+    H2D_ptRes[iDataset] =(TH2D*) ((TH2D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset] +"/h2_particle_pt_track_pt_deltaptoverparticlept"))->Clone("h2_ptRes_" + Datasets[iDataset] + DatasetsNames[iDataset]);
+    
+    // Sécurité
+    if (!H2D_ptRes[iDataset]) {
+      std::cout << "ERROR: H2 not found for dataset " << iDataset << std::endl;
+      continue;
+    }
+    // --- Range en Y pour stabiliser le fit --- on garde uniquement les valeurs entre -0.5 et 0.5
+    H2D_ptRes[iDataset]->GetYaxis()->SetRangeUser(-0.5, 0.5);
+
+    // --- Fit slice par slice ---
+    H2D_ptRes[iDataset]->FitSlicesY(gaus, 0, -1, 0, "R");
+
+    // --- Récupération des histos produits ---
+    H1D_ptRes_mean[iDataset] =
+      (TH1D*) gDirectory->Get(
+        TString(H2D_ptRes[iDataset]->GetName()) + "_1"
+      );
+
+    H1D_ptRes_sigma[iDataset] =
+      (TH1D*) gDirectory->Get(
+        TString(H2D_ptRes[iDataset]->GetName()) + "_2"
+      );
+
+    // --- Titres ---
+    H1D_ptRes_mean[iDataset]->SetYTitle("Mean((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+    H1D_ptRes_sigma[iDataset]->SetYTitle("#sigma((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+    H1D_ptRes_sigma[iDataset]->SetXTitle("p_{T}^{gen} (GeV/c)");
+
+    // ===================== Advanced rebinning for ptRes =====================
+    std::vector<double> xbinsVector = GetTH1Bins(H1D_ptRes_sigma[iDataset]);
+    double* xbinsInitial = &xbinsVector[0];
+    double ptBinsNew[500]; // safe margin
+    int iBinNew = 0;
+    int iBinInitial = 0;
+    double binWidth = H1D_ptRes_sigma[iDataset]->GetXaxis()->GetBinWidth(1);
+    int increment;
+
+    while (iBinInitial < H1D_ptRes_sigma[iDataset]->GetNbinsX()) {
+        double pt = xbinsInitial[iBinInitial];
+
+        if (pt < 0.3) {
+            increment = 1;
+        } else if (pt < 25.0) {
+            // increment = 1;
+            increment = 1 + pt / binWidth / 8;
+        } else {
+            ptBinsNew[iBinNew++] = pt;    // left edge of large bin
+            ptBinsNew[iBinNew++] = 100.0; // right edge = 100
+            break;
+        }
+
+        ptBinsNew[iBinNew++] = pt;
+        iBinInitial += increment;
+    }
+
+    // security: last edge = 100
+    if (ptBinsNew[iBinNew-1] < 100.0) ptBinsNew[iBinNew++] = 100.0;
+
+    int nBinsNew = iBinNew - 1;
+
+    // ===== Rebin the histogram =====
+    H1D_ptRes_mean_rebinned[iDataset] = (TH1D*)H1D_ptRes_mean[iDataset]->Rebin(nBinsNew,"H1D_ptRes_mean_rebinned" + Datasets[iDataset] + DatasetsNames[iDataset],ptBinsNew);
+    H1D_ptRes_sigma_rebinned[iDataset] = (TH1D*)H1D_ptRes_sigma[iDataset]->Rebin(nBinsNew,"H1D_ptRes_sigma_rebinned" + Datasets[iDataset] + DatasetsNames[iDataset],ptBinsNew);
+
+    // ===== Optional: print bins for verification =====
+    std::cout << "=== Bins du ptRes_mean rebinned ===" << std::endl;
+    for (int i = 1; i <= H1D_ptRes_mean_rebinned[iDataset]->GetNbinsX(); i++) {
+        double xlow  = H1D_ptRes_mean_rebinned[iDataset]->GetBinLowEdge(i);
+        double xhigh = xlow + H1D_ptRes_mean_rebinned[iDataset]->GetBinWidth(i);
+        double content = H1D_ptRes_mean_rebinned[iDataset]->GetBinContent(i);
+        std::cout << "Bin " << i << ": [" << xlow << ", " << xhigh << "] -> " << content << std::endl;
+    }
+    std::cout << "=== Bins du ptRes_sigma rebinned ===" << std::endl;
+    for (int i = 1; i <= H1D_ptRes_sigma_rebinned[iDataset]->GetNbinsX(); i++) {
+        double xlow  = H1D_ptRes_sigma_rebinned[iDataset]->GetBinLowEdge(i);
+        double xhigh = xlow + H1D_ptRes_sigma_rebinned[iDataset]->GetBinWidth(i);
+        double content = H1D_ptRes_sigma_rebinned[iDataset]->GetBinContent(i);
+        std::cout << "Bin " << i << ": [" << xlow << ", " << xhigh << "] -> " << content << std::endl;
+    }
+
+  }
+
+  
+  // =========================
+  // Drawing
+  // =========================
+
+  TString textContext(contextTrackDatasetComp(""));
+
+  TString* pdfName_mean  = new TString("track_PtResolution_mean");
+  TString* pdfName_sigma = new TString("track_PtResolution_sigma");
+  TString* texPtResMean  = new TString("Mean((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+  TString* texPtResSigma = new TString("#sigma((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+
+
+  const std::array<std::array<float, 2>, 2> drawnWindowResidualMean = {{{-999, -999}, {-1.5, 1.5}}};
+  const std::array<std::array<float, 2>, 2> drawnWindowResidualSigma = {{{-999, -999}, {0, 0.4}}};
+  const std::array<std::array<float, 2>, 2> legendPlacementResidual = {{{0.17, 0.65}, {0.45, 0.75}}};
+
+  // --- Mean vs pT ---
+  Draw_TH1_Histograms(H1D_ptRes_mean_rebinned,DatasetsNames,nDatasets,textContext,pdfName_mean,texPtX,texPtResMean,texCollisionDataInfo,drawnWindowResidualMean,legendPlacementResidual,contextPlacementAuto,"logx");
+
+  // --- Sigma vs pT ---
+  Draw_TH1_Histograms(H1D_ptRes_sigma_rebinned,DatasetsNames,nDatasets,textContext,pdfName_sigma,texPtX,texPtResSigma,texCollisionDataInfo,drawnWindowResidualSigma,legendPlacementResidual,contextPlacementAuto,"logx");
+}
+
+// void Draw_PtResolution_FromH2(std::string options = "")
+// {
+//     std::cout << "test1 " << std::endl;
+
+//     // =========================
+//     // Déclarations
+//     // =========================
+//     TH2D* H2D_ptRes[nDatasets];
+//     TH1D* H1D_ptRes_mean[nDatasets];
+//     TH1D* H1D_ptRes_sigma[nDatasets];
+
+//     // Fonction de fit (gaussienne)
+//     TF1* gaus = new TF1("gaus", "gaus", -0.3, 0.3);
+
+//     // =========================
+//     // Loop datasets
+//     // =========================
+//     std::cout << "test2 " << std::endl;
+
+//     for (int iDataset = 0; iDataset < nDatasets; iDataset++) {
+
+//         // --- Récupération du TH2 ---
+//         H2D_ptRes[iDataset] = (TH2D*) ((TH2D*)file_O2Analysis_list[iDataset]->Get(
+//             analysisWorkflow[iDataset] + "/h2_particle_pt_track_pt_deltaptoverparticlept"))->Clone(
+//                 "h2_ptRes_" + Datasets[iDataset] + DatasetsNames[iDataset]
+//         );
+
+//         // Sécurité
+//         if (!H2D_ptRes[iDataset]) {
+//             std::cout << "ERROR: H2 not found for dataset " << iDataset << std::endl;
+//             continue;
+//         }
+//         std::cout << "test3 " << std::endl;
+
+//         // --- Range en Y pour stabiliser le fit ---
+//         H2D_ptRes[iDataset]->GetYaxis()->SetRangeUser(-0.5, 0.5);
+
+//         // =========================
+// // --- Affichage des fits intermédiaires corrigé ---
+// // =========================
+// int firstX = 1;
+// int lastX  = 50;
+
+// for(int iX = firstX; iX <= lastX; iX++){
+    
+//     // Projection Y pour ce bin X
+//     TH1D* hY = H2D_ptRes[iDataset]->ProjectionY(
+//         TString::Format("hY_bin%d_dataset%d",iX,iDataset), iX, iX
+//     );
+    
+//     if (!hY) {
+//         std::cout << "WARNING: ProjectionY failed for bin " << iX << std::endl;
+//         continue;
+//     }
+
+//     // --- Création d'un canvas pour chaque slice ---
+//     TCanvas* cSlice = new TCanvas(
+//         TString::Format("cSlice_dataset%d_bin%d",iDataset,iX),
+//         TString::Format("Intermediate Fit: dataset %d, bin %d", iDataset, iX),
+//         600, 400
+//     );
+
+//     // --- Fit gaussien et affichage ---
+//     hY->Fit("gaus","R");   // R = respect de la range
+//     hY->SetTitle(TString::Format("Fit slice X bin %d", iX));
+//     hY->Draw();
+
+//     // Forcer l'affichage du canvas
+//     cSlice->Update();
+
+//     // Optionnel : pause pour voir le fit avant le suivant
+//     // gSystem->Sleep(200); // 200 ms, ajuste si nécessaire
+// }
+
+
+//         // =========================
+//         // --- FitSlicesY pour remplir les histos 1D ---
+//         // =========================
+//         H2D_ptRes[iDataset]->FitSlicesY(gaus, 0, -1, 0, "NR");
+
+//         // --- Récupération des histos produits ---
+//         H1D_ptRes_mean[iDataset] =
+//           (TH1D*) gDirectory->Get(TString(H2D_ptRes[iDataset]->GetName()) + "_1");
+
+//         H1D_ptRes_sigma[iDataset] =
+//           (TH1D*) gDirectory->Get(TString(H2D_ptRes[iDataset]->GetName()) + "_2");
+
+//         // --- Titres ---
+//         H1D_ptRes_mean[iDataset]->SetYTitle("Mean((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+//         H1D_ptRes_sigma[iDataset]->SetYTitle("#sigma((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+//         H1D_ptRes_sigma[iDataset]->SetXTitle("p_{T}^{gen} (GeV/c)");
+//     }
+
+//     // =========================
+//     // Drawing des résultats finaux
+//     // =========================
+//     TString textContext(contextTrackDatasetComp(""));
+
+//     TString* pdfName_mean  = new TString("track_PtResolution_mean");
+//     TString* pdfName_sigma = new TString("track_PtResolution_sigma");
+//     TString* texPtResMean  = new TString("Mean((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+//     TString* texPtResSigma = new TString("#sigma((p_{T}^{gen}-p_{T}^{track})/p_{T}^{track})");
+
+//     const std::array<std::array<float, 2>, 2> drawnWindowAuto = {{{-999, -999}, {-999, -999}}};
+//     const std::array<std::array<float, 2>, 2> legendPlacementAuto = {{{0.6, 0.65}, {0.85, 0.85}}};
+
+//     // --- Mean vs pT ---
+//     Draw_TH1_Histograms(H1D_ptRes_mean, DatasetsNames, nDatasets,
+//                         textContext, pdfName_mean, texPtX, texPtResMean,
+//                         texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto,
+//                         contextPlacementAuto, "logx");
+
+//     // --- Sigma vs pT ---
+//     Draw_TH1_Histograms(H1D_ptRes_sigma, DatasetsNames, nDatasets,
+//                         textContext, pdfName_sigma, texPtX, texPtResSigma,
+//                         texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto,
+//                         contextPlacementAuto, "logx");
+// }
+
+
 

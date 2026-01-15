@@ -33,6 +33,7 @@
 
 #include<array>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string.h>
 using namespace std;
@@ -113,7 +114,7 @@ void TrackQC() {
   float jetPtMinCutArray[nPtBins+1] = {0.15, 100};
 
 
-  Draw_Pt_DatasetComparison("evtNorm");
+  // Draw_Pt_DatasetComparison("evtNorm");
   // Draw_Pt_DatasetComparison("entriesNorm");
   for(int iPtBin = 0; iPtBin < nPtBins; iPtBin++){
     jetPtMinCut = jetPtMinCutArray[iPtBin];
@@ -240,11 +241,6 @@ void Draw_Pt_DatasetComparison(std::string options) {
 
   TH1D* H1D_trackPt[nDatasets];
   TH1D* H1D_trackPt_rebinned[nDatasets];
-  TH1D* H1D_trackPt_rebinned_low[nDatasets];
-  TH1D* H1D_trackPt_concatenated[nDatasets];
-
-  TH1D* H1D_trackPt_rebinned_high[nDatasets];
-
   TH1D* H1D_trackPt_rebinned_ratios[nDatasets];
 
   bool divideSuccess = false;
@@ -273,76 +269,91 @@ void Draw_Pt_DatasetComparison(std::string options) {
     // NormaliseYieldToNEntries(H1D_trackPt_rebinned[iDataset]);
 
     // ===================== Advanced rebinning =====================
-    std::vector<double> ptBins;
-    int iBin = 0;
-    double binWidth = H1D_trackPt[iDataset]->GetXaxis()->GetBinWidth(1);
-    auto xbins = GetTH1Bins(H1D_trackPt[iDataset]);
+    std::vector<double> xbinsVector = GetTH1Bins(H1D_trackPt[iDataset]);
+    double* xbinsInitial = &xbinsVector[0];
+    double ptBinsNew[500]; // 500 to be safe
+    int iBinNew = 0;
+    int iBinInitial = 0;
+    double binWidth = H1D_trackPt[iDataset]->GetXaxis()->GetBinWidth(1); //to be use in case we want to have larger bins in mid-pt range
 
-    while (iBin < H1D_trackPt[iDataset]->GetNbinsX()) {
-      double pt = xbins[iBin];
-      int increment;
+    int increment;
 
-      if (pt < 0.3) {
-        increment = 1;
-      }
-      else if (pt < 25.0) {
-        increment = 1 + pt / binWidth / 8;
-      }
-      else {
-        increment = 1 + pt / binWidth;
-      }
+    while (iBinInitial < H1D_trackPt[iDataset]->GetNbinsX()) {
+        double pt = xbinsInitial[iBinInitial];
 
-      ptBins.push_back(pt);
-      iBin += increment;
-    }
-    if (ptBins.back() < 100.0) ptBins.push_back(100.0);
-    /// ===================== end of rebinning ===================== 
-
-    int nBins = ptBins.size() - 1;
-
-    // ======= Création de l’histogramme rebinned =======
-    TH1D H1D_trackPt_temp("H1D_trackPt_temp" + Datasets[iDataset] + DatasetsNames[iDataset],"H1D_trackPt_temp" + Datasets[iDataset] + DatasetsNames[iDataset],nBins, &ptBins[0]);
-    H1D_trackPt_concatenated[iDataset] = (TH1D*)H1D_trackPt_temp.Clone("trackPt_concatenated" + Datasets[iDataset] + DatasetsNames[iDataset]);
-
-    // ======= Remplissage de l’histogramme rebinned =======
-    for (int i = 1; i <= H1D_trackPt[iDataset]->GetNbinsX(); i++) {
-            double content = H1D_trackPt[iDataset]->GetBinContent(i);
-            double error   = H1D_trackPt[iDataset]->GetBinError(i);
-            double x = H1D_trackPt[iDataset]->GetBinCenter(i);
-
-            int newBin = H1D_trackPt_concatenated[iDataset]->FindBin(x);
-            H1D_trackPt_concatenated[iDataset]->SetBinContent(newBin, content);
-            H1D_trackPt_concatenated[iDataset]->SetBinError(newBin, error);
+        if (pt < 0.3) {
+            increment = 1;
         }
-      
-    //NORMALISATION
+        else if (pt < 25.0) {
+            increment = 1; 
+            // increment = 1 + pt / binWidth / 8; //in case we want to have larger bins in mid-pt range
+        }
+        else {
+            //no need of increment because we want to stop at 100
+            ptBinsNew[iBinNew++] = pt;   // left edge of the large bin
+            ptBinsNew[iBinNew++] = 100.0; // right edge of the large bin
+            break;
+      }
+        ptBinsNew[iBinNew++] = pt;
+        iBinInitial += increment;
+    }
+
+    // security to ensure the last bin edge is 100 GeV
+    if (ptBinsNew[iBinNew-1] < 100.0) ptBinsNew[iBinNew++] = 100.0;
+
+    int nBinsNew = iBinNew - 1;
+
+    // ======= Creation of the rebinned histogram =======
+    H1D_trackPt_rebinned[iDataset] = (TH1D*)H1D_trackPt[iDataset]->Rebin(nBinsNew,"H1D_trackPt_rebinned" + Datasets[iDataset] + DatasetsNames[iDataset], ptBinsNew);
+
+    // ===== Display of the initial histogram bins (for debbug) =====
+    std::cout << "=== Bins de l'histogramme initial ===" << std::endl;
+    for (int i = 1; i <= H1D_trackPt[iDataset]->GetNbinsX(); i++) {
+        double xlow  = H1D_trackPt[iDataset]->GetBinLowEdge(i);
+        double xhigh = H1D_trackPt[iDataset]->GetBinLowEdge(i) + H1D_trackPt[iDataset]->GetBinWidth(i);
+        double content = H1D_trackPt[iDataset]->GetBinContent(i);
+        std::cout << "Bin " << i << ": [" << xlow << ", " << xhigh << "] -> " << content << std::endl;
+    }
+
+    // ===== Affichage des bins du nouvel histogramme rebinned (for debbug) =====
+    std::cout << "=== Bins du nouvel histogramme rebinned ===" << std::endl;
+    for (int i = 1; i <= H1D_trackPt_rebinned[iDataset]->GetNbinsX(); i++) {
+        double xlow  = H1D_trackPt_rebinned[iDataset]->GetBinLowEdge(i);
+        double xhigh = H1D_trackPt_rebinned[iDataset]->GetBinLowEdge(i) + H1D_trackPt_rebinned[iDataset]->GetBinWidth(i);
+        double content = H1D_trackPt_rebinned[iDataset]->GetBinContent(i);
+        std::cout << "Bin " << i << ": [" << xlow << ", " << xhigh << "] -> " << content << std::endl;
+    }
+    // ===================== End rebinning =====================
+
+
     if (options.find("evtNorm") != std::string::npos) {
       if (isDatasetWeighted[iDataset]) {
         Nevents = GetNEventsSelected_JetFramework_weighted(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset]);
       } else {
         Nevents = GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflow[iDataset]);
       }
-      NormaliseYieldToNEvents(H1D_trackPt_concatenated[iDataset], Nevents);
+      NormaliseYieldToNEvents(H1D_trackPt_rebinned[iDataset], Nevents);
       cout << "Dataset " << iDataset << ": Nevents = " << Nevents << endl;
     }
     if (options.find("entriesNorm") != std::string::npos) {
-        NormaliseYieldToIntegral(H1D_trackPt_concatenated[iDataset]);
+        NormaliseYieldToIntegral(H1D_trackPt_rebinned[iDataset]);
     }
   }
+
   TString DatasetsNamesPairRatio[nDatasets];
   int nHistPairRatio = (int)nDatasets / 2;;
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       if (iDataset < nHistPairRatio) {
         DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
-        H1D_trackPt_rebinned_ratios[iDataset] = (TH1D*)H1D_trackPt_concatenated[2*iDataset]->Clone("trackPt_rebinned_ratios"+Datasets[2*iDataset]+DatasetsNames[2*iDataset]);
+        H1D_trackPt_rebinned_ratios[iDataset] = (TH1D*)H1D_trackPt_rebinned[2*iDataset]->Clone("trackPt_rebinned_ratios"+Datasets[2*iDataset]+DatasetsNames[2*iDataset]);
         H1D_trackPt_rebinned_ratios[iDataset]->Reset("M");
-        divideSuccess = H1D_trackPt_rebinned_ratios[iDataset]->Divide(H1D_trackPt_concatenated[2*iDataset], H1D_trackPt_concatenated[2*iDataset+1], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+        divideSuccess = H1D_trackPt_rebinned_ratios[iDataset]->Divide(H1D_trackPt_rebinned[2*iDataset], H1D_trackPt_rebinned[2*iDataset+1], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
       }
     } else {
-      H1D_trackPt_rebinned_ratios[iDataset] = (TH1D*)H1D_trackPt_concatenated[iDataset]->Clone("trackPt_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]);
+      H1D_trackPt_rebinned_ratios[iDataset] = (TH1D*)H1D_trackPt_rebinned[iDataset]->Clone("trackPt_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]);
       H1D_trackPt_rebinned_ratios[iDataset]->Reset("M");
-      divideSuccess = H1D_trackPt_rebinned_ratios[iDataset]->Divide(H1D_trackPt_concatenated[iDataset], H1D_trackPt_concatenated[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+      divideSuccess = H1D_trackPt_rebinned_ratios[iDataset]->Divide(H1D_trackPt_rebinned[iDataset], H1D_trackPt_rebinned[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
     }
   }
   TString textContext(contextTrackDatasetComp(""));
@@ -367,7 +378,7 @@ void Draw_Pt_DatasetComparison(std::string options) {
 
 
 
-  Draw_TH1_Histograms(H1D_trackPt_concatenated, DatasetsNames, nDatasets, textContext, pdfName, texPtX, textYaxis, texCollisionDataInfo, drawnWindowAuto, legendPlacementPt, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
+  Draw_TH1_Histograms(H1D_trackPt_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPtX, textYaxis, texCollisionDataInfo, drawnWindowPt, legendPlacementPt, contextPlacementAuto, "logx,logy"+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       Draw_TH1_Histograms(H1D_trackPt_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPtX, texRatio, texCollisionDataInfo, drawnWindowPtRatio, legendPlacementPtRatio, contextPlacementAuto, "logx,zoomToOneMedium1");
@@ -470,14 +481,13 @@ void Draw_Eta_DatasetComparison(float* ptRange, std::string options) {
   TString* pdfName_ratio_zoom2 = new TString((TString)"track_Eta_DataComp_@pT["+Form("%03.0f", ptCutLow)+","+Form("%03.0f", ptCutHigh)+"]"+pdfNameNorm+"_ratio_zoom2");
 
   std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-1, 1}, {260, 390}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> drawnWindowEtaZoom = {{{-1, 1}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 1}, {0.8, 1.55}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.2, 0.2}, {0.4, 0.45}}}; // {{{x1, y1}, {x2, y2}}}
-  std::array<std::array<float, 2>, 2> legendPlacementCustom1 = {{{0.2, 0.2}, {0.75, 0.40}}}; // {{{x1, y1}, {x2, y2}}}
-  std::array<std::array<float, 2>, 2> legendPlacementCustom2 = {{{0.55, 0.7}, {0.8, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> drawnWindowEtaZoom = {{{-1, 1}, {25, 30}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 1}, {0.9, 1.1}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.65, 0.65}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> legendPlacementCustom2 = {{{0.2, 0.2}, {0.7, 0.38}}}; // {{{x1, y1}, {x2, y2}}}
 
 
-  Draw_TH1_Histograms(H1D_trackEta_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texEtaX, textYaxis, texCollisionDataInfo, drawnWindowAuto, legendPlacementCustom, contextPlacementAuto, ""+histDatasetComparisonStructure);
+  Draw_TH1_Histograms(H1D_trackEta_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texEtaX, textYaxis, texCollisionDataInfo, drawnWindowEtaZoom, legendPlacementCustom, contextPlacementAuto, ""+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       Draw_TH1_Histograms(H1D_trackEta_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texEtaX, texRatio, texCollisionDataInfo, drawnWindowEtaTwoByTwoRatio, legendPlacementCustom2, contextPlacementAuto, ",zoomToOneExtra");
@@ -578,13 +588,15 @@ void Draw_Phi_DatasetComparison(float* ptRange, std::string options) {
   TString* pdfName = new TString((TString)"track_Phi_DataComp_@pT["+Form("%03.0f", ptCutLow)+","+Form("%03.0f", ptCutHigh)+"]"+pdfNameNorm);
   TString* pdfName_ratio = new TString((TString)"track_Phi_DataComp_@pT["+Form("%03.0f", ptCutLow)+","+Form("%03.0f", ptCutHigh)+"]"+pdfNameNorm+"_ratio");
   
-  std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.2, 0.2}, {0.4, 0.45}}}; // {{{x1, y1}, {x2, y2}}}
-  std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 7}, {0.9, 1.7}}}; // {{xmin, xmax}, {ymin, ymax}}
-  std::array<std::array<float, 2>, 2> legendPlacementCustomRatio = {{{0.55, 0.7}, {0.8, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> drawnWindowEtaTwoByTwoRatio = {{{-1, 7}, {0.9, 1.5}}}; // {{xmin, xmax}, {ymin, ymax}}
+  std::array<std::array<float, 2>, 2> legendPlacementCustomRatio = {{{0.53, 0.65}, {0.58, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.65, 0.68}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> drawnWindowEta = {{{-999, -999}, {1, 5}}}; // {{xmin, xmax}, {ymin, ymax}}
 
 
 
-  Draw_TH1_Histograms(H1D_trackPhi_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPhiX, textYaxis, texCollisionDataInfo, drawnWindowAuto, legendPlacementCustom, contextPlacementAuto, "histWithLine"+histDatasetComparisonStructure);
+
+  Draw_TH1_Histograms(H1D_trackPhi_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPhiX, textYaxis, texCollisionDataInfo, drawnWindowEta, legendPlacementCustom, contextPlacementAuto, "histWithLine"+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
       Draw_TH1_Histograms(H1D_trackPhi_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPhiX, texRatio, texCollisionDataInfo, drawnWindowEtaTwoByTwoRatio, legendPlacementCustomRatio, contextPlacementAuto, "zoomToOneExtraExtra");
