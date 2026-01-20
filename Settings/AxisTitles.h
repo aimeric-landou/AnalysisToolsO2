@@ -9,6 +9,7 @@
 
 TString* texRapidity = new TString("y");
 TString* texPtX = new TString("#it{p}_{T} (GeV/#it{c})");
+TString* texXtX = new TString("#it{x}_{T}");
 TString* texPtLeadX = new TString("#it{p}_{T, lead} (GeV/#it{c})");
 TString* texEtaX = new TString("#it{#eta}");
 TString* texPhiX = new TString("#it{#phi} (rad)");
@@ -110,7 +111,10 @@ TString* texDeltaR = new TString("#it{#Delta R}");
 TString* texdN_dsubratio = new TString("1/N^{ev} d#it{N}/d(#it{#tau_{2}/#tau_{1}})");
 TString* texdN_dDeltaR = new TString("1/N^{ev} d#it{N}/d(#it{#Delta R})");
 
+TString* texJet_dNdeta = new TString("d#it{N}_{jet}/d#it{#eta}");
+
 TString* texJet_d2Ndptdeta_EventNorm = new TString("1/#it{N}_{ev} d^{2}#it{N}_{jet}/d#it{p}_{T}d#it{#eta} (GeV/#it{c})^{-1}");
+TString* texJet_d2Ndxtdeta_EventNorm = new TString("1/#it{N}_{ev} d^{2}#it{N}_{jet}/d#it{x}_{T}d#it{#eta}");
 
 
 TString* texJetPtYield_EventNorm = new TString("1/#it{N}_{ev} d#it{N}_{jet}/d#it{p}_{T} (GeV/#it{c})^{-1}");
@@ -142,6 +146,7 @@ TString* texRatioUnfoldedMeasured = new TString("unfolded / measured");
 TString* texRatioRefoldedMeasured = new TString("refolded / measured");
 TString* texRatioMcpFoldedVsMcp = new TString("mcp-folded / mcp");
 TString* texRatioMcpFoldedUnfoldedMcp = new TString("mcp-folded unfolded / mcp");
+TString* texRatioMcdUnfoldedMcd = new TString("mcd unfolded / mcp");
 
 
 TString* texTrackEfficiencyRatioEtaComparison = new TString("#epsilon^{ #eta > 0} / #epsilon^{ #eta < 0}");

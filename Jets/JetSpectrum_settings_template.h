@@ -47,11 +47,13 @@ const bool matrixTransformationOrder = 0; // use 0
 char unfoldingMethod[] = "Svd"; // unfolding method options: Bayes, Svd
 char optionsAnalysis[100] = "";
 
-const bool doComparisonMcpFoldedWithFluct = false; // if true, uses file_O2Analysis_ppSimDetectorEffect_unfoldingControl mcp distribution, folds it with the background fluctuation matrix, unfolds it with the merged det x bkg response matrix, and compares it to the mcp distribution in file_O2Analysis_ppSimDetectorEffect_unfoldingControl
+const bool doClosure_splitMC_mcdUnfoldedVsGen = true;
+const bool doClosure_splitMC_mcpFoldedWithFluct = false; // if true, uses file_O2Analysis_MCfile_UnfoldingControl_input mcp distribution, folds it with the background fluctuation matrix, unfolds it with the merged det x bkg response matrix, and compares it to the mcp distribution in file_O2Analysis_MCfile_UnfoldingControl_input
 // 13/11/2025: check this comparison; for some reason it's not a ratio of 1 when running on pp even though the bkg fluctuation matrix is identity
 const bool doBkgSubtractionInData = false;
 const bool doBkgSubtractionInMC = false;
 const bool useFactorisedMatrix = false; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
+const bool useFactorisedMatrixInMcdUnfoldedClosure = true; // whne doing SplitMcClosure: use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
 const bool mcIsWeighted = true; // use if the MC has been weighted to have more high pt jets?
 bool applyFakes = true; // only applied if useManualRespMatrixSettingMethod is true; 18/03: if false?
 int applyEfficiencies = 2; // 2 is best; kinematic efficiency is already be handled by roounfold (02/04/2025; one can check simply with a pp unfolding with just det matrix and fine-ish binning like "// Joonsuk binning for pp with smaller rec window to test kinematic efficiency")
@@ -73,15 +75,15 @@ const bool useMatrixOverflows = false; // false by default, haven't tried true r
 
 const int usePtOverflowForKineEff = 0; // false by default, not tested yet, might be better to be at 1; only matters if applyEfficiencies is 1 or 3, and by default this is not the case
 
-// MC split closure test: mcd as input from file_O2Analysis_ppSimDetectorEffect_unfoldingControl with Response from file_O2Analysis_MCfileForMatrix
-bool controlMC = true; // use file_O2Analysis_ppSimDetectorEffect_unfoldingControl MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
+// MC split closure test: mcd as input from file_O2Analysis_MCfile_UnfoldingControl_input with Response from file_O2Analysis_MCfile_GeneralResponse
+bool controlMC = true; // use file_O2Analysis_MCfile_UnfoldingControl_input MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
 
 
 // Debugging and checks:
 const bool doManualErrorPropagForKineEff = false; // false is likely better, but hasn't been tested yet
 const bool useFineBinningTest = false;
 const bool drawIntermediateResponseMatrices = false;
-bool comparePbPbWithRun2 = false; // if doComparisonMcpFoldedWithFluct == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
+bool comparePbPbWithRun2 = false; // if doClosure_splitMC_mcpFoldedWithFluct == true, then do the comparison with file_O2Analysis_run2ComparisonFileHannaBossiLauraFile (Nevents for this is hardcoded to what Laura told me: see mattermost discussion)
 
 bool setDetectorMatrixToIdentity = false; // false by default unless doing debugging
 bool foldMcpWithFluct_alsoFoldWithDetResp = false; // false by default unless doing debugging; not well implemented yet
@@ -93,7 +95,7 @@ bool transposeResponseHistogramsInDrawing = false;  // default is false; if set 
 
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
-bool controlMC_useMcpCollCountForNorm = true; //if controlMC is true, controlMC_useMcpCollCountForNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
+bool mcpInput_useMcpCollCountForUnfoldingResultNorm = true; //if controlMC is true, mcpInput_useMcpCollCountForUnfoldingResultNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
 
 float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}

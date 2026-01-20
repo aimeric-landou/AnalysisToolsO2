@@ -23,7 +23,6 @@
 ////////////////////////////////////////////////////////////////////////////// Efficiency functions //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 bool  Get_ResponseMatrix_Pt_KinematicEffiency(TH1D* &H1D_kinematicEfficiency, TH2D* H2D_jetPtResponseMatrix_fineBinning, TString name_H1D_kinematicEfficiency, int iRadius){
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_ResponseMatrix_Pt_KinematicEffiency()" << endl;};
 
@@ -89,18 +88,21 @@ bool  Get_ResponseMatrix_Pt_KinematicEffiency(TH1D* &H1D_kinematicEfficiency, TH
 
 
 
-bool  Get_Pt_JetEfficiency(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options){
+bool  Get_Pt_JetEfficiency(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options, bool controlMC = false){
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetEfficiency()" << endl;};
 
   TH1D* H1D_jetPt_mcp;
   TH1D* H1D_jetPt_mcpMatched;
   bool divideSuccess;
 
-  bool controlMC = false;
-  Get_Pt_spectrum_mcp_genBinning(H1D_jetPt_mcp, iDataset, iRadius, controlMC, options);
-  Get_Pt_spectrum_mcpMatched_genBinning(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  bool controlMC_useResponseSplit = true;
+  TString controlMcSpecifier = Form("controlMC%i",controlMC);
 
-  H1D_jetEfficiency = (TH1D*)H1D_jetPt_mcpMatched->Clone("H1D_jetEfficiency"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius]));
+  Get_Pt_spectrum_mcp_genBinning(H1D_jetPt_mcp, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+  Get_Pt_spectrum_mcpMatched_genBinning(H1D_jetPt_mcpMatched, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+
+
+  H1D_jetEfficiency = (TH1D*)H1D_jetPt_mcpMatched->Clone("H1D_jetEfficiency"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+controlMcSpecifier);
   divideSuccess = H1D_jetEfficiency->Divide(H1D_jetEfficiency, H1D_jetPt_mcp, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency (purity similar to efficiency)
   if (!divideSuccess){
     cout << "################## Get_Pt_JetEfficiency FAILED!!!!! ##################" << endl;
@@ -118,18 +120,20 @@ bool  Get_Pt_JetEfficiency(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, 
 
   return divideSuccess;
 }
-bool  Get_Pt_JetEfficiency_fineBinning(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options){
+bool  Get_Pt_JetEfficiency_fineBinning(TH1D* &H1D_jetEfficiency, int iDataset, int iRadius, std::string options, bool controlMC = false){
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetEfficiency_fineBinning()" << endl;};
 
   TH1D* H1D_jetPt_mcp;
   TH1D* H1D_jetPt_mcpMatched;
   bool divideSuccess;
 
-  bool controlMC = false;
-  Get_Pt_spectrum_mcp_fineBinning(H1D_jetPt_mcp, iDataset, iRadius, controlMC, options);
-  Get_Pt_spectrum_mcpMatched_fineBinning(H1D_jetPt_mcpMatched, iDataset, iRadius, options);
+  bool controlMC_useResponseSplit = true;
+  TString controlMcSpecifier = Form("controlMC%i",controlMC);
 
-  H1D_jetEfficiency = (TH1D*)H1D_jetPt_mcpMatched->Clone("H1D_jetEfficiency_fineBinning"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius]));
+  Get_Pt_spectrum_mcp_fineBinning(H1D_jetPt_mcp, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+  Get_Pt_spectrum_mcpMatched_fineBinning(H1D_jetPt_mcpMatched, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+
+  H1D_jetEfficiency = (TH1D*)H1D_jetPt_mcpMatched->Clone("H1D_jetEfficiency_fineBinning"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+controlMcSpecifier);
   divideSuccess = H1D_jetEfficiency->Divide(H1D_jetEfficiency, H1D_jetPt_mcp, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency (purity similar to efficiency)
   if (!divideSuccess){
     cout << "################## Get_Pt_JetEfficiency FAILED!!!!! ##################" << endl;
@@ -148,17 +152,20 @@ bool  Get_Pt_JetEfficiency_fineBinning(TH1D* &H1D_jetEfficiency, int iDataset, i
   return divideSuccess;
 }
 
-bool Get_Pt_JetFakes(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options){ // the purity
+bool Get_Pt_JetFakes(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options, bool controlMC = false){ // the purity
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetFakes()" << endl;};
 
   TH1D* H1D_jetPt_mcd;
   TH1D* H1D_jetPt_mcdMatched;
   bool divideSuccess;
 
-  Get_Pt_spectrum_mcd_recBinning(H1D_jetPt_mcd, iDataset, iRadius, options);
-  Get_Pt_spectrum_mcdMatched_recBinning(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  bool controlMC_useResponseSplit = true;
+  TString controlMcSpecifier = Form("controlMC%i",controlMC);
 
-  H1D_jetFakes = (TH1D*)H1D_jetPt_mcdMatched->Clone("H1D_jetFakes"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius]));
+  Get_Pt_spectrum_mcd_recBinning(H1D_jetPt_mcd, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+  Get_Pt_spectrum_mcdMatched_recBinning(H1D_jetPt_mcdMatched, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+
+  H1D_jetFakes = (TH1D*)H1D_jetPt_mcdMatched->Clone("H1D_jetFakes"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+controlMcSpecifier);
   divideSuccess = H1D_jetFakes->Divide(H1D_jetFakes, H1D_jetPt_mcd, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency (purity similar to efficiency)
   if (!divideSuccess){
     cout << "################## Get_Pt_JetFakes FAILED!!!!! ##################" << endl;
@@ -168,17 +175,20 @@ bool Get_Pt_JetFakes(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string
 
   return divideSuccess;
 }
-bool Get_Pt_JetFakes_fineBinning(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options){
+bool Get_Pt_JetFakes_fineBinning(TH1D* &H1D_jetFakes, int iDataset, int iRadius, std::string options, bool controlMC = false){
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_JetFakes_fineBinning()" << endl;};
 
   TH1D* H1D_jetPt_mcd;
   TH1D* H1D_jetPt_mcdMatched;
   bool divideSuccess;
 
-  Get_Pt_spectrum_mcd_fineBinning(H1D_jetPt_mcd, iDataset, iRadius, options);
-  Get_Pt_spectrum_mcdMatched_fineBinning(H1D_jetPt_mcdMatched, iDataset, iRadius, options);
+  bool controlMC_useResponseSplit = true;
+  TString controlMcSpecifier = Form("controlMC%i",controlMC);
 
-  H1D_jetFakes = (TH1D*)H1D_jetPt_mcdMatched->Clone("H1D_jetFakes_fineBinning"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius]));
+  Get_Pt_spectrum_mcd_fineBinning(H1D_jetPt_mcd, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+  Get_Pt_spectrum_mcdMatched_fineBinning(H1D_jetPt_mcdMatched, iDataset, iRadius, options, controlMC, controlMC_useResponseSplit);
+
+  H1D_jetFakes = (TH1D*)H1D_jetPt_mcdMatched->Clone("H1D_jetFakes_fineBinning"+Datasets[iDataset]+DatasetsNames[iDataset]+"_R="+Form("%.1f", arrayRadius[iRadius])+controlMcSpecifier);
   divideSuccess = H1D_jetFakes->Divide(H1D_jetFakes, H1D_jetPt_mcd, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency (purity similar to efficiency)
   if (!divideSuccess){
     cout << "################## Get_Pt_JetFakes FAILED!!!!! ##################" << endl;
