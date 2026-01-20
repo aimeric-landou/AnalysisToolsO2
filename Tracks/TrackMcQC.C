@@ -831,8 +831,8 @@ void Draw_Efficiency_Phi_DatasetComparison(float* ptRange, float* etaRange, bool
         DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
         H1D_trackPhi_efficiency_ratios[iDataset] = (TH1D*)H1D_trackPhi_efficiency[2*iDataset]->Clone("H1D_trackPhi_efficiency_ratio"+Datasets[iDataset]+DatasetsNames[iDataset]);
         H1D_trackPhi_efficiency_ratios[iDataset]->Reset("M");
-        cout << "Nbins X PHI 2i = "<< H1D_trackPhi_efficiency[2*iDataset]->GetNbinsX()<< endl;
-        cout << "Nbins X PHI 2i+1 = "<< H1D_trackPhi_efficiency[2*iDataset+1]->GetNbinsX()<< endl;
+        // cout << "Nbins X PHI 2i = "<< H1D_trackPhi_efficiency[2*iDataset]->GetNbinsX()<< endl;
+        // cout << "Nbins X PHI 2i+1 = "<< H1D_trackPhi_efficiency[2*iDataset+1]->GetNbinsX()<< endl;
         divideSuccessRatio = H1D_trackPhi_efficiency_ratios[iDataset]->Divide(H1D_trackPhi_efficiency[2*iDataset], H1D_trackPhi_efficiency[2*iDataset+1]);
       }
     } else {
@@ -1612,8 +1612,8 @@ void Draw_Purity_Eta_DatasetComparison(float* etaRange, bool useSplit) {
 
     H1D_primaryPurity_denominator[iDataset] = (TH1D*)H1D_trackEta_primary[iDataset]->Clone("trackEta_primaryPurity_denominator"+Datasets[iDataset]+DatasetsNames[iDataset]);
     H1D_primaryPurity_denominator[iDataset]->Add(H1D_trackEta_secondary[iDataset],1.);
-    cout << "  - " << DatasetsNames[iDataset] << ":" << endl;
-    cout << "     eta eff #### tracks count = " << H1D_trackEta_primary[iDataset]->GetEntries() << ", part count = " << H1D_primaryPurity_denominator[iDataset]->GetEntries() << endl;
+    // cout << "  - " << DatasetsNames[iDataset] << ":" << endl;
+    // cout << "     eta eff #### tracks count = " << H1D_trackEta_primary[iDataset]->GetEntries() << ", part count = " << H1D_primaryPurity_denominator[iDataset]->GetEntries() << endl;
     divideSuccess = H1D_trackEta_primaryPurity[iDataset]->Divide(H1D_trackEta_primary[iDataset], H1D_primaryPurity_denominator[iDataset],1.,1.,"b");
 
 
@@ -1638,9 +1638,9 @@ void Draw_Purity_Eta_DatasetComparison(float* etaRange, bool useSplit) {
           DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
           H1D_trackEta_purity_ratios[iDataset] = (TH1D*)H1D_trackEta_primaryPurity[2*iDataset]->Clone("H1D_trackEta_primaryPurity_ratio"+Datasets[iDataset]+DatasetsNames[iDataset]);
           H1D_trackEta_purity_ratios[iDataset]->Reset("M");
-          cout << "Denominator integral (dataset "<< 2*iDataset+1 << ") = "<< H1D_trackEta_primaryPurity[2*iDataset+1]->Integral()<< endl;
-          cout << "Nbins X ETA 2i = "<< H1D_trackEta_primaryPurity[2*iDataset]->GetNbinsX()<< endl;
-          cout << "Nbins X ETA 2i+1 = "<< H1D_trackEta_primaryPurity[2*iDataset+1]->GetNbinsX()<< endl;
+          // cout << "Denominator integral (dataset "<< 2*iDataset+1 << ") = "<< H1D_trackEta_primaryPurity[2*iDataset+1]->Integral()<< endl;
+          // cout << "Nbins X ETA 2i = "<< H1D_trackEta_primaryPurity[2*iDataset]->GetNbinsX()<< endl;
+          // cout << "Nbins X ETA 2i+1 = "<< H1D_trackEta_primaryPurity[2*iDataset+1]->GetNbinsX()<< endl;
           divideSuccessRatio = H1D_trackEta_purity_ratios[iDataset]->Divide(H1D_trackEta_primaryPurity[2*iDataset], H1D_trackEta_primaryPurity[2*iDataset+1]);
       }
     } else {
@@ -1760,9 +1760,9 @@ void Draw_Purity_Phi_DatasetComparison(float* etaRange, bool useSplit) {
           DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
           H1D_trackPhi_purity_ratios[iDataset] = (TH1D*)H1D_trackPhi_primaryPurity[2*iDataset]->Clone("H1D_trackPhi_primaryPurity_ratio"+Datasets[iDataset]+DatasetsNames[iDataset]);
           H1D_trackPhi_purity_ratios[iDataset]->Reset("M");
-          cout << "Denominator integral (dataset "<< 2*iDataset+1 << ") = "<< H1D_trackPhi_primaryPurity[2*iDataset+1]->Integral()<< endl;
-          cout << "Nbins X Phi 2i = "<< H1D_trackPhi_primaryPurity[2*iDataset]->GetNbinsX()<< endl;
-          cout << "Nbins X Phi 2i+1 = "<< H1D_trackPhi_primaryPurity[2*iDataset+1]->GetNbinsX()<< endl;
+          // cout << "Denominator integral (dataset "<< 2*iDataset+1 << ") = "<< H1D_trackPhi_primaryPurity[2*iDataset+1]->Integral()<< endl;
+          // cout << "Nbins X Phi 2i = "<< H1D_trackPhi_primaryPurity[2*iDataset]->GetNbinsX()<< endl;
+          // cout << "Nbins X Phi 2i+1 = "<< H1D_trackPhi_primaryPurity[2*iDataset+1]->GetNbinsX()<< endl;
           divideSuccessRatio = H1D_trackPhi_purity_ratios[iDataset]->Divide(H1D_trackPhi_primaryPurity[2*iDataset], H1D_trackPhi_primaryPurity[2*iDataset+1]);
       }
     } else {
