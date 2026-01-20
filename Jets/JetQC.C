@@ -166,7 +166,7 @@ void JetQC() {
   // Draw_PtPeakPosition_vs_leadTrackCut(etaRangeSym, jetRadiusForDataComp);
   // Draw_PtLeadCutStudy_PtOfRatio1(etaRangeSym, "", jetRadiusForDataComp);
 
-  Draw_Pt_DatasetComparison(etaRangeSym, "normEvents", jetRadiusForDataComp);
+  // Draw_Pt_DatasetComparison(etaRangeSym, "normEvents", jetRadiusForDataComp);
   // Draw_Pt_DatasetComparison_withRun2RitsuyaHardcoded(etaRangeSym, "normEvents", jetRadiusForDataComp);
   for(int iPtBin = 0; iPtBin < nPtBins; iPtBin++){
     jetPtMinCut = jetPtMinCutArray[iPtBin];
@@ -184,6 +184,7 @@ void JetQC() {
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
     // Draw_Eta_DatasetComparison(jetRadiusForDataComp, ptRange, "normEntries");
     // Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
+    Draw_Phi_DatasetComparison(jetRadiusForDataComp, ptRange, "normEvents");
 
     // Draw_Constituent_Pt_DatasetComparison(ptRange, jetRadiusForDataComp);
 
@@ -851,7 +852,7 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
 
   std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{10E-9, 40}}};
   std::array<std::array<float, 2>, 2> drawnWindowZoom = {{{-10, 200},{0.6, 1.6}}};
-
+  std::array<std::array<float, 2>, 2> drawnWindowZoomTwoByTwo = {{{-25, 200},{0.5, 2}}};
   std::array<std::array<float, 2>, 2> legendPlacement = {{{0.65, 0.6}, {0.85, 0.85}}}; // {{{x1, y1}, {x2, y2}}}
   std::array<std::array<float, 2>, 2> legendPlacementRatio = {{{0.6, 0.2}, {0.8, 0.45}}}; // {{{x1, y1}, {x2, y2}}}
   // std::array<std::array<float, 2>, 2> legendPlacementAuto = {{{-999, -999}, {-999, -999}}}; // {{{x1, y1}, {x2, y2}}}
@@ -859,7 +860,8 @@ void Draw_Pt_DatasetComparison(float* etaRange, std::string options, float jetRa
   Draw_TH1_Histograms(H1D_jetPt_rebinned, DatasetsNames, nDatasets, textContext, pdfName, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texJetPtYield_EventNorm, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "logy"+histDatasetComparisonStructure);
   if (divideSuccess == true) {
     if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
-      Draw_TH1_Histograms(H1D_jetPt_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texRatio, texCollisionDataInfo, drawnWindow, legendPlacementRatio, contextPlacementAuto, "zoomToOneMedium1");
+      Draw_TH1_Histograms(H1D_jetPt_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texRatio, texCollisionDataInfo, drawnWindowAuto, legendPlacementRatio, contextPlacementAuto);
+      Draw_TH1_Histograms(H1D_jetPt_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio_zoom, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texRatio, texCollisionDataInfo, drawnWindowZoomTwoByTwo, legendPlacementRatio, contextPlacementAuto);
     } else {
     Draw_TH1_Histograms(H1D_jetPt_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texRatioDatasets, texCollisionDataInfo, drawnWindow, legendPlacementRatio, contextPlacementAuto, "noMarkerFirst"+histDatasetComparisonStructure);
     Draw_TH1_Histograms(H1D_jetPt_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio_zoom, iJetFinderQaType == 0 ? texPtJetRawX : texPtJetBkgCorrX, texRatioDatasets, texCollisionDataInfo, drawnWindowZoom, legendPlacementAuto, contextPlacementAuto, "noMarkerFirst");
@@ -944,32 +946,59 @@ void Draw_Eta_DatasetComparison(float jetRadius, float* PtRange, std::string opt
       pdfNameNorm = "normEvents";
     }
 
-    H1D_jetEta_rebinned_ratios[iDataset] = (TH1D*)H1D_jetEta_rebinned[iDataset]->Clone("jetEta_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
-    H1D_jetEta_rebinned_ratios[iDataset]->Reset("M");
-    divideSuccess = H1D_jetEta_rebinned_ratios[iDataset]->Divide(H1D_jetEta_rebinned[iDataset], H1D_jetEta_rebinned[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+  
+  }
+
+  TString DatasetsNamesPairRatio[nDatasets];
+  int nHistPairRatio = (int)nDatasets / 2;
+  for(int iDataset = 0; iDataset < nDatasets; iDataset++){
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) { //twoByTwoDatasetPairs assumes a Datasets array like so: {pair1_element1, pair2_element1, ..., pairN_element1, pair1_element2, pair2_element2, ..., pairN_element2}
+      if (iDataset < nHistPairRatio) {
+        DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
+        H1D_jetEta_rebinned_ratios[iDataset] = (TH1D*)H1D_jetEta_rebinned[2*iDataset]->Clone("jetEta_rebinned_ratios"+Datasets[2*iDataset]+DatasetsNames[2*iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
+        H1D_jetEta_rebinned_ratios[iDataset]->Reset("M");
+        divideSuccess = H1D_jetEta_rebinned_ratios[iDataset]->Divide(H1D_jetEta_rebinned[2*iDataset], H1D_jetEta_rebinned[2*iDataset+1], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+      }
+    } else {
+      H1D_jetEta_rebinned_ratios[iDataset] = (TH1D*)H1D_jetEta_rebinned[iDataset]->Clone("jetEta_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
+      H1D_jetEta_rebinned_ratios[iDataset]->Reset("M");
+      divideSuccess = H1D_jetEta_rebinned_ratios[iDataset]->Divide(H1D_jetEta_rebinned[iDataset], H1D_jetEta_rebinned[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+
+    }
   }
 
   TString* pdfName = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_DataComp_R="+Form("%.1f", jetRadius)+"_Eta_@pT["+Form("%03.0f", PtCutLow)+","+Form("%03.0f", PtCutHigh)+"]"+jetFinderQaHistType[iJetFinderQaType]+"_"+(TString)pdfNameNorm);
   TString* pdfName_ratio = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_DataComp_R="+Form("%.1f", jetRadius)+"_Eta_@pT["+Form("%03.0f", PtCutLow)+","+Form("%03.0f", PtCutHigh)+"]"+jetFinderQaHistType[iJetFinderQaType]+"_"+(TString)pdfNameNorm+"_ratio");
+  TString* pdfName_ratio_zoom = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_DataComp_R="+Form("%.1f", jetRadius)+"_Eta_@pT["+Form("%03.0f", PtCutLow)+","+Form("%03.0f", PtCutHigh)+"]"+jetFinderQaHistType[iJetFinderQaType]+"_"+(TString)pdfNameNorm+"_ratio_zoom");
 
   // TString textContext(contextDatasetCompAndRadiusAndVarRange(jetRadius, PtRange, "pt"));
   TString textContext(contextCustomThreeFields(*texDatasetsComparisonCommonDenominator, "", "#splitline{"+contextJetRadius(jetRadius)+"}{"+contextPtRange(PtRange)+"}", ""));
 
   const std::array<std::array<float, 2>, 2> drawnWindow = {{{-1, 1}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
   const std::array<std::array<float, 2>, 2> legendPlacement = {{{0.65, 0.2}, {0.85, 0.45}}}; // xLeftLegend, yLowLegend, xRightLegend, yUpLegend
+  std::array<std::array<float, 2>, 2> drawnWindowZoomTwoByTwo = {{{-1, 1},{0.5, 2}}};
+  std::array<std::array<float, 2>, 2> legendPlacementRatio = {{{0.5, 0.2}, {0.7, 0.4}}}; // {{{x1, y1}, {x2, y2}}}
 
   Draw_TH1_Histograms(H1D_jetEta_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texEtaX, yAxisLabel, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "");
 
   if (divideSuccess == true) {
-    Draw_TH1_Histograms(H1D_jetEta_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texEtaX, texRatioDatasets, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "noMarkerFirst"+histDatasetComparisonStructure);
-  }
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
+      Draw_TH1_Histograms(H1D_jetEta_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texEtaX, texRatio, texCollisionDataInfo, drawnWindowAuto, legendPlacementRatio, contextPlacementAuto);
+      Draw_TH1_Histograms(H1D_jetEta_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio_zoom, texEtaX, texRatio, texCollisionDataInfo, drawnWindowZoomTwoByTwo, legendPlacementRatio, contextPlacementAuto);
+
+    } 
+    else {
+      Draw_TH1_Histograms(H1D_jetEta_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texEtaX, texRatioDatasets, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "noMarkerFirst"+histDatasetComparisonStructure);
+    }
+  }  
   else {
     cout << "Divide failed in Draw_Eta_DatasetComparison" << endl;
   }
+  
+
 }
 
 void Draw_Phi_DatasetComparison(float jetRadius, float* PtRange, std::string options) {
-
   TH3D* H3D_jetRjetPtjetPhi[nDatasets];
   TH1D* H1D_jetPhi[nDatasets];
   TH1D* H1D_jetPhi_rebinned[nDatasets];
@@ -985,7 +1014,6 @@ void Draw_Phi_DatasetComparison(float jetRadius, float* PtRange, std::string opt
   TString* yAxisLabel;
 
   for(int iDataset = 0; iDataset < nDatasets; iDataset++){
-
     if (analysisWorkflow[iDataset].Contains("jet-finder-charged-qa") == true) {
       H3D_jetRjetPtjetPhi[iDataset] = (TH3D*)((TH3D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflow[iDataset]+"/h3_jet_r_jet_pt_jet_eta"+jetFinderQaHistType[iJetFinderQaType]))->Clone("Draw_Phi_DatasetComparison"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+jetRadius+Form("%.1f", PtRange[0])+"<pt<"+Form("%.1f", PtRange[1]));
 
@@ -1032,10 +1060,28 @@ void Draw_Phi_DatasetComparison(float jetRadius, float* PtRange, std::string opt
       yAxisLabel = texJetPhiYield_EventNorm;
     }
 
-    H1D_jetPhi_rebinned_ratios[iDataset] = (TH1D*)H1D_jetPhi_rebinned[iDataset]->Clone("jetPhi_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
-    H1D_jetPhi_rebinned_ratios[iDataset]->Reset("M");
-    divideSuccess = H1D_jetPhi_rebinned_ratios[iDataset]->Divide(H1D_jetPhi_rebinned[iDataset], H1D_jetPhi_rebinned[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+    
   }
+
+
+  TString DatasetsNamesPairRatio[nDatasets];
+  int nHistPairRatio = (int)nDatasets / 2;
+  for(int iDataset = 0; iDataset < nDatasets; iDataset++){
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) { //twoByTwoDatasetPairs assumes a Datasets array like so: {pair1_element1, pair2_element1, ..., pairN_element1, pair1_element2, pair2_element2, ..., pairN_element2}
+      if (iDataset < nHistPairRatio) {
+        DatasetsNamesPairRatio[iDataset] = DatasetsNames[2*iDataset]+(TString)"/"+DatasetsNames[2*iDataset+1];
+        H1D_jetPhi_rebinned_ratios[iDataset] = (TH1D*)H1D_jetPhi_rebinned[2*iDataset]->Clone("jetPhi_rebinned_ratios"+Datasets[2*iDataset]+DatasetsNames[2*iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
+        H1D_jetPhi_rebinned_ratios[iDataset]->Reset("M");
+        divideSuccess = H1D_jetPhi_rebinned_ratios[iDataset]->Divide(H1D_jetPhi_rebinned[2*iDataset], H1D_jetPhi_rebinned[2*iDataset+1], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+      }
+    } else {
+      H1D_jetPhi_rebinned_ratios[iDataset] = (TH1D*)H1D_jetPhi_rebinned[iDataset]->Clone("jetPhi_rebinned_ratios"+Datasets[iDataset]+DatasetsNames[iDataset]+"Radius"+Form("%.1f",jetRadius)+Form("%.1f", PtCutLow)+"<pt<"+Form("%.1f", PtCutHigh));
+      H1D_jetPhi_rebinned_ratios[iDataset]->Reset("M");
+      divideSuccess = H1D_jetPhi_rebinned_ratios[iDataset]->Divide(H1D_jetPhi_rebinned[iDataset], H1D_jetPhi_rebinned[0], 1., 1., datasetsAreSubsetsofId0 ? "b" : "");
+
+    }
+  }
+
 
   TString* pdfName = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_DataComp_R="+Form("%.1f", jetRadius)+"_Phi_@pT["+Form("%03.0f", PtCutLow)+","+Form("%03.0f", PtCutHigh)+"]"+jetFinderQaHistType[iJetFinderQaType]);
   TString* pdfName_ratio = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_DataComp_R="+Form("%.1f", jetRadius)+"_Phi_@pT["+Form("%03.0f", PtCutLow)+","+Form("%03.0f", PtCutHigh)+"]"+jetFinderQaHistType[iJetFinderQaType]+"_ratio");
@@ -1045,11 +1091,18 @@ void Draw_Phi_DatasetComparison(float jetRadius, float* PtRange, std::string opt
 
   const std::array<std::array<float, 2>, 2> drawnWindowRatioCustom = {{{-999, -999}, {0, 1.9}}}; // {{xmin, xmax}, {ymin, ymax}}
   std::array<std::array<float, 2>, 2> legendPlacementCustom = {{{0.2, 0.2}, {0.4, 0.45}}}; // {{{x1, y1}, {x2, y2}}}
+  std::array<std::array<float, 2>, 2> drawnWindowZoomTwoByTwo = {{{-1, 7},{0.5, 2}}};
+  std::array<std::array<float, 2>, 2> legendPlacementRatio = {{{0.5, 0.5}, {0.7, 0.7}}}; // {{{x1, y1}, {x2, y2}}}
 
   Draw_TH1_Histograms(H1D_jetPhi_rebinned, DatasetsNames, nDatasets, textContext, pdfName, texPhiX, texJetPhiYield_EventNorm, texCollisionDataInfo, drawnWindowAuto, legendPlacementCustom, contextPlacementAuto, "histWithLine");
 
   if (divideSuccess == true) {
+    if (histDatasetComparisonStructure.find("twoByTwoDatasetPairs") != std::string::npos) {
+      Draw_TH1_Histograms(H1D_jetPhi_rebinned_ratios, DatasetsNamesPairRatio, nHistPairRatio, textContext, pdfName_ratio, texPhiX, texRatio, texCollisionDataInfo, drawnWindowZoomTwoByTwo, legendPlacementRatio, contextPlacementAuto, "zoomToOneMedium1");
+    } 
+    else{
     Draw_TH1_Histograms(H1D_jetPhi_rebinned_ratios, DatasetsNames, nDatasets, textContext, pdfName_ratio, texPhiX, texRatioDatasets, texCollisionDataInfo, drawnWindowRatioCustom, legendPlacementCustom, contextPlacementAuto, "noMarkerFirst"+histDatasetComparisonStructure);
+    }
   }
   else {
     cout << "Divide failed in Draw_Phi_DatasetComparison" << endl;
