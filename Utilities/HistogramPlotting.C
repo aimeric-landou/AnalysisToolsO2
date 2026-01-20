@@ -12,6 +12,8 @@
 #include <array>
 #include <vector>
 #include "TGaxis.h"
+#include "TGraph.h"
+#include "TGraphErrors.h"
 #include <string>
 #include <filesystem>
 
