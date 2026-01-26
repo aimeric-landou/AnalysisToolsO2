@@ -23,6 +23,10 @@
 #include "RooUnfoldSvd.h"
 #include "TSVDUnfold.h"
 
+#include <TMultiGraph.h>
+#include <TGraphErrors.h>
+#include <TAxis.h>
+
 //My Libraries
 #include "./JetSpectrum_settings.h"
 #include "./JetSpectrum_inputs.h"
@@ -1112,6 +1116,8 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
     }
   }
 }
+// declare this function here. It is used in the funciton below "Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset"
+void DrawRatioWithOffset(TH1D* histList[], int nUnfoldIteration,   const TString& yAxisTitle,const TString& canvasName, int unfoldIterationMax, int step, double yMin, double yMax);
 
 void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options) {
 
@@ -1268,6 +1274,14 @@ void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, in
     TString* pdfName_ratio_refoldedComp_zoom = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_"+partialUniqueSpecifier+"_Pt_unfolded_"+unfoldingInfo+"_ratioRefoldedUnfolded_zoom");
     Draw_TH1_Histograms(H1D_jetPt_ratio_measuredRefolded, unfoldingIterationLegend, nUnfoldIteration, textContext, pdfName_ratio_refoldedComp_zoom, texPtX, texRatioRefoldedMeasured, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "zoomToOneLarge,ratioLine,zoomToOneMedium2");
   }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////ratio refolded/measured with offset differetn k////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    DrawRatioWithOffset(H1D_jetPt_ratio_measuredRefolded, nUnfoldIteration, "Refolded / Measured", "ratio_RefoldMeasure_different_k_withOffset", unfoldIterationMax, step, 0.8, 1.3);
+    DrawRatioWithOffset(H1D_jetPt_ratio_mcp, nUnfoldIteration, "unfolded / mcp", "ratio_Unfolded_mcp_different_k_withOffset", unfoldIterationMax, step, 0.7, 1.4); // last two numbers are y min and max
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParameterInput, std::string options) {
@@ -1569,6 +1583,79 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
   // }
 }
 
+void DrawRatioWithOffset(TH1D* histList[], int nUnfoldIteration, const TString& yAxisTitle,const TString& canvasName, int unfoldIterationMax, int step, double yMin, double yMax){
+    // DrawRatioWithOffset(..., -1, -1);
+    TString canvasNameFull = canvasName + "_" + unfoldingMethod;
+    TCanvas* c = new TCanvas(canvasNameFull, canvasNameFull, 800, 800);
+    TMultiGraph* mg = new TMultiGraph();
+
+    int customColors[] = {
+        kBlack, kRed + 1, kBlue + 1, kGreen + 2, kOrange + 7, kViolet + 1
+    };
+    int nColors = sizeof(customColors) / sizeof(customColors[0]);
+
+    //int nUnfoldIteration = histList.size();  // infer number of iterations from input list
+
+    for (int i = 0; i < nUnfoldIteration; ++i) {
+        TH1D* h = histList[i];
+        int nBins = h->GetNbinsX();
+
+        std::vector<double> x_vals, y_vals, ex_vals, ey_vals;
+
+        for (int bin = 1; bin <= nBins; ++bin) {
+            // Replace ptBinsJetsRec[iRadius] with your own binning logic if needed:
+            double binLowEdge = h->GetXaxis()->GetBinLowEdge(bin);
+            double binUpEdge  = h->GetXaxis()->GetBinUpEdge(bin);
+            double binWidth   = binUpEdge - binLowEdge;
+            double offset     = (i - nUnfoldIteration / 2.0) * 0.065 * binWidth;
+
+            double x  = h->GetBinCenter(bin) + offset;
+            double y  = h->GetBinContent(bin);
+            double ex = 0;
+            double ey = h->GetBinError(bin);
+
+            x_vals.push_back(x);
+            y_vals.push_back(y);
+            ex_vals.push_back(ex);
+            ey_vals.push_back(ey);
+        }
+
+        TGraphErrors* gr = new TGraphErrors(nBins, &x_vals[0], &y_vals[0], &ex_vals[0], &ey_vals[0]);
+        int color = customColors[i % nColors];
+        gr->SetMarkerStyle(20 + i);
+        gr->SetMarkerColor(color);
+        gr->SetLineColor(color);
+        gr->SetMarkerSize(0.8);
+        gr->SetTitle(Form("k_{unfold} = %d", unfoldIterationMax-step*i));  // Adjust if you have different logic
+
+        mg->Add(gr, "P");
+    }
+
+    mg->Draw("A");
+    mg->GetXaxis()->SetLimits(5.0, 140.0);
+    if (yMin < yMax) {
+    mg->GetYaxis()->SetRangeUser(yMin, yMax);
+    }
+    mg->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    mg->GetYaxis()->SetTitle(yAxisTitle);
+
+    c->BuildLegend();
+    c->Update();
+
+    // Draw horizontal reference line at y=1
+    double xmin = mg->GetXaxis()->GetXmin();
+    double xmax = mg->GetXaxis()->GetXmax();
+    TLine* line = new TLine(xmin, 1.0, xmax, 1.0);
+    line->SetLineStyle(2);
+    line->SetLineColor(kGray + 2);
+    line->Draw("same");
+
+    c->Update();
+    // Auto-save
+    c->SaveAs(canvasNameFull + ".pdf");
+    c->SaveAs(canvasNameFull + ".png");
+}
+
 // rename refoldedUnfolded as closure test?
 // and try and spend 15 min to clean hist names for the spectrum analysis
 
@@ -1576,6 +1663,8 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
 
 // WARNING FOR EFFICIENCIES I SHOULD REREAD THIS BELOW!!
 // hMcEfficiency_vsPt->Divide(hMcSignalCount_vsPt,TrueV0PtSpectrum_AnalysisBins, 1., 1., "b"); // option b for binomial because efficiency: https://twiki.cern.ch/twiki/bin/view/ALICE/PWGLFPAGSTRANGENESSEfficiency
+
+
 
 
 #endif
