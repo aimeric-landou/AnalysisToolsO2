@@ -45,6 +45,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string.h>
+#include <tuple>
 using namespace std;
 
 // Misc utilities
@@ -57,6 +58,7 @@ void Get_systematics_UnfoldMethod(TH1D* &hSystematicUncertainty, TH1D* &hSystema
 void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, char** unfoldingMethodList, int* unfoldParameterInputList, int nUnfoldingMethods, std::string options);
 void Draw_Systematics_parameterVariation(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options);
 void Draw_Systematics_TrackEff(int iDataset, int iRadius, char** unfoldingMethodList, int* unfoldParameterInputList, int nUnfoldingMethods, std::string options);
+void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfoldParameterInput, std::string options);
 
 
 /////////////////////////////////////////////////////
@@ -97,13 +99,18 @@ void JetSpectrum_systematics() {
   // Draw_Systematics_parameterVariation(iDataset, iRadius, unfoldParameterInputMin, unfoldParameterInputMax, unfoldParameterInputStep, optionsAnalysis);
 
   //######################################################### Track efficiency Systematics #####################################################
-  char optionsAnalysis_withoutUnfoldingMethod[100] = "";
-  snprintf(optionsAnalysis_withoutUnfoldingMethod, sizeof(optionsAnalysis_withoutUnfoldingMethod), "%s", unfoldingPrior);
-  const int nUnfoldingMethods = 4;
-  char* unfoldingMethodList[nUnfoldingMethods] = {"Svd", "Bayes", "Svd", "Bayes"}; // first two to be with nominal efficiency, last two with efficiency varied 
-  int unfoldParameterInputList[4] = {7, 4, 4, 2}; // first two to be with nominal efficiency, last two with efficiency varied
-  Draw_Systematics_TrackEff(iDataset, iRadius, unfoldingMethodList, unfoldParameterInputList, nUnfoldingMethods, optionsAnalysis_withoutUnfoldingMethod);
+  // char optionsAnalysis_withoutUnfoldingMethod[100] = "";
+  // snprintf(optionsAnalysis_withoutUnfoldingMethod, sizeof(optionsAnalysis_withoutUnfoldingMethod), "%s", unfoldingPrior);
+  // const int nUnfoldingMethods = 4;
+  // char* unfoldingMethodList[nUnfoldingMethods] = {"Svd", "Bayes", "Svd", "Bayes"}; // first two to be with nominal efficiency, last two with efficiency varied 
+  // int unfoldParameterInputList[4] = {7, 4, 4, 2}; // first two to be with nominal efficiency, last two with efficiency varied
+  // Draw_Systematics_TrackEff(iDataset, iRadius, unfoldingMethodList, unfoldParameterInputList, nUnfoldingMethods, optionsAnalysis_withoutUnfoldingMethod);
 
+  //######################################################### Secondary tracks Systematics #####################################################
+  char optionsAnalysis[100] = "";
+  snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s,%s", unfoldingPrior, unfoldingMethod);
+  int unfoldParameterInput = 7;
+  Draw_Systematics_SecondaryContamination(iDataset, iRadius, unfoldParameterInput, optionsAnalysis);
 
 
 
@@ -112,6 +119,130 @@ void JetSpectrum_systematics() {
 /////////////////////////////////////////////////////
 /////////////////// Misc utilities //////////////////
 /////////////////////////////////////////////////////
+
+
+///////////// Fit functions //////////////////////////////////
+// Convert a fitted function + fit result into a TGraphErrors that includes the 1σ confidence band of the fit.
+TGraphErrors* getFunctionTGraphErrorsFromFitResult(double* xRangeFit, TF1* fitFunctionDrawn, TFitResultPtr fitResult, int nPointsGraph = 1000){
+  std::vector<double> xAxisGraph= {};
+  std::vector<double> yAxisGraph= {};
+  std::vector<double> yAxisGraphErrors= {};
+  // double* ;
+
+  for(int iPoint = 0; iPoint < nPointsGraph; iPoint++){
+    xAxisGraph.push_back(xRangeFit[0]+iPoint*1./nPointsGraph*(xRangeFit[1]-xRangeFit[0]));
+    yAxisGraph.push_back(fitFunctionDrawn->Eval(xAxisGraph.back()));
+    yAxisGraphErrors.push_back(0);
+  }
+  double oneSigmaInterval = 0.683;
+  fitResult->GetConfidenceIntervals(nPointsGraph, 1, 1, &xAxisGraph[0], &yAxisGraphErrors[0], oneSigmaInterval, false);
+  TGraphErrors* fitFunctionTGraphErrors = new TGraphErrors(nPointsGraph, &xAxisGraph[0], &yAxisGraph[0], nullptr, &yAxisGraphErrors[0]);
+  return fitFunctionTGraphErrors;
+}
+
+// Fit a histogram with a double Tsallis-like function and return everything needed to propagate uncertainties
+std::tuple<TF1*, TMatrixDSym, TFitResultPtr> FitDoubleTsallis(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
+  TF1 *fitFunctionInit;
+  TF1 *fitFunctionFinal;
+  TF1 *fitFunctionDrawn; // drawn over the full range
+  TFitResultPtr fFitResult;
+
+  double parfitFunctionInit[4];
+  double parfitFunctionFinal[4];
+  // double parfitFunctionInit[8];
+  // double parfitFunctionFinal[8];
+  // const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1]) + ([6]+[7]*x)*pow(1 + x/([4]*[5]), -[5])";
+  const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1])";
+
+
+  ////////////////////////////////////////////////////////////////////
+  //////////////////////////// Fit start /////////////////////////////
+  ////////////////////////////////////////////////////////////////////
+  
+  fitFunctionInit = new TF1("fitFunctionInit_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  
+  // Set parameter names
+  fitFunctionInit->SetParName(0, "p0");
+  fitFunctionInit->SetParName(1, "p1");
+  fitFunctionInit->SetParName(2, "p2");
+  fitFunctionInit->SetParName(3, "p3");
+  // fitFunctionInit->SetParName(4, "p4");
+  // fitFunctionInit->SetParName(5, "p5");
+  // fitFunctionInit->SetParName(6, "p6");
+  // fitFunctionInit->SetParName(7, "p7");
+
+  // fitFunctionInit->SetParameters(0.5,  7,   50,  0,  1.2,  10,  300, 0);
+  // //                             p0,   p1,   p2,  p3,  p4,  p5,  p6,  p7
+
+  fitFunctionInit->SetParameters(0.5,  7,   0,  0);
+  //                             p0,   p1,   p2,  p3
+
+  fitFunctionInit->SetParLimits(0, 0.05, 1.0);
+  fitFunctionInit->SetParLimits(1, 3.0, 10.0);
+  fitFunctionInit->SetParLimits(2, -20.0, 2.0);
+  fitFunctionInit->SetParLimits(3, -10.0, 70.0);
+  // fitFunctionInit->SetParLimits(4, 0.05, 5.0);
+  // fitFunctionInit->SetParLimits(5, 3.0, 30.0);
+  // fitFunctionInit->SetParLimits(6, -50.0, 500.0);
+  // fitFunctionInit->SetParLimits(7, -100.0, 100.0);
+
+  histogramInput->Fit(fitFunctionInit, "R0Q"); // R = fit range, Q = quiet, L = likelihood
+  fitFunctionInit->GetParameters(&parfitFunctionInit[0]); // Save initial parameters
+
+  fitFunctionFinal = new TF1("fitFunctionFinal_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  
+  for(int i=0; i<8; i++) fitFunctionFinal->SetParameter(i, parfitFunctionInit[i]);
+
+  fFitResult = histogramInput->Fit(fitFunctionFinal, "RS");  
+  fitFunctionFinal->GetParameters(&parfitFunctionFinal[0]);
+
+  // Check covariance availability
+  TMatrixDSym covMatrixFit; // default empty
+  if (fFitResult && fFitResult->CovMatrixStatus() == 3) {
+      covMatrixFit = fFitResult->GetCovarianceMatrix();
+  } else {
+      std::cout << "Warning: Covariance matrix not available!" << std::endl;
+  }
+
+  // TMatrixDSym covMatrixFit = fFitResult->GetCovarianceMatrix();
+
+  // Double_t *pDataSmall = covMatrixFit.GetMatrixArray();
+  // for (int i = 0; i < 2*2; i++) {
+  //   cout << "i = " << i << ", covMatrixFit[i]" << pDataSmall[i] << endl;
+  // }
+
+  fitFunctionDrawn = new TF1("fitFunctionDrawn_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  for(int i=0; i<8; i++) fitFunctionDrawn->SetParameter(i, parfitFunctionFinal[i]);
+
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> fitFunctionAndFitParams(fitFunctionDrawn, covMatrixFit, fFitResult);
+  return fitFunctionAndFitParams;
+}
+
+// Use the fitted function to rebin a histogram and propagate fit uncertainties to the new bins
+std::tuple<TH1D*, TGraphErrors*, TF1*> RebinWithDoubleTsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, double* xRangeFit) {
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> tsallisFitFunctionResult = FitDoubleTsallis(histogramInput, nBinsX, binsX, xRangeFit);
+  TF1* fitFunctionDrawn = std::get<0>(tsallisFitFunctionResult);
+  TFitResultPtr fitResult = std::get<2>(tsallisFitFunctionResult);
+  TGraphErrors* fitFunctionTGraphErrors = getFunctionTGraphErrorsFromFitResult(xRangeFit, fitFunctionDrawn, fitResult);
+  
+  //////////////////////////// Rebin of input histogram /////////////////////////////
+
+  TH1D* histogramRebinned = new TH1D("Unfolded: fit sampling", "Unfolded: fit sampling", nBinsX, binsX);
+  for(int iBin = 0; iBin < nBinsX; iBin++){
+    double xCenter = histogramRebinned->GetXaxis()->GetBinCenter(iBin);
+    histogramRebinned->SetBinContent(iBin, fitFunctionDrawn->Eval(xCenter)); 
+    double oneSigmaInterval = 0.683;
+    double errorEval[1] = {0};
+    double xEval[1] = {xCenter};
+    fitResult->GetConfidenceIntervals(1, 1, 1, xEval, errorEval, oneSigmaInterval, false);
+    histogramRebinned->SetBinError(iBin, errorEval[0]);
+  }
+
+  std::tuple<TH1D*, TGraphErrors*, TF1*> rebinResultAndFitFunction(histogramRebinned, fitFunctionTGraphErrors, fitFunctionDrawn);
+  return rebinResultAndFitFunction;
+}
+
+//////////////////////////////////////////////////////////////
 
 void LoadLibs_Systematics() {
   // gSystem->Load("libCore.so");  
@@ -475,3 +606,363 @@ void Draw_Systematics_TrackEff(int iDataset, int iRadius, char** unfoldingMethod
   
 
 }
+
+void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfoldParameterInput, std::string options){
+  cout << "########### Drawing systematics from secondary contamination variation ###############" << endl;
+  TH1D* H1D_jetPt_unfolded;
+
+  TH1D* measuredInput;
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
+    if (useFineBinningTest) {
+      Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
+    }
+  } else{
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+    }
+  }
+  
+  Get_Pt_spectrum_unfolded(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options); 
+
+  // Define your bins and fit range
+  int nBinsX = H1D_jetPt_unfolded->GetNbinsX();
+  double* binsX = new double[nBinsX+1];
+  for(int i=0; i<=nBinsX; i++) binsX[i] = H1D_jetPt_unfolded->GetBinLowEdge(i+1);
+
+  double xRangeFit[2] = {5.0, 120.0}; // Fit range in GeV
+
+  // Step 1: Rebin histogram using double Tsallis fit
+  std::tuple<TH1D*, TGraphErrors*, TF1*> result = 
+      RebinWithDoubleTsallisFit(H1D_jetPt_unfolded, nBinsX, binsX, xRangeFit);
+
+  // Step 2: Extract outputs
+  TH1D* hJetPtRebinned = std::get<0>(result);
+  TGraphErrors* fitGraph = std::get<1>(result);
+  TF1* fitFunctionDrawn = std::get<2>(result);
+
+  // Step 3: Draw original histogram and rebinned fit
+  TCanvas* c1 = new TCanvas("c1", "Double Tsallis Fit", 800, 600);
+  H1D_jetPt_unfolded->SetMarkerStyle(20);
+  H1D_jetPt_unfolded->SetMarkerColor(kBlack);
+  H1D_jetPt_unfolded->Draw("E"); // original histogram with errors
+
+  fitGraph->SetLineColor(kRed);
+  fitGraph->SetLineWidth(2);
+  fitGraph->Draw("L SAME"); // smooth fit with ±1σ band
+
+  hJetPtRebinned->SetMarkerStyle(24);
+  hJetPtRebinned->SetMarkerColor(kBlue);
+  hJetPtRebinned->Draw("E SAME"); // rebinned histogram
+
+  // c1->BuildLegend();
+  // ================= Legend =================
+  TLegend* leg = new TLegend(0.55, 0.65, 0.85, 0.85);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);   // transparent
+  leg->SetTextSize(0.035);
+
+  leg->AddEntry(H1D_jetPt_unfolded, "Unfolded data", "lep");
+  leg->AddEntry(fitGraph, "Double Tsallis fit", "l");
+  leg->AddEntry(hJetPtRebinned, "Fit sampling (rebinned)", "lep");
+
+  leg->Draw();
+  c1->Update();
+
+
+  // TF1* ShiftTF1(TF1* f, double shift, const char* name="shifted") {
+  //   return new TF1(name, [f, shift](double *x, double *){ return f->Eval(x[0] * shift); }, 
+  //                  f->GetXmin(), f->GetXmax(), 0);
+  // }
+
+  // double shiftFactor = 0.005;
+  // TF1* fUp   = ShiftTF1(fitFunctionDrawn, 1.0 + shiftFactor, "fUp");    // 1.005 * pT
+  // TF1* fDown = ShiftTF1(fitFunctionDrawn, 1.0 - shiftFactor, "fDown");  // 0.995 * pT
+
+  // TH1D* hRebinnedUp   = new TH1D("hRebinnedUp", "Rebinned Up (1.005x)", nBinsX, binsX);
+  // TH1D* hRebinnedDown = new TH1D("hRebinnedDown", "Rebinned Down (0.995x)", nBinsX, binsX);
+
+  // for(int iBin = 0; iBin < nBinsX; iBin++){
+  //   double xCenter = hRebinnedUp->GetXaxis()->GetBinCenter(iBin);
+  //   hRebinnedUp->SetBinContent(iBin, fUp->Eval(xCenter));     
+  //   hRebinnedDown->SetBinContent(iBin, fDown->Eval(xCenter));
+  // }
+
+  // // --- Create histograms for absolute differences ---
+  // TH1D* hDiffUp   = new TH1D("hDiffUp",   "Absolute difference Up",   nBinsX, binsX);
+  // TH1D* hDiffDown = new TH1D("hDiffDown", "Absolute difference Down", nBinsX, binsX);
+
+  // // --- Fill the difference histograms ---
+  // for(int iBin = 0; iBin < nBinsX; iBin++){
+  //     double nominal = hJetPtRebinned->GetBinContent(iBin);
+  //     if(nominal == 0) nominal = 1e-12; // avoid division by zero
+
+  //     double upVal   = hRebinnedUp->GetBinContent(iBin);
+  //     double downVal = hRebinnedDown->GetBinContent(iBin);
+
+  //     hRatioUp->SetBinContent(iBin,   fabs(upVal - nominal) / nominal * 100.0);
+  //     hRatioDown->SetBinContent(iBin, fabs(downVal - nominal) / nominal * 100.0);
+  // }
+
+  // TH1D** deltaHistos = new TH1D*[2];
+  // deltaHistos[0] = hRatioUp;    // Up variation
+  // deltaHistos[1] = hRatioDown;  // Down variation
+
+  // const TString Names[2] = {
+  //   TString::Format("Up variation (+%.2f%%)", shiftFactor*100.0),
+  //   TString::Format("Down variation (-%.2f%%)", shiftFactor*100.0)
+  // };
+
+  // TString pdfName = TString::Format("jet_spectrum_systematics_SecondaryTrackContamination_upDownVariation+%.3f.pdf", shiftFactor);
+  // std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{0.85, 1.15}}};
+  // std::array<std::array<float, 2>, 2> legendPlacement = {{{0.5, 0.7}, {0.75, 0.90}}}; // {{{x1, y1}, {x2, y2}}}
+  // Draw_TH1_Histograms(deltaHistos, Names, 2, textContext, pdfNamePt, texPtJetRec , texSystematicsPercent, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "");
+}
+
+/*
+void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfoldParameterInput, const double* xRangeFit, std::string options);
+
+
+/////////////////////////////////////////////////////
+///////////////////// Main Macro ////////////////////
+/////////////////////////////////////////////////////
+
+void JetSpectrum_systematics() {
+  
+  int iDataset = 0;
+  int iRadius = 1;
+
+  //######################################################### Secondary tracks Systematics #####################################################
+  char optionsAnalysis[100] = "";
+  snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s,%s", unfoldingPrior, unfoldingMethod);
+  int unfoldParameterInput = 7;
+  const double xRangeFit[2] = {5.0, 120.0}; // Fit range in GeV
+  Draw_Systematics_SecondaryContamination(iDataset, iRadius, unfoldParameterInput, xRangeFit, optionsAnalysis);
+
+}
+
+
+///////////// Fit functions //////////////////////////////////
+// Convert a fitted function + fit result into a TGraphErrors that includes the 1σ confidence band of the fit.
+TGraphErrors* getFunctionTGraphErrorsFromFitResult(const double* xRangeFit, TF1* fitFunctionDrawn, TFitResultPtr fitResult, int nPointsGraph = 1000){
+  std::vector<double> xAxisGraph= {};
+  std::vector<double> yAxisGraph= {};
+  std::vector<double> yAxisGraphErrors= {};
+  // double* ;
+
+  for(int iPoint = 0; iPoint < nPointsGraph; iPoint++){
+    xAxisGraph.push_back(xRangeFit[0]+iPoint*1./nPointsGraph*(xRangeFit[1]-xRangeFit[0]));
+    yAxisGraph.push_back(fitFunctionDrawn->Eval(xAxisGraph.back()));
+    yAxisGraphErrors.push_back(0);
+  }
+  double oneSigmaInterval = 0.683;
+  fitResult->GetConfidenceIntervals(nPointsGraph, 1, 1, &xAxisGraph[0], &yAxisGraphErrors[0], oneSigmaInterval, false);
+  TGraphErrors* fitFunctionTGraphErrors = new TGraphErrors(nPointsGraph, &xAxisGraph[0], &yAxisGraph[0], nullptr, &yAxisGraphErrors[0]);
+  return fitFunctionTGraphErrors;
+}
+
+// Fit a histogram with a double Tsallis-like function and return everything needed to propagate uncertainties
+std::tuple<TF1*, TMatrixDSym, TFitResultPtr> FitDoubleTsallis(TH1D* &histogramInput, int nBinsX, double* binsX, const double* xRangeFit) {
+  // ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(10000);
+  // ROOT::Math::MinimizerOptions::SetDefaultTolerance(1e-4);
+  const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1]) + ([6]+[7]*x)*pow(1 + x/([4]*[5]), -[5])";
+
+  TF1 *fitFunctionInit;
+  TF1 *fitFunctionFinal;
+  TF1 *fitFunctionDrawn; // drawn over the full range
+  TFitResultPtr fFitResult;
+  double parInit[8];
+  double parFinal[8];
+
+  // Initial Fit
+  fitFunctionInit = new TF1("fitFunctionInit_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  // Set parameter names
+  fitFunctionInit->SetParName(0, "p0");
+  fitFunctionInit->SetParName(1, "p1");
+  fitFunctionInit->SetParName(2, "p2");
+  fitFunctionInit->SetParName(3, "p3");
+  fitFunctionInit->SetParName(4, "p4");
+  fitFunctionInit->SetParName(5, "p5");
+  fitFunctionInit->SetParName(6, "p6");
+  fitFunctionInit->SetParName(7, "p7");
+
+  fitFunctionInit->SetParameters(0.5,  7,   -10,  50,  0.5,  5,  300, -70);
+  //                             p0,   p1,   p2,  p3,  p4,  p5,  p6,  p7
+  fitFunctionInit->SetParLimits(0, 0.05, 5.0);
+  fitFunctionInit->SetParLimits(1, 3.0, 30.0);
+  fitFunctionInit->SetParLimits(2, -20.0, 20.0);
+  fitFunctionInit->SetParLimits(3, -10.0, 70.0);
+  fitFunctionInit->SetParLimits(4, 0.05, 5.0);
+  fitFunctionInit->SetParLimits(5, 3.0, 30.0);
+  fitFunctionInit->SetParLimits(6, -50.0, 500.0);
+  fitFunctionInit->SetParLimits(7, -100.0, 100.0);
+
+  histogramInput->Fit(fitFunctionInit, "R0QL"); // R = fit range, Q = quiet, L = likelihood
+  fitFunctionInit->GetParameters(&parInit[0]); // Save initial parameters
+
+  // Final Fit
+  fitFunctionFinal = new TF1("fitFunctionFinal_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  for(int i=0; i<8; i++) fitFunctionFinal->SetParameter(i, parInit[i]);
+  
+  fFitResult = histogramInput->Fit(fitFunctionFinal, "RSLH");  // S : return a TFitResultPtr (crucial for errors, covariance ...)
+  fitFunctionFinal->GetParameters(&parFinal[0]);
+  // Check covariance availability
+  TMatrixDSym covMatrixFit; // default empty
+  if (fFitResult && fFitResult->CovMatrixStatus() == 3) { // 0 : not calculated, 1 : approximated, 2 : forced pos. def., 3 : accurate
+      covMatrixFit = fFitResult->GetCovarianceMatrix();
+  } else {
+      std::cout << "Warning: Covariance matrix not available!" << std::endl;
+  }
+  // TMatrixDSym covMatrixFit = fFitResult->GetCovarianceMatrix();
+  // Double_t *pDataSmall = covMatrixFit.GetMatrixArray();
+  // for (int i = 0; i < 2*2; i++) {
+  //   cout << "i = " << i << ", covMatrixFit[i]" << pDataSmall[i] << endl;
+  // }
+  fitFunctionDrawn = new TF1("fitFunctionDrawn_", doubleTsallis, xRangeFit[0], xRangeFit[1]);
+  for(int i=0; i<8; i++) fitFunctionDrawn->SetParameter(i, parFinal[i]);
+
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> fitFunctionAndFitParams(fitFunctionDrawn, covMatrixFit, fFitResult);
+  return fitFunctionAndFitParams;
+}
+
+// Use the fitted function to rebin a histogram and propagate fit uncertainties to the new bins
+std::tuple<TH1D*, TGraphErrors*, TF1*> RebinWithDoubleTsallisFit(TH1D* &histogramInput, int nBinsX, double* binsX, const double* xRangeFit) {
+  std::tuple<TF1*, TMatrixDSym, TFitResultPtr> tsallisFitFunctionResult = FitDoubleTsallis(histogramInput, nBinsX, binsX, xRangeFit);
+  TF1* fitFunctionDrawn = std::get<0>(tsallisFitFunctionResult);
+  TFitResultPtr fitResult = std::get<2>(tsallisFitFunctionResult);
+  TGraphErrors* fitFunctionTGraphErrors = getFunctionTGraphErrorsFromFitResult(xRangeFit, fitFunctionDrawn, fitResult);
+  
+  //////////////////////////// Rebin of input histogram /////////////////////////////
+
+  TH1D* histogramRebinned = new TH1D("Unfolded: fit sampling", "Unfolded: fit sampling", nBinsX, binsX);
+  for(int iBin = 0; iBin < nBinsX; iBin++){
+    double xCenter = histogramRebinned->GetXaxis()->GetBinCenter(iBin);
+    histogramRebinned->SetBinContent(iBin, fitFunctionDrawn->Eval(xCenter)); 
+    double oneSigmaInterval = 0.683;
+    double errorEval[1] = {0};
+    double xEval[1] = {xCenter};
+    fitResult->GetConfidenceIntervals(1, 1, 1, xEval, errorEval, oneSigmaInterval, false); 
+    histogramRebinned->SetBinError(iBin, errorEval[0]);
+  }
+
+  std::tuple<TH1D*, TGraphErrors*, TF1*> rebinResultAndFitFunction(histogramRebinned, fitFunctionTGraphErrors, fitFunctionDrawn);
+  return rebinResultAndFitFunction;
+}
+
+TF1* ShiftTF1(const TF1* f, double shift, const char* name="shifted") {
+    return new TF1(name, [f, shift](double *x, double *){ return f->Eval(x[0] * shift); }, 
+                   f->GetXmin(), f->GetXmax(), 0);
+  }
+/////////////////////////////////////////////////////
+void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfoldParameterInput, const double* xRangeFit, std::string options){
+  cout << "########### Drawing systematics from secondary contamination variation ###############" << endl;
+  TH1D* H1D_jetPt_unfolded;
+
+  TH1D* measuredInput;
+  if (!normGenAndMeasByNEvtsForUnfoldingInput) {
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
+    if (useFineBinningTest) {
+      Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
+    }
+  } else{
+    Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+    if (useFineBinningTest) {
+      Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+    }
+  }
+  
+  Get_Pt_spectrum_unfolded(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options); 
+
+  // Define your bins and fit range
+  int nBinsX = H1D_jetPt_unfolded->GetNbinsX();
+  double* binsX = new double[nBinsX+1];
+  for(int i=0; i<=nBinsX; i++) binsX[i] = H1D_jetPt_unfolded->GetBinLowEdge(i+1);
+
+  // double xRangeFit[2] = {5.0, 120.0}; // Fit range in GeV
+  cout << "########### Fit range: [" << xRangeFit[0] << " , " << xRangeFit[1] << "] GeV #############" << endl;
+  // Step 1: Rebin histogram using double Tsallis fit
+  std::tuple<TH1D*, TGraphErrors*, TF1*> result = RebinWithDoubleTsallisFit(H1D_jetPt_unfolded, nBinsX, binsX, xRangeFit);
+
+  // Step 2: Extract outputs
+  TH1D* hJetPtRebinned = std::get<0>(result);
+  TGraphErrors* fitGraph = std::get<1>(result);
+  TF1* fitFunctionDrawn = std::get<2>(result);
+
+  // Step 3: Draw original histogram and rebinned fit
+  TCanvas* c1 = new TCanvas("c1", "Double Tsallis Fit", 800, 600);
+  H1D_jetPt_unfolded->SetMarkerStyle(20);
+  H1D_jetPt_unfolded->SetMarkerColor(kBlack);
+  H1D_jetPt_unfolded->Draw("E"); // original histogram with errors
+
+  fitGraph->SetLineColor(kRed);
+  fitGraph->SetLineWidth(2);
+  fitGraph->Draw("L SAME"); // smooth fit with ±1σ band
+
+  hJetPtRebinned->SetMarkerStyle(24);
+  hJetPtRebinned->SetMarkerColor(kBlue);
+  hJetPtRebinned->Draw("E SAME"); // rebinned histogram
+
+  // c1->BuildLegend();
+  // ================= Legend =================
+  TLegend* leg = new TLegend(0.55, 0.65, 0.85, 0.85);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);   // transparent
+  leg->SetTextSize(0.035);
+
+  leg->AddEntry(H1D_jetPt_unfolded, "Unfolded data", "lep");
+  leg->AddEntry(fitGraph, "Double Tsallis fit", "l");
+  leg->AddEntry(hJetPtRebinned, "Fit sampling (rebinned)", "lep");
+
+  leg->Draw();
+  c1->Update();
+
+  // double shiftFactor = 0.005;
+  // TF1* fUp   = ShiftTF1(fitFunctionDrawn, 1.0 + shiftFactor, "fUp");    // 1.005 * pT
+  // TF1* fDown = ShiftTF1(fitFunctionDrawn, 1.0 - shiftFactor, "fDown");  // 0.995 * pT
+
+  // TString titleUp   = Form("Rebinned Up (+%.2f%%)",   shiftFactor * 100.0);
+  // TString titleDown = Form("Rebinned Down (-%.2f%%)", shiftFactor * 100.0);
+
+  // TH1D* hRebinnedUp   = new TH1D("hRebinnedUp",   titleUp,   nBinsX, binsX);
+  // TH1D* hRebinnedDown = new TH1D("hRebinnedDown", titleDown, nBinsX, binsX);
+
+  // for(int iBin = 1; iBin < nBinsX; iBin++){
+  //   double xCenter = hRebinnedUp->GetXaxis()->GetBinCenter(iBin);
+  //   hRebinnedUp->SetBinContent(iBin, fUp->Eval(xCenter));     
+  //   hRebinnedDown->SetBinContent(iBin, fDown->Eval(xCenter));
+  // }
+
+  // // --- Create histograms for absolute differences ---
+  // TH1D* hRatioUp   = new TH1D("hRatioUp",   "Ratio difference Up",   nBinsX, binsX);
+  // TH1D* hRatioDown = new TH1D("hRatioDown", "Ratio difference Down", nBinsX, binsX);
+
+  // // --- Fill the difference histograms ---
+  // for(int iBin = 0; iBin < nBinsX; iBin++){
+  //     double nominal = hJetPtRebinned->GetBinContent(iBin);
+  //     if(nominal == 0) nominal = 1e-12; // avoid division by zero
+
+  //     double upVal   = hRebinnedUp->GetBinContent(iBin);
+  //     double downVal = hRebinnedDown->GetBinContent(iBin);
+
+  //     hRatioUp->SetBinContent(iBin,   fabs(upVal - nominal) / nominal * 100.0);
+  //     hRatioDown->SetBinContent(iBin, fabs(downVal - nominal) / nominal * 100.0);
+  // }
+
+  // TH1D** deltaHistos = new TH1D*[2];
+  // deltaHistos[0] = hRatioUp;    // Up variation
+  // deltaHistos[1] = hRatioDown;  // Down variation
+
+  // const TString Names[2] = {
+  //   TString::Format("Up variation (+%.2f%%)", shiftFactor*100.0),
+  //   TString::Format("Down variation (-%.2f%%)", shiftFactor*100.0)
+  // };
+
+  // TString pdfName = TString::Format("jet_spectrum_systematics_SecondaryTrackContamination_upDownVariation+%.3f.pdf", shiftFactor);
+  // std::array<std::array<float, 2>, 2> drawnWindow = {{{-25, 200},{0.85, 1.15}}};
+  // std::array<std::array<float, 2>, 2> legendPlacement = {{{0.5, 0.7}, {0.75, 0.90}}}; // {{{x1, y1}, {x2, y2}}}
+  // TString textContext = "";
+  // TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
+  // Draw_TH1_Histograms(deltaHistos, Names, 2, textContext, pdfName, texPtJetRec , texSystematicsPercent, texCollisionDataInfo, drawnWindow, legendPlacement, contextPlacementAuto, "");
+}
+  */
