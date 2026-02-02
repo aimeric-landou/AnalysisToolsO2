@@ -1583,6 +1583,36 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
   // }
 }
 
+void Draw_Pt_spectrum_unfolded_RelativeUncertainty(int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+
+TH1D* measuredInput;
+if (!normGenAndMeasByNEvtsForUnfoldingInput) {
+  Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options); 
+  if (useFineBinningTest) {
+    Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEndAndEvtNorm(measuredInput, iDataset, iRadius, options);
+  }
+} else{
+  Get_Pt_spectrum_bkgCorrected_recBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+  if (useFineBinningTest) {
+    Get_Pt_spectrum_bkgCorrected_fineBinning_preWidthScalingAtEnd(measuredInput, iDataset, iRadius, options);
+  }
+}
+TH1D* H1D_jetPt_unfolded_withImprovedErrors;
+Get_Pt_spectrum_unfolded_ImprovedStatisticalErrors(H1D_jetPt_unfolded_withImprovedErrors, measuredInput, iDataset, iRadius, unfoldParameterInput, options);
+
+TString pdfname = "jet_Pt_spectrum_unfolded_RelativeUncertainty_Dataset"+DatasetsNames[iDataset]+"_R"+Form("%.1f", arrayRadius[iRadius])+"_k"+Form("%i", unfoldParameterInput);
+// TString textContext = "Unfolded improved errors";
+TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, ""));
+// Test : 
+// TCanvas* c_relUnc = new TCanvas(pdfname, pdfname, 800, 800);
+// H1D_jetPt_unfolded_withImprovedErrors->Draw();
+// c_relUnc->SetLogy();
+
+// error with Draw_TH1_Histogram!!!?
+// Draw_TH1_Histogram(H1D_jetPt_unfolded_withImprovedErrors, textContext, pdfname, texPtJetRec, texJet_d2Ndptdeta_EventNorm, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy");
+
+}
+
 void DrawRatioWithOffset(TH1D* histList[], int nUnfoldIteration, const TString& yAxisTitle,const TString& canvasName, int unfoldIterationMax, int step, double yMin, double yMax){
     // DrawRatioWithOffset(..., -1, -1);
     TString canvasNameFull = canvasName + "_" + unfoldingMethod;
