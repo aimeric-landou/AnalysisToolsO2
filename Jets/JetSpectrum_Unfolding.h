@@ -17,6 +17,8 @@ void Get_Pt_spectrum_dataUnfoldedThenRefolded_RooUnfoldMethod(TH1D* &H1D_jetPt_u
 void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options);
 void Get_Pt_spectrum_mcpFoldedWithFluctuations_preWidthScalingAtEnd(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options);
 void Get_Pt_spectrum_mcpFoldedWithFluctuations(TH1D* &H1D_jetPt_mcpFolded, int iDataset, int iRadius, std::string options);
+void Get_Pt_spectrum_unfolded_ImprovedStatisticalErrors(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options);
+
 
 
 #endif

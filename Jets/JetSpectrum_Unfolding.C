@@ -19,6 +19,9 @@
 #include "../Utilities/HistogramUtilities.C"
 #include "../Utilities/HistogramPlotting.C" 
 
+#include "TRandom3.h"
+#include "TProfile.h"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////// RooUnfold Custom Utilities ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -860,5 +863,81 @@ void Get_Pt_spectrum_mcpFoldedWithFluctuations(TH1D* &H1D_jetPt_mcpFolded, int i
   TransformYieldToEtaDifferentialYield(H1D_jetPt_mcpFolded, deltaJetEta[iRadius]);
   if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_mcpFoldedWithFluctuations()" << endl;};
 }
+
+
+void Get_Pt_spectrum_unfolded_ImprovedStatisticalErrors(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options){
+  cout << "--- IN  Get_Pt_spectrum_unfolded_ImprovedStatisticalError()" << endl;
+
+  TString partialUniqueSpecifier = Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1d",iDataset)+"_R="+Form("%.1f",arrayRadius[iRadius]);
+  TH1D* measured = (TH1D*)measuredInput->Clone("measured_Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier); // before smearing
+  
+  TH1D* TH1D_UnfoldNominal;
+  int unfoldParameterNominal;
+  unfoldParameterNominal = Get_Pt_spectrum_unfolded(TH1D_UnfoldNominal, measured, iDataset, iRadius, unfoldParameterInput, options).first;
+
+  const int nToys = 5;
+  TH1D* smearedMeasured[nToys];  
+  TH1D* TH1D_unfoldSmeared[nToys];
+  int unfoldParameter[nToys];
+
+  TProfile* TProfile_JetPtVar = new TProfile("TProfile_JetPtVar","",nBinPtJetsGen[iRadius], ptBinsJetsGen[iRadius],"S");   
+  for (int itoy = 0; itoy < nToys; ++itoy) {
+    smearedMeasured[itoy] = (TH1D*)measured->Clone(Form("H1D_jetPt_smeared_measured_%d", itoy));
+    smearedMeasured[itoy]->Reset("ICE");
+    for (int i = 1; i <= measured->GetNbinsX(); ++i) {
+        double M_i     = measured->GetBinContent(i);
+        double sigma_i = measured->GetBinError(i);
+        double M_i_smeared = gRandom->Gaus(M_i, sigma_i);
+        smearedMeasured[itoy]->SetBinContent(i, M_i_smeared);
+        smearedMeasured[itoy]->SetBinError(i, sigma_i);
+    }
+    unfoldParameter[itoy] = Get_Pt_spectrum_unfolded(TH1D_unfoldSmeared[itoy], smearedMeasured[itoy], iDataset, iRadius, unfoldParameterInput, options).first;
+    int nBins = TH1D_unfoldSmeared[itoy]->GetNbinsX();
+    for (int binx = 1; binx <= nBins; binx++) {
+        double cent = TH1D_unfoldSmeared[itoy]->GetXaxis()->GetBinCenter(binx);
+        double cont = TH1D_unfoldSmeared[itoy]->GetBinContent(binx);
+        TProfile_JetPtVar->Fill(cent, cont); 
+    }
+    cout << "############## SVD unfolding: toy " << itoy+1 << " out of " << nToys << ", Done! ##############" << endl;
+  }
+
+  TH1D* TH1D_RooUnfold_RelativeError = (TH1D*) TH1D_UnfoldNominal->Clone("H1D_Unfolded_Relative_Uncert_original_error"+partialUniqueSpecifier);
+  TH1D_RooUnfold_RelativeError->Reset();
+
+  TH1D* TH1D_UnfSmeared_RelativeError = (TH1D*) TH1D_UnfoldNominal->Clone("H1D_jetPt_Relative_Uncert_SmearedThenUnfolded"+partialUniqueSpecifier);
+  TH1D_UnfSmeared_RelativeError->Reset();
+
+  H1D_jetPt_unfolded = (TH1D*)TH1D_UnfoldNominal->Clone("H1D_jetPt_unfolded_improvedStatisticalErrors"+partialUniqueSpecifier);
+
+  int nBins = TH1D_UnfoldNominal->GetNbinsX();
+  for (int bin = 1; bin <= nBins; bin++) {
+      double val = TH1D_UnfoldNominal->GetBinContent(bin);
+      double err = TH1D_UnfoldNominal->GetBinError(bin);
+      TH1D_RooUnfold_RelativeError->SetBinContent(bin, val > 0 ? err / val : 0);
+      TH1D_RooUnfold_RelativeError->SetBinError(bin, 0);
+
+      double mean_smeared = TProfile_JetPtVar->GetBinContent(bin);   // ⟨x⟩
+      double rms_smeared  = TProfile_JetPtVar->GetBinError(bin);     // RMS ("S" option)
+      TH1D_UnfSmeared_RelativeError->SetBinContent(bin, mean_smeared > 0 ? rms_smeared / mean_smeared : 0);
+      TH1D_UnfSmeared_RelativeError->SetBinError(bin, 0);
+
+      H1D_jetPt_unfolded->SetBinError(bin, rms_smeared);
+  }
+
+  // TString* pdfName_RooUnfoldUncertainty = new TString("RooUnfold_relative_uncertainty_jetPt"+partialUniqueSpecifier);
+  // // TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, ""));
+  // Draw_TH1_Histogram(TH1D_UnfSmeared_RelativeError, textContext, pdfName_RooUnfoldUncertainty, texPtJetRec, texRelativeErrPercent, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "logy");
+  TString* pdfName_realtiveError = new TString("relative_uncertainty_jetPt_defaultRooUnfold_and_SmearedMeasured"+partialUniqueSpecifier);
+  TString textContext = contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextJetRadius(arrayRadius[iRadius]), "");
+  TString LegendRelativeErrors[2] = {"Default RooUnfold", "smeared then unfolded"};
+  TH1D** RelativeErrors = new TH1D*[2];
+  RelativeErrors[0] = TH1D_RooUnfold_RelativeError;
+  RelativeErrors[1] = TH1D_UnfSmeared_RelativeError;
+  
+  Draw_TH1_Histograms(RelativeErrors, LegendRelativeErrors, 2, textContext, pdfName_realtiveError, texPtJetRec, texSystematicsPercent, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "logy");
+}
+
+
+
 
 #endif
