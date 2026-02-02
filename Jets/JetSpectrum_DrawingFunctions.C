@@ -1583,7 +1583,7 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
   // }
 }
 
-void Draw_Pt_spectrum_unfolded_RelativeUncertainty(int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
+void Draw_Pt_spectrum_unfolded_ImprovedStatErrors(int iDataset, int iRadius, int unfoldParameterInput, std::string options) {
 
 TH1D* measuredInput;
 if (!normGenAndMeasByNEvtsForUnfoldingInput) {
