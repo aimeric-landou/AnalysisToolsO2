@@ -26,4 +26,6 @@ TH2D GetTransposeHistogram(TH2D* inputHist);
 TH2D GetMatrixProductTH2xTH2(TH2D* histA, TH2D* histB);
 TH1D GetMatrixVectorProductTH2xTH1(TH2D* histA, TH1D* histU);
 
+void Compute_TH1D_RelativeUncertainty(TH1D* hInput[], TH1D* hRelUnc[], int nDatasets);
+
 #endif

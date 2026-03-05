@@ -17,9 +17,10 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
 void Draw_Pt_TestSpectrum_unfolded(int iDataset, int iRadius, std::string options);
 void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options);
 void Draw_Pt_spectrum_unfolded_ImprovedStatErrors(int iDataset, int iRadius, int unfoldParameterInput, std::string options);
-
+void MakeRatio();
 void Draw_Pt_efficiency_jets(int iRadius, std::string options);
 void Draw_kinematicEfficiency(int iRadius, std::string options);
 void Draw_FakeRatio(int iRadius, std::string options);
+
 
 #endif

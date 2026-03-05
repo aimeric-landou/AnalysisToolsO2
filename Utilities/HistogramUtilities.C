@@ -558,6 +558,48 @@ TH1D GetMatrixVectorProductTH2xTH1(TH2D* histA, TH1D* histU){
 }
 
 
+void Compute_TH1D_RelativeUncertainty(
+    TH1D* hInput[],          // input histograms
+    TH1D* hRelUnc[],         // output histograms (must be allocated outside)
+    int nDatasets ){
+  // Example usage:   
+  // TH1D* H1D_trackPt_efficiency_concatenated[nDatasets];
+  // TH1D* H1D_trackPt_efficiency_relUnc[nDatasets];
+  // Compute_TH1D_RelativeUncertainty(H1D_trackPt_efficiency_concatenated,H1D_trackPt_efficiency_relUnc,nDatasets);
+
+  for (int iDataset = 0; iDataset < nDatasets; ++iDataset){
+    if (!hInput[iDataset]) continue;
+    // Clone structure (axes, binning) but reset content
+    hRelUnc[iDataset] = (TH1D*)hInput[iDataset]->Clone(Form("%s_relUnc", hInput[iDataset]->GetName()));
+    hRelUnc[iDataset]->Reset();
+    hRelUnc[iDataset]->SetTitle(Form("Relative uncertainty of %s", hInput[iDataset]->GetTitle()));
+
+    int nBins = hInput[iDataset]->GetNbinsX();
+
+    for (int bin = 1; bin <= nBins; ++bin){
+      double content = hInput[iDataset]->GetBinContent(bin);
+      double error   = hInput[iDataset]->GetBinError(bin);
+
+      double relUnc = 0.0;
+
+      if (content != 0.0)
+          relUnc = error / content;
+
+      hRelUnc[iDataset]->SetBinContent(bin, relUnc*100.0); // store as percentage
+      hRelUnc[iDataset]->SetBinError(bin, 0.0);  // usually no error on relative uncertainty
+
+      // cout << "Dataset: " << iDataset
+      //   //  << " | Bin: " << bin
+      //   //  << " | BinCenter: " << hInput[iDataset]->GetBinCenter(bin)
+      //   //  << " | Content: " << content
+      //   //  << " | Error: " << error
+      //    << " | RelUnc: " << relUnc*100.0
+      //    << endl;
+    }
+  }
+}
+
+
 
 
 

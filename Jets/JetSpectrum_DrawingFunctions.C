@@ -699,7 +699,16 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
 
   unfoldParameter = Get_Pt_spectrum_unfolded(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options).first;
   // TH1D* H1D_jetPt_unfolded2 = (TH1D*)H1D_jetPt_unfolded->Clone(H1D_jetPt_unfolded->GetName()+(TString)"H1D_jetPt_unfolded2");
-
+  ////////////////////////////////////////////////////////////
+  
+  if (writeOutputRootFile) {
+    cout << "######################### FILE CREATED IN PRINCIPLE##################" << endl; 
+    TFile* outFile = new TFile("output.root", "UPDATE");   // "UPDATE" Open existing or create if missing / "RECREATE" Always deletes file and creates new one
+    H1D_jetPt_unfolded->Write("MB_LHC25b4ab6_train600389_ppref_unfolded"); //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
+    outFile->Close();
+    cout << "######################### HISTO SAVED IN PRINCIPLE ##################" << endl; 
+  }
+  ////////////////////////////////////////////////////////////
   cout << "comparison with raw measured" << endl; 
   if (!useFineBinningTest) {
     Get_Pt_spectrum_bkgCorrected_genBinning(H1D_jetPt_measured_genBinning, iDataset, iRadius, options);
@@ -1393,8 +1402,10 @@ void Draw_Pt_spectrum_unfolded_datasetComparison(int iRadius, int unfoldParamete
     divideSuccessDatasets[iDataset] = H1D_jetPt_unfolded_ratio_datasets[iDataset]->Divide(H1D_jetPt_unfolded[0]);
     // Creating to-be-plotted histograms
     datasetNameSpecifier[iDataset] = "_"+DatasetsNames[iDataset]+Form("%.1d",iDataset);
+    // ####################
+    
 
-
+    // ####################
     cout << "comparison with raw measured" << endl; 
     if (!useFineBinningTest) {
       Get_Pt_spectrum_bkgCorrected_genBinning(H1D_jetPt_measured_genBinning[iDataset], iDataset, iRadius, options);
@@ -1685,6 +1696,50 @@ void DrawRatioWithOffset(TH1D* histList[], int nUnfoldIteration, const TString& 
     c->SaveAs(canvasNameFull + ".pdf");
     c->SaveAs(canvasNameFull + ".png");
 }
+
+void MakeRatio()
+{
+    // Open file in UPDATE mode (so we can write result)
+    TFile* MB = TFile::Open("../20260226_Unf600389_LHC25b4ab6/output.root", "READ");
+    TFile* JJ = TFile::Open("output.root", "READ");
+    
+    if (!MB || MB->IsZombie()) {
+        std::cerr << "Error: cannot open MB file!" << std::endl;
+        return;
+    }
+    if (!JJ || JJ->IsZombie()) {
+        std::cerr << "Error: cannot open JJ file!" << std::endl;
+        return;
+    }
+    // JJ_LHC26a6_train615296_Unf_ppref_unfolded //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
+    // Retrieve histograms
+    TH1D* h1 = (TH1D*)MB->Get("MB_LHC25b4ab6_train600389_ppref_unfolded");
+    TH1D* h2 = (TH1D*)JJ->Get("JJ_LHC26a6_train615296_Unf_ppref_unfolded");
+
+    if (!h1 || !h2) {
+        std::cerr << "Error: one of the histograms not found!" << std::endl;
+        MB->Close();
+        JJ->Close();
+        return;
+    }
+
+    // Clone first histogram to store ratio
+    TH1D* hRatio = (TH1D*)h1->Clone("hRatio");
+
+    // Perform division
+    hRatio->Divide(h2);
+    TString* pdfName = new TString("Ratio of MB to JJ");
+    TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, "Ratio_of_DataUnfold_w_MB_LHC25b4ab6_to_JJ_LHC26a6"));
+    TString* YLabel = new TString("Unf MB / Unf JJ");
+
+    // Write ratio to file (overwrite if exists)
+    // hRatio->Write("", TObject::kOverwrite);
+    Draw_TH1_Histogram(hRatio, textContext, pdfName, texPtJetRec, YLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "ratioLine");
+    // file->Close();
+
+    std::cout << "Ratio successfully created and saved." << std::endl;
+}
+
 
 // rename refoldedUnfolded as closure test?
 // and try and spend 15 min to clean hist names for the spectrum analysis

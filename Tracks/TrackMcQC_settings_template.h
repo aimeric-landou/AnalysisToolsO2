@@ -19,6 +19,6 @@ float arrayRadius[nRadius] = {0.2, 0.4, 0.6};
 // float arrayRadius[nRadius] = {0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6};
 // Choice of jet type (charged, neutral, full) and level (data, detector level, particle level)
 const int iJetType = 0;
-const int iJetLevel = 0;
+const int iJetLevel = 2;
 
 const double deltaEtaMcVsTrackEfficiency = 0;

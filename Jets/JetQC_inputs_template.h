@@ -1965,15 +1965,15 @@ TFile* file_AliAnalysis;
 
 
 //////// -------- LHC25b6 - pp sim anchored to PbPb localTest ////////
-TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 13.6 TeV");
+TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
 const TString* texDatasetsComparisonType = new TString("");
 const TString* texDatasetsComparisonCommonDenominator = new TString("");
 const int nDatasets = 2;
-const TString Datasets[nDatasets] = {"pp13TeV_sim_MB", "pp13TeV_sim_jetjet"};
+const TString Datasets[nDatasets] = {"LHC26a6_train615296_Unf", "LHC25b4ab6_train600389"};
 // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
-const TString DatasetsNames[nDatasets] = {"MB", "jet-jet"};
-TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root"),
-                                          new TFile("Datasets/"+Datasets[1]+"/AnalysisResults.root")
+const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+                                          new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
                                         };
 
 const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra-charged",
@@ -1982,6 +1982,6 @@ const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra
 const TString wagonId[nDatasets] = {"", ""
                                     };
 
-const bool isDatasetWeighted[nDatasets] = {false, true};
+const bool isDatasetWeighted[nDatasets] = {true, false};
 const std::string histDatasetComparisonStructure = "";
 const bool datasetsAreSubsetsofId0 = false;

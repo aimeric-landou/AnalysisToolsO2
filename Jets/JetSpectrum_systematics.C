@@ -109,7 +109,7 @@ void JetSpectrum_systematics() {
   //######################################################### Secondary tracks Systematics #####################################################
   char optionsAnalysis[100] = "";
   snprintf(optionsAnalysis, sizeof(optionsAnalysis), "%s,%s,%s", unfoldingPrior, unfoldingMethod);
-  int unfoldParameterInput = 7;
+  int unfoldParameterInput = 8;
   Draw_Systematics_SecondaryContamination(iDataset, iRadius, unfoldParameterInput, optionsAnalysis);
 
 
@@ -147,12 +147,12 @@ std::tuple<TF1*, TMatrixDSym, TFitResultPtr> FitDoubleTsallis(TH1D* &histogramIn
   TF1 *fitFunctionDrawn; // drawn over the full range
   TFitResultPtr fFitResult;
 
-  double parfitFunctionInit[4];
-  double parfitFunctionFinal[4];
-  // double parfitFunctionInit[8];
-  // double parfitFunctionFinal[8];
-  // const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1]) + ([6]+[7]*x)*pow(1 + x/([4]*[5]), -[5])";
-  const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1])";
+  // double parfitFunctionInit[4];
+  // double parfitFunctionFinal[4];
+  double parfitFunctionInit[8];
+  double parfitFunctionFinal[8];
+  const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1]) + ([6]+[7]*x)*pow(1 + x/([4]*[5]), -[5])";
+  // const char* doubleTsallis = "([2]+[3]*x)*pow(1 + x/([0]*[1]), -[1])";
 
 
   ////////////////////////////////////////////////////////////////////
@@ -166,21 +166,21 @@ std::tuple<TF1*, TMatrixDSym, TFitResultPtr> FitDoubleTsallis(TH1D* &histogramIn
   fitFunctionInit->SetParName(1, "p1");
   fitFunctionInit->SetParName(2, "p2");
   fitFunctionInit->SetParName(3, "p3");
-  // fitFunctionInit->SetParName(4, "p4");
-  // fitFunctionInit->SetParName(5, "p5");
-  // fitFunctionInit->SetParName(6, "p6");
-  // fitFunctionInit->SetParName(7, "p7");
+  fitFunctionInit->SetParName(4, "p4");
+  fitFunctionInit->SetParName(5, "p5");
+  fitFunctionInit->SetParName(6, "p6");
+  fitFunctionInit->SetParName(7, "p7");
 
-  // fitFunctionInit->SetParameters(0.5,  7,   50,  0,  1.2,  10,  300, 0);
-  // //                             p0,   p1,   p2,  p3,  p4,  p5,  p6,  p7
+  fitFunctionInit->SetParameters(0.5,  7,   50,  0,  0,  7,  -30, 0);
+  //                             p0,   p1,   p2,  p3,  p4,  p5,  p6,  p7
 
-  fitFunctionInit->SetParameters(0.5,  7,   0,  0);
+  // fitFunctionInit->SetParameters(0.5,  7,   -10,  0.5);
   //                             p0,   p1,   p2,  p3
 
-  fitFunctionInit->SetParLimits(0, 0.05, 1.0);
-  fitFunctionInit->SetParLimits(1, 3.0, 10.0);
-  fitFunctionInit->SetParLimits(2, -20.0, 2.0);
-  fitFunctionInit->SetParLimits(3, -10.0, 70.0);
+  // fitFunctionInit->SetParLimits(0, 0.05, 1.0);
+  // fitFunctionInit->SetParLimits(1, 3.0, 10.0);
+  // fitFunctionInit->SetParLimits(2, -20.0, 2.0);
+  // fitFunctionInit->SetParLimits(3, -10.0, 70.0);
   // fitFunctionInit->SetParLimits(4, 0.05, 5.0);
   // fitFunctionInit->SetParLimits(5, 3.0, 30.0);
   // fitFunctionInit->SetParLimits(6, -50.0, 500.0);
@@ -631,6 +631,7 @@ void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfo
   double* binsX = new double[nBinsX+1];
   for(int i=0; i<=nBinsX; i++) binsX[i] = H1D_jetPt_unfolded->GetBinLowEdge(i+1);
 
+  // double xRangeFit[2] = {5.0, 120.0}; // Fit range in GeV
   double xRangeFit[2] = {5.0, 120.0}; // Fit range in GeV
 
   // Step 1: Rebin histogram using double Tsallis fit
@@ -641,6 +642,16 @@ void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfo
   TH1D* hJetPtRebinned = std::get<0>(result);
   TGraphErrors* fitGraph = std::get<1>(result);
   TF1* fitFunctionDrawn = std::get<2>(result);
+
+  TH1D* H1D_FitUnf_ratio = (TH1D*) hJetPtRebinned->Clone("hRatio");
+  H1D_FitUnf_ratio->SetTitle("Ratio: Fit / Unfolded; p_{T}^{jet}; Ratio");
+  H1D_FitUnf_ratio->Divide(H1D_jetPt_unfolded);
+
+  TString* pdfName_fitUnfRatio = new TString("ratio fit histogram to unfolded spectrum");
+  TString textContext("");
+  TString* yLabel = new TString("Fit / Unfolded");
+  Draw_TH1_Histogram(H1D_FitUnf_ratio, textContext, pdfName_fitUnfRatio, texPtJetRec, yLabel, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "");
+
 
   // Step 3: Draw original histogram and rebinned fit
   TCanvas* c1 = new TCanvas("c1", "Double Tsallis Fit", 800, 600);
@@ -669,6 +680,9 @@ void Draw_Systematics_SecondaryContamination(int iDataset, int iRadius, int unfo
 
   leg->Draw();
   c1->Update();
+
+ 
+
 
 
   // TF1* ShiftTF1(TF1* f, double shift, const char* name="shifted") {

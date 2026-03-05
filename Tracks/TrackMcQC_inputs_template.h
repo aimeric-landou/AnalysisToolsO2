@@ -936,24 +936,83 @@
 // const bool datasetsAreSubsetsofId0 = false;
 
 
-//////// -------- test cleanUpCollHists ////////
-TString* texCollisionDataInfo = new TString("PYTHIA MC #sqrt{#it{s}_{(NN)}} = 5.36 TeV");
-const TString* texDatasetsComparisonType = new TString("simType");
+// //////// -------- test cleanUpCollHists ////////
+// TString* texCollisionDataInfo = new TString("PYTHIA pp MC #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("");
+// const int nDatasets = 2;
+// const TString Datasets[nDatasets] = {"LHC26a6_train613380_TracksQA", "LHC25b4ab6_train610066_tracks"};
+
+// // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
+// const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+// // const TString DatasetsNames[nDatasets] = {"pp jet-jet LHC26a6"};
+
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
+//                                         };
+
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency",
+//                                              "track-efficiency"
+//                                           };
+// const TString wagonId[nDatasets] = {"",
+//                                     ""
+//                                     };
+// const bool isDatasetWeighted[nDatasets] = {true, false};
+
+// const std::string histDatasetComparisonStructure = "";
+// const bool datasetsAreSubsetsofId0 = false;
+
+
+//////// -------- LHC26a6_train621344_EffPurQA vs LHC25b4ab6_train610066_tracks ////////
+TString* texCollisionDataInfo = new TString("PYTHIA pp MC #sqrt{#it{s}} = 5.36 TeV");
+const TString* texDatasetsComparisonType = new TString("");
 const TString* texDatasetsComparisonCommonDenominator = new TString("");
 const int nDatasets = 2;
-const TString Datasets[nDatasets] = {"jetjet_ppAnchoredPbPb_5TeV_localNewCleanUpCollHists", "ppRefGenPurposeMC_5TeV_localNewCleanUpCollHists"};
+const TString Datasets[nDatasets] = {"LHC26a6_train621344_EffPurQA", "LHC25b4ab6_train610066_tracks"};
+
 // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
-const TString DatasetsNames[nDatasets] = {"pp jet-jet Pb-Pb anchor", "pp ref MB MC"};
-TFile* file_O2Analysis_list[nDatasets] = {new TFile("Datasets/"+Datasets[0]+"/AnalysisResults.root"),
-                                          new TFile("Datasets/"+Datasets[1]+"/AnalysisResults.root")
+const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+// const TString DatasetsNames[nDatasets] = {"pp jet-jet LHC26a6"};
+
+TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+                                          new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
                                         };
 
-const TString analysisWorkflow[nDatasets] = {"track-efficiency",
+const TString analysisWorkflow[nDatasets] = {"track-efficiency_id47809", // for eff and purity : track-efficiency_id47809 / for Tracks QA : track-efficiency_id47557
                                              "track-efficiency"
                                           };
 const TString wagonId[nDatasets] = {"",
                                     ""
                                     };
 const bool isDatasetWeighted[nDatasets] = {true, false};
+
 const std::string histDatasetComparisonStructure = "";
 const bool datasetsAreSubsetsofId0 = false;
+
+
+
+// //////// -------- LHC26a6_train615296_Unf vs LHC25b4ab6_train610066_tracks //////// JUST FOR MC GEN PARTICLE TRACK SPECTRA QA BECAUSE THIS CONTAINS THE MC GEN COLLISIONS NUMBER
+// TString* texCollisionDataInfo = new TString("PYTHIA pp MC #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("");
+// const int nDatasets = 2;
+// const TString Datasets[nDatasets] = {"LHC26a6_train615296_Unf", "LHC25b4ab6_train610066_tracks"};
+
+// // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
+// const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+// // const TString DatasetsNames[nDatasets] = {"pp jet-jet LHC26a6"};
+
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
+//                                         };
+
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency",
+//                                              "track-efficiency"
+//                                           };
+// const TString wagonId[nDatasets] = {"",
+//                                     ""
+//                                     };
+// const bool isDatasetWeighted[nDatasets] = {true, false};
+
+// const std::string histDatasetComparisonStructure = "";
+// const bool datasetsAreSubsetsofId0 = false;

@@ -20,8 +20,8 @@
 // #include "RooUnfoldBinByBin.h"
 
 //My Libraries
-#include "./TrackQC_settings.h"
-#include "./TrackQC_inputs.h"
+#include "./TrackQC_settings_template.h"
+#include "./TrackQC_inputs_template.h"
 #include "../Settings/AxisTitles.h"
 #include "../Settings/GlobalSettings.h"
 #include "../Utilities/AnalysisUtilities.h"
@@ -121,9 +121,9 @@ void TrackQC() {
     jetPtMaxCut = jetPtMinCutArray[iPtBin+1];
 
     float ptRange[2] = {jetPtMinCut, jetPtMaxCut};
-    Draw_Eta_DatasetComparison(ptRange, "evtNorm");
+    // Draw_Eta_DatasetComparison(ptRange, "evtNorm");
     // Draw_Eta_DatasetComparison(ptRange, "entriesNorm");
-    Draw_Phi_DatasetComparison(ptRange, "evtNorm");
+    // Draw_Phi_DatasetComparison(ptRange, "evtNorm");
     // Draw_Phi_DatasetComparison(ptRange, "entriesNorm");
 
   // Draw_Eta_DatasetComparison_trackSelComp();

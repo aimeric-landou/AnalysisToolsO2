@@ -102,6 +102,7 @@ TString* texPtPeak = new TString("#it{p}_{T,ch jet}^{rec} - #it{A}_{jet} #it{#rh
 TString* texPtAtThreshold = new TString("#it{p}_{T,ch jet}^{rec} - #it{A}_{jet} #it{#rho} (GeV/#it{c}) at 95% threshold");
 
 TString* texSystematicsPercent = new TString ("systematic error (%)");
+TString* texRelativeUncertainty = new TString ("relative uncertainty");
 
 
 //////////////////////////
