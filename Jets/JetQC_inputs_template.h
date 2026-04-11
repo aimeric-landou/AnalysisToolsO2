@@ -1964,24 +1964,82 @@ TFile* file_AliAnalysis;
 // const bool datasetsAreSubsetsofId0 = false;
 
 
+// //////// -------- LHC25b6 - pp sim anchored to PbPb localTest ////////
+// TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("");
+// const int nDatasets = 2;
+// const TString Datasets[nDatasets] = {"LHC26a6_train615296_Unf", "LHC25b4ab6_train600389"};
+// // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
+// const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
+//                                         };
+
+// const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra-charged",
+//                                           };
+
+// const TString wagonId[nDatasets] = {"", ""
+//                                     };
+
+// const bool isDatasetWeighted[nDatasets] = {true, false};
+// const std::string histDatasetComparisonStructure = "";
+// const bool datasetsAreSubsetsofId0 = false;
+
+
+
+
+// //////// -------- LHC25b6 - pp sim anchored to PbPb localTest ////////
+// TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("");
+// const int nDatasets = 3;
+// const TString Datasets[nDatasets] = {"LHC24ap_pass1_R02_Lead3_650972", "LHC25b4ab6_R02_Lead3_649683_Unf", "LHC26c5_R02_Lead3_649618_Unf"};
+// // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
+// const TString DatasetsNames[nDatasets] = {"Data", "MB", "JJ gap3" };
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[2]+"/AnalysisResults.root")
+//                                         };
+
+// const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra-charged", "jet-spectra-charged",
+//                                           };
+
+// const TString wagonId[nDatasets] = {"", "", ""
+//                                     };
+
+// const bool isDatasetWeighted[nDatasets] = {false, false, true};
+// const std::string histDatasetComparisonStructure = "";
+// const bool datasetsAreSubsetsofId0 = false;
+
+// // JJ : LHC26c5_R02_Lead3_649618_Unf
+// // MB : LHC25b4ab6_R02_Lead3_649683_Unf
+// // Data : LHC24ap_pass1_R02_Lead3_650972
+
+
+
 //////// -------- LHC25b6 - pp sim anchored to PbPb localTest ////////
 TString* texCollisionDataInfo = new TString("pp #sqrt{#it{s}} = 5.36 TeV");
 const TString* texDatasetsComparisonType = new TString("");
 const TString* texDatasetsComparisonCommonDenominator = new TString("");
 const int nDatasets = 2;
-const TString Datasets[nDatasets] = {"LHC26a6_train615296_Unf", "LHC25b4ab6_train600389"};
+const TString Datasets[nDatasets] = {"LHC25b4ab6_R02_Lead3_649683_Unf", "LHC26c5_R02_Lead3_649618_Unf"};
 // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
-const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+const TString DatasetsNames[nDatasets] = {"MB", "JJ gap3" };
 TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
                                         };
 
-const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra-charged",
+const TString analysisWorkflow[nDatasets] = {"jet-spectra-charged", "jet-spectra-charged"
                                           };
 
 const TString wagonId[nDatasets] = {"", ""
                                     };
 
-const bool isDatasetWeighted[nDatasets] = {true, false};
+const bool isDatasetWeighted[nDatasets] = {false, true};
 const std::string histDatasetComparisonStructure = "";
 const bool datasetsAreSubsetsofId0 = false;
+
+// JJ : LHC26c5_R02_Lead3_649618_Unf
+// MB : LHC25b4ab6_R02_Lead3_649683_Unf
+// Data : LHC24ap_pass1_R02_Lead3_650972

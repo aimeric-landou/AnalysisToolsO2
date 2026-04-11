@@ -1129,34 +1129,70 @@ TFile* file_AliAnalysis; //dummy
 
 
 
+// //////// -------- LHC26a6_train621344_EffPurQA vs LHC25b4ab6_train610066_tracks ////////
+// TString* texCollisionDataInfo = new TString("PYTHIA pp MC #sqrt{#it{s}} = 5.36 TeV");
+// const TString* texDatasetsComparisonType = new TString("");
+// const TString* texDatasetsComparisonCommonDenominator = new TString("");
+// const int nDatasets = 2;
+// const TString Datasets[nDatasets] = {"LHC26a6_train621344_EffPurQA", "LHC25b4ab6_train610066_tracks"};
+
+// // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
+// const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+// // const TString DatasetsNames[nDatasets] = {"pp jet-jet LHC26a6"};
+
+// TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
+//                                           new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
+//                                         };
+
+// const TString analysisWorkflow[nDatasets] = {"track-efficiency_id47557", // for eff and purity : track-efficiency_id47809 / for Tracks QA : track-efficiency_id47557
+//                                              "track-efficiency"
+//                                           };
+// const TString wagonId[nDatasets] = {"",
+//                                     ""
+//                                     };
+// const bool isDatasetWeighted[nDatasets] = {true, false};
+
+// const std::string histDatasetComparisonStructure = "";
+// const bool datasetsAreSubsetsofId0 = false;
+// const bool trackHistsObsoleteVersion[nDatasets] = {true, true};
+
+
+
+
+
+
+
 //////// -------- LHC26a6_train621344_EffPurQA vs LHC25b4ab6_train610066_tracks ////////
 TString* texCollisionDataInfo = new TString("PYTHIA pp MC #sqrt{#it{s}} = 5.36 TeV");
 const TString* texDatasetsComparisonType = new TString("");
 const TString* texDatasetsComparisonCommonDenominator = new TString("");
-const int nDatasets = 2;
-const TString Datasets[nDatasets] = {"LHC26a6_train621344_EffPurQA", "LHC25b4ab6_train610066_tracks"};
+const int nDatasets = 3;
+const TString Datasets[nDatasets] = {"LHC24ap_pass1_medium_653234_TracksQA", "LHC25b4ab6_653385_TracksQA", "LHC26c5_652671_TracksQA"};
 
 // const TString DatasetsNames[nDatasets] = {"0-10%", "50-90%"};
-const TString DatasetsNames[nDatasets] = {"JJ LHC26a6", "MB LHC25b4ab6"};
+const TString DatasetsNames[nDatasets] = {"Data ", "MB", "JJ gap3"};
 // const TString DatasetsNames[nDatasets] = {"pp jet-jet LHC26a6"};
 
 TFile* file_O2Analysis_list[nDatasets] = {new TFile("../Datasets/"+Datasets[0]+"/AnalysisResults.root"),
-                                          new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root")
+                                          new TFile("../Datasets/"+Datasets[1]+"/AnalysisResults.root"), 
+                                          new TFile("../Datasets/"+Datasets[2]+"/AnalysisResults.root")
                                         };
 
-const TString analysisWorkflow[nDatasets] = {"track-efficiency_id47557", // for eff and purity : track-efficiency_id47809 / for Tracks QA : track-efficiency_id47557
+const TString analysisWorkflow[nDatasets] = {"track-efficiency", // for eff and purity : track-efficiency_id47809 / for Tracks QA : track-efficiency_id47557
+                                             "track-efficiency",
                                              "track-efficiency"
                                           };
 const TString wagonId[nDatasets] = {"",
-                                    ""
+                                    "", ""
                                     };
-const bool isDatasetWeighted[nDatasets] = {true, false};
+const bool isDatasetWeighted[nDatasets] = {false, false, true};
 
 const std::string histDatasetComparisonStructure = "";
 const bool datasetsAreSubsetsofId0 = false;
-const bool trackHistsObsoleteVersion[nDatasets] = {true, true};
-
-
+const bool trackHistsObsoleteVersion[nDatasets] = {true, true, true};
+// Data : LHC24ap_pass1_medium_653234_TracksQA
+// MB : LHC25b4ab6_653385_TracksQA
+// JJ : LHC26c5_652671_TracksQA
 
 
 

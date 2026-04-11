@@ -114,16 +114,16 @@ void TrackQC() {
   float jetPtMinCutArray[nPtBins+1] = {0.15, 100};
 
 
-  Draw_Pt_DatasetComparison("evtNorm");
+  // Draw_Pt_DatasetComparison("evtNorm");
   // Draw_Pt_DatasetComparison("entriesNorm");
   for(int iPtBin = 0; iPtBin < nPtBins; iPtBin++){
     jetPtMinCut = jetPtMinCutArray[iPtBin];
     jetPtMaxCut = jetPtMinCutArray[iPtBin+1];
 
     float ptRange[2] = {jetPtMinCut, jetPtMaxCut};
-    // Draw_Eta_DatasetComparison(ptRange, "evtNorm");
+    Draw_Eta_DatasetComparison(ptRange, "evtNorm");
     // Draw_Eta_DatasetComparison(ptRange, "entriesNorm");
-    // Draw_Phi_DatasetComparison(ptRange, "evtNorm");
+    Draw_Phi_DatasetComparison(ptRange, "evtNorm");
     // Draw_Phi_DatasetComparison(ptRange, "entriesNorm");
 
   // Draw_Eta_DatasetComparison_trackSelComp();

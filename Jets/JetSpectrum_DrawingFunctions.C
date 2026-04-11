@@ -349,6 +349,15 @@ void Draw_Pt_efficiency_jets(int iRadius, std::string options) {
   TString* pdfName = new TString("jet_"+jetType[iJetType]+"_"+jetLevel[iJetLevel]+"_R="+Form("%.1f", arrayRadius[iRadius])+"_Pt_efficiency");
   if (std::all_of(std::begin(divideSuccess), std::end(divideSuccess), [](bool booleanEntry) {return booleanEntry;})){ // checks all entries of divideSuccess are true
     Draw_TH1_Histograms(H1D_jetEfficiency, DatasetsNames, nDatasets, textContext, pdfName, texPtJetGen, texJetEfficiency, texCollisionDataInfo, drawnWindowAuto, legendPlacementAuto, contextPlacementAuto, "efficiency");
+
+    if (writeOutputRootFile_efficiency) {
+      cout << "######################### FILE CREATED IN PRINCIPLE##################" << endl; 
+      TFile* outFile_eff = new TFile("output_JetEff.root", "UPDATE");   // "UPDATE" Open existing or create if missing / "RECREATE" Always deletes file and creates new one
+      TString histoName = Form("H1D_jetEfficiency_%s", MC_Datasets[0].Data());
+      H1D_jetEfficiency[0]->Write(histoName);
+      outFile_eff->Close();
+      cout << "######################### HISTO SAVED IN PRINCIPLE ##################" << endl; 
+    }
   }
 }
 
@@ -393,6 +402,15 @@ void Draw_FakeRatio(int iRadius, std::string options) {
   TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, ""));
 
   Draw_TH1_Histograms(H1D_fakeRatio, DatasetsNames, nDatasets, textContext, pdfName, texPtJetRec, texFakeRatio, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "");
+
+  if (writeOutputRootFile_efficiency) {
+      cout << "######################### FILE CREATED IN PRINCIPLE##################" << endl; 
+      TFile* outFile_eff = new TFile("output_JetEff.root", "UPDATE");   // "UPDATE" Open existing or create if missing / "RECREATE" Always deletes file and creates new one
+      TString histoName = Form("H1D_fakeRatio%s", MC_Datasets[0].Data());
+      H1D_fakeRatio[0]->Write(histoName);
+      outFile_eff->Close();
+      cout << "######################### HISTO SAVED IN PRINCIPLE ##################" << endl; 
+    }
 }
 
 void Draw_ResponseMatrices_Fluctuations(int iDataset, int iRadius) {
@@ -704,7 +722,8 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   if (writeOutputRootFile) {
     cout << "######################### FILE CREATED IN PRINCIPLE##################" << endl; 
     TFile* outFile = new TFile("output.root", "UPDATE");   // "UPDATE" Open existing or create if missing / "RECREATE" Always deletes file and creates new one
-    H1D_jetPt_unfolded->Write("MB_LHC25b4ab6_train600389_ppref_unfolded"); //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
+    TString histoName = Form("Unf_%s_using_%s", Datasets[0].Data(), MC_Datasets[0].Data());
+    H1D_jetPt_unfolded->Write(histoName);
     outFile->Close();
     cout << "######################### HISTO SAVED IN PRINCIPLE ##################" << endl; 
   }
@@ -725,6 +744,15 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
   H1D_jetPt_unfolded_mcpComp[1] = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_unfolded_mcpComp"+partialUniqueSpecifier);
   H1D_jetPt_ratio_mcp = (TH1D*)H1D_jetPt_unfolded->Clone("H1D_jetPt_ratio_mcp"+partialUniqueSpecifier);
   divideSuccessMcp = H1D_jetPt_ratio_mcp->Divide(H1D_jetPt_mcp);
+  if (writeOutputRootFile) {
+    cout << "######################### FILE CREATED IN PRINCIPLE##################" << endl; 
+    TFile* outFile = new TFile("output.root", "UPDATE");   // "UPDATE" Open existing or create if missing / "RECREATE" Always deletes file and creates new one
+    TString histoName = Form("H1D_jetPt_ratio_mcp_%s_using_%s", Datasets[0].Data(), MC_Datasets[0].Data());
+    H1D_jetPt_ratio_mcp->Write(histoName);
+    outFile->Close();
+    cout << "######################### HISTO SAVED IN PRINCIPLE ##################" << endl; 
+  }
+
 
   cout << "comparison with run2" << endl; 
   std::vector<double> xtBinningVectorRun2 = {};
@@ -1697,47 +1725,209 @@ void DrawRatioWithOffset(TH1D* histList[], int nUnfoldIteration, const TString& 
     c->SaveAs(canvasNameFull + ".png");
 }
 
-void MakeRatio()
-{
+void MakeRatio(){
     // Open file in UPDATE mode (so we can write result)
-    TFile* MB = TFile::Open("../20260226_Unf600389_LHC25b4ab6/output.root", "READ");
-    TFile* JJ = TFile::Open("output.root", "READ");
+    // TFile* JJ_Gap2 = TFile::Open("../20260319_Unf_LHC26a6_637817/output.root", "READ");
+    TFile* JJ_Gap3 = TFile::Open("output.root", "READ");
+
+    TFile* MB = TFile::Open("../20260429_UnfMB_R02_Lead3_Full650972_649683/output.root", "READ");
     
-    if (!MB || MB->IsZombie()) {
-        std::cerr << "Error: cannot open MB file!" << std::endl;
-        return;
-    }
-    if (!JJ || JJ->IsZombie()) {
-        std::cerr << "Error: cannot open JJ file!" << std::endl;
-        return;
-    }
     // JJ_LHC26a6_train615296_Unf_ppref_unfolded //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
     // Retrieve histograms
-    TH1D* h1 = (TH1D*)MB->Get("MB_LHC25b4ab6_train600389_ppref_unfolded");
-    TH1D* h2 = (TH1D*)JJ->Get("JJ_LHC26a6_train615296_Unf_ppref_unfolded");
-
-    if (!h1 || !h2) {
-        std::cerr << "Error: one of the histograms not found!" << std::endl;
-        MB->Close();
-        JJ->Close();
-        return;
-    }
+    // TH1D* h1 = (TH1D*)JJ_Gap2->Get("JJ_Gap2_LHC26a6_637817_ppref_unfolded");
+    TH1D* h2 = (TH1D*)JJ_Gap3->Get("Unf_LHC24ap_pass1_R02_Lead3_650972_using_LHC26c5_R02_Lead3_649618_Unf");
+    TH1D* h1 = (TH1D*)MB->Get("Unf_LHC24ap_pass1_R02_Lead3_650972_using_LHC25b4ab6_R02_Lead3_649683_Unf");
 
     // Clone first histogram to store ratio
-    TH1D* hRatio = (TH1D*)h1->Clone("hRatio");
+    // TH1D* hRatio_JJ2_MB = (TH1D*)h1->Clone("hRatio_JJ2_MB");
+    TH1D* hRatio_JJ3_MB = (TH1D*)h2->Clone("hRatio_JJ3_MB");
+    // hRatio_JJ2_MB->Divide(h1);
+    // hRatio_JJ3_MB->Divide(h1);
+    hRatio_JJ3_MB->Reset(); // Clear the content, keep the bins
 
-    // Perform division
-    hRatio->Divide(h2);
-    TString* pdfName = new TString("Ratio of MB to JJ");
-    TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, "Ratio_of_DataUnfold_w_MB_LHC25b4ab6_to_JJ_LHC26a6"));
-    TString* YLabel = new TString("Unf MB / Unf JJ");
+    // 2. Loop through every bin of the new Ratio histogram
+    for (int i = 1; i <= hRatio_JJ3_MB->GetNbinsX(); ++i) {
+        double binCenter = hRatio_JJ3_MB->GetBinCenter(i);
 
-    // Write ratio to file (overwrite if exists)
-    // hRatio->Write("", TObject::kOverwrite);
-    Draw_TH1_Histogram(hRatio, textContext, pdfName, texPtJetRec, YLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "ratioLine");
+        // 3. Apply your range constraint
+        if (binCenter >= 5.0 && binCenter <= 100.0) {
+            
+            // Find the corresponding bin index in the other histogram (h1)
+            int binH1 = h1->FindBin(binCenter);
+            
+            double val2 = h2->GetBinContent(i);
+            double val1 = h1->GetBinContent(binH1);
+            double err2 = h2->GetBinError(i);
+            double err1 = h1->GetBinError(binH1);
+
+            if (val1 > 0) {
+                double ratio = val2 / val1;
+                hRatio_JJ3_MB->SetBinContent(i, ratio);
+                
+                // Calculate error propagation: (R/V)^2 = (e1/v1)^2 + (e2/v2)^2
+                double error = ratio * TMath::Sqrt(TMath::Power(err1/val1, 2) + TMath::Power(err2/val2, 2));
+                hRatio_JJ3_MB->SetBinError(i, error);
+            }
+        } else {
+            // Outside the range, set to 0 or leave empty
+            hRatio_JJ3_MB->SetBinContent(i, 0);
+            hRatio_JJ3_MB->SetBinError(i, 0);
+        }
+    }
+
+    // TH1D* hRatio_JJ2_JJ3 = (TH1D*)h1->Clone("hRatio_JJ2_JJ3");
+    // hRatio_JJ2_JJ3->Divide(h2);
+    hRatio_JJ3_MB->Fit("pol0", "Q0");
+    TF1* fit = hRatio_JJ3_MB->GetFunction("pol0");
+    double value = fit->GetParameter(0);
+    double error = fit->GetParError(0);
+
+    TString* pdfName_JJ3_MB = new TString("Ratio_of_Data_649659_Unf_w_JJ_LHC26c5_649618_to_MB_LHC25b4ab6_649683");
+    TString* YLabel_JJ3_MB = new TString("Unf with JJ_Gap3 / Unf with MB");
+    TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, "Ratio_of_Data_649659_Unf_w_JJ_LHC26c5_649618_to_MB_LHC25b4ab6_649683"));
+    cout << Form("Fit result: %.3f #pm %.3f", value, error) << endl;
+    Draw_TH1_Histogram(hRatio_JJ3_MB, textContext, pdfName_JJ3_MB, texPtJetRec, YLabel_JJ3_MB, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "ratioLine");
+
+    // TString* pdfName = new TString("Ratio of JJ_Gap2 and JJ_Gap3 to MB");
+    // TString textContext(contextCustomOneField(*texDatasetsComparisonCommonDenominator, "Ratio_of_DataUnfold_w_JJ_Gap2_LHC26a6_637817_and_JJ_Gap3_LHC26c5_637150_to_MB_LHC25b4ab6_637087"));
+    // TString* YLabel = new TString("Unf with JJ / Unf with MB");
+
+    // TH1D* H1D_jetPt_Unfolded_ratio[2];
+    // H1D_jetPt_Unfolded_ratio[0] = hRatio_JJ2_MB;
+    // H1D_jetPt_Unfolded_ratio[1] = hRatio_JJ3_MB;
+
+    // TString LegendNames[2];
+    // LegendNames[0] = "JJ_Gap2 / MB";
+    // LegendNames[1] = "JJ_Gap3 / MB";
+    
+    // Draw_TH1_Histograms(H1D_jetPt_Unfolded_ratio, LegendNames, 2, textContext, pdfName, texPtJetRec, YLabel, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "ratioLine");
+
     // file->Close();
 
     std::cout << "Ratio successfully created and saved." << std::endl;
+}
+
+
+void Plot_Eff_Same_Convas(){
+    // Open file in UPDATE mode (so we can write result)
+    // TFile* JJ_Gap2 = TFile::Open("../20260319_Unf_LHC26a6_637817/output.root", "READ");
+    TFile* JJ_Gap3 = TFile::Open("output_JetEff.root", "READ");
+
+    TFile* MB = TFile::Open("../20260429_UnfMB_R02_Lead3_Full650972_649683/output_JetEff.root", "READ");
+    
+    // JJ_LHC26a6_train615296_Unf_ppref_unfolded //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
+    // Retrieve histograms
+    // TH1D* h1 = (TH1D*)JJ_Gap2->Get("JJ_Gap2_LHC26a6_637817_ppref_unfolded");
+    TH1D* h2_e = (TH1D*)JJ_Gap3->Get("H1D_jetEfficiency_LHC26c5_R02_Lead3_649618_Unf");
+    TH1D* h1_e = (TH1D*)MB->Get("H1D_jetEfficiency_LHC25b4ab6_R02_Lead3_649683_Unf");
+
+    TH1D* h2_p = (TH1D*)JJ_Gap3->Get("H1D_fakeRatioLHC26c5_R02_Lead3_649618_Unf");
+    TH1D* h1_p = (TH1D*)MB->Get("H1D_fakeRatioLHC25b4ab6_R02_Lead3_649683_Unf");
+
+    TCanvas* c_eff = new TCanvas("Matching_Efficiency_Comparison", "Matching_Efficiency_Comparison", 800, 800);
+    h1_e->SetMarkerStyle(20);
+    h1_e->SetMarkerColor(kRed);
+    h1_e->SetLineColor(kRed);
+    h1_e->SetMarkerSize(0.8);
+    h1_e->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    h1_e->GetYaxis()->SetTitle("Matching Efficiency");
+    h1_e->Draw("E1");
+    h2_e->SetMarkerStyle(21);
+    h2_e->SetMarkerColor(kBlue);
+    h2_e->SetLineColor(kBlue);
+    h2_e->SetMarkerSize(0.8);
+    h2_e->Draw("E1 same");
+    // --- Build the Legend ---
+    // Coordinates: x1, y1, x2, y2 (normalized 0 to 1)
+    TLegend* leg = new TLegend(0.15, 0.75, 0.45, 0.88); 
+    leg->SetBorderSize(0); // Clean look without a box
+    leg->SetFillStyle(0);   // Transparent background
+    leg->SetTextSize(0.035);
+
+    // Add entries: "p" means it shows the marker, "l" means it shows the line
+    leg->AddEntry(h1_e, "MB ", "pl");
+    leg->AddEntry(h2_e, "JJ Gap3", "pl");
+    leg->Draw();
+
+    TCanvas* c_pur = new TCanvas("Purity_Comparison", "Purity_Comparison", 800, 800);
+    h1_p->SetMarkerStyle(20);
+    h1_p->SetMarkerColor(kRed);
+    h1_p->SetLineColor(kRed); 
+    h1_p->SetMarkerSize(0.8);
+    h1_p->SetTitle("Jet Purity Comparison");
+    h1_p->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    h1_p->GetYaxis()->SetTitle("Fake Ratio");
+    h1_p->Draw("E1");
+    h2_p->SetMarkerStyle(21);
+    h2_p->SetMarkerColor(kBlue);
+    h2_p->SetLineColor(kBlue);
+    h2_p->SetMarkerSize(0.8);
+    h2_p->Draw("E1 same");
+    
+    // --- Build the Legend ---
+    TLegend* leg_p = new TLegend(0.15, 0.75, 0.45, 0.88); 
+    leg_p->SetBorderSize(0); // Clean look without a box
+    leg_p->SetFillStyle(0);   // Transparent background
+    leg_p->SetTextSize(0.035);  
+    leg_p->AddEntry(h1_p, "MB ", "pl");
+    leg_p->AddEntry(h2_p, "JJ Gap3", "pl");
+    leg_p->Draw();
+}
+
+void Plot_ratio_Unf_Mcp_Same_Convas(){
+    // Open file in UPDATE mode (so we can write result)
+    // TFile* JJ_Gap2 = TFile::Open("../20260319_Unf_LHC26a6_637817/output.root", "READ");
+    TFile* JJ_Gap3 = TFile::Open("output.root", "READ");
+
+    TFile* MB = TFile::Open("../20260409_UnfMB_R02_Lead3_Full650972_649683/output.root", "READ");
+    
+    // JJ_LHC26a6_train615296_Unf_ppref_unfolded //  MB_LHC25b4b5_train533385_Unf_ppref_unfolded
+    // Retrieve histograms
+    // TH1D* h1 = (TH1D*)JJ_Gap2->Get("JJ_Gap2_LHC26a6_637817_ppref_unfolded");
+    TH1D* h2_e = (TH1D*)JJ_Gap3->Get("H1D_jetPt_ratio_mcp_LHC24ap_pass1_R02_Lead3_650972_using_LHC26c5_R02_Lead3_649618_Unf");
+    TH1D* h1_e = (TH1D*)MB->Get("H1D_jetPt_ratio_mcp_LHC24ap_pass1_R02_Lead3_650972_using_LHC25b4ab6_R02_Lead3_649683_Unf");
+
+    TCanvas* c_eff = new TCanvas("Matching_Efficiency_Comparison", "Matching_Efficiency_Comparison", 800, 800);
+    h1_e->SetMarkerStyle(20);
+    h1_e->SetMarkerColor(kRed);
+    h1_e->SetLineColor(kRed);
+    h1_e->SetMarkerSize(1);
+    h1_e->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+    h1_e->GetYaxis()->SetTitle("unfolded(i) / mcp(i)");
+    h1_e->Draw("E1");
+    h2_e->SetMarkerStyle(21);
+    h2_e->SetMarkerColor(kBlue);
+    h2_e->SetLineColor(kBlue);
+    h2_e->SetMarkerSize(1);
+    h2_e->Draw("E1 same");
+    // --- Build the Legend ---
+    // Coordinates: x1, y1, x2, y2 (normalized 0 to 1)
+    TLegend* leg = new TLegend(0.15, 0.75, 0.45, 0.88); 
+    leg->SetBorderSize(0); // Clean look without a box
+    leg->SetFillStyle(0);   // Transparent background
+    leg->SetTextSize(0.035);
+
+    // Add entries: "p" means it shows the marker, "l" means it shows the line
+    leg->AddEntry(h1_e, "Unf w MB ", "pl");
+    leg->AddEntry(h2_e, "Unf w JJ Gap3", "pl");
+    leg->Draw();
+
+    //Adjust window x from 4 to 140
+    h1_e->GetXaxis()->SetRangeUser(4, 140);
+    h2_e->GetXaxis()->SetRangeUser(4, 140);
+    h1_e->GetYaxis()->SetRangeUser(0.7, 1.6);
+    h2_e->GetYaxis()->SetRangeUser(0.7, 1.6);
+
+    //Add ratio line at y=1 from x 4 to 140
+    double xmin = h1_e->GetXaxis()->GetXmin();
+    double xmax = h1_e->GetXaxis()->GetXmax();
+    TLine* line = new TLine(xmin, 1.0, xmax, 1.0);
+    line->SetLineStyle(2);
+    line->SetLineColor(kGray + 2);
+    line->Draw("same"); 
+
+
+    
 }
 
 

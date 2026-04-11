@@ -109,7 +109,7 @@ void TrackMcQC() {
   float etaRange[2] = {-0.9, 0.9};
   float ptRange[2] = {0.15, 100};
   bool useLargeLegendWindow = false;
-  Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit, useLargeLegendWindow);
+  // Draw_Efficiency_Pt_DatasetComparison(etaRange,useSplit, useLargeLegendWindow);
   // Draw_Efficiency_Eta_DatasetComparison(ptRange,useSplit);
   // Draw_Efficiency_Phi_DatasetComparison(ptRange, etaRange, useSplit);
 
@@ -169,9 +169,9 @@ void TrackMcQC() {
   // Draw_Phi_tracksReco_fromEffWorkflow_DatasetComparison(ptRange, etaRange, "primaries, secondaries, nonassociatedtrack, ratio, evtNorm");
 
   // ##### WARNING: I changed the projection interval from bin = 0 instead of 1 ##### 
-  // Draw_Pt_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");  // entriesNorm
-  // Draw_Eta_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");  // entriesNorm
-  // Draw_Phi_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");
+  Draw_Pt_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");  // entriesNorm
+  Draw_Eta_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");  // entriesNorm
+  Draw_Phi_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, evtNorm");
   //   Draw_Phi_gen_DatasetComparison_H2CentVersion("primaries,secondaries, ratio, entriesNorm");
 
   // Draw_PtResolution_Residuals("ptRes_vs_pt");
