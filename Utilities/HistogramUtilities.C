@@ -326,7 +326,7 @@ void NormaliseYSlicesToOne(TH2D* H2D_hist){
 
   double binContent, binError, binErrorA, binErrorB;
   for(int iBinY = 0; iBinY <= H2D_hist->GetNbinsY()+1; iBinY++){ // 0 and n+1 take underflow and overflow into account
-    genSliceNorm = H2D_hist->IntegralAndError(0, H2D_hist->GetNbinsX()+1, iBinY, iBinY, genSliceNormError); // in AliAnaChargedJetResponseMaker::MakeResponseMatrixRebin it goes from 1 to N but  (1,N) in there is the fine matrix min and max bins; while here we already coarsened the matrix, and so that NFine is in the overflow and 1 in the underflow
+    genSliceNorm = H2D_hist->IntegralAndError(0, H2D_hist->GetNbinsX()+1, iBinY, iBinY, genSliceNormError, "width"); // in AliAnaChargedJetResponseMaker::MakeResponseMatrixRebin it goes from 1 to N but  (1,N) in there is the fine matrix min and max bins; while here we already coarsened the matrix, and so that NFine is in the overflow and 1 in the underflow
     for(int iBinX = 0; iBinX <= H2D_hist->GetNbinsX()+1; iBinX++){ // 0 and n+1 take underflow and overflow into account
       abs(H2D_hist->GetBinContent(iBinX, iBinY)) < GLOBAL_epsilon ? binErrorB = 0 : binErrorB = H2D_hist->GetBinError(iBinX, iBinY)*H2D_hist->GetBinError(iBinX, iBinY) / (H2D_hist->GetBinContent(iBinX, iBinY)*H2D_hist->GetBinContent(iBinX, iBinY));
       abs(genSliceNorm) < GLOBAL_epsilon                          ? binErrorA = 0 : binErrorA = genSliceNormError*genSliceNormError / (genSliceNorm*genSliceNorm);
@@ -342,7 +342,7 @@ void NormaliseYSlicesToOneNoUnderOverFlows(TH2D* H2D_hist){
   double genSliceNormError;
   double binContent, binError, binErrorA, binErrorB;
   for(int iBinY = 1; iBinY <= H2D_hist->GetNbinsY(); iBinY++){
-    genSliceNorm = H2D_hist->IntegralAndError(1, H2D_hist->GetNbinsX(), iBinY, iBinY, genSliceNormError);
+    genSliceNorm = H2D_hist->IntegralAndError(1, H2D_hist->GetNbinsX(), iBinY, iBinY, genSliceNormError, "width");
 
     for(int iBinX = 1; iBinX <= H2D_hist->GetNbinsX(); iBinX++){ // 0 and n+1 take underflow and overflow into account
       abs(H2D_hist->GetBinContent(iBinX, iBinY)) < GLOBAL_epsilon ? binErrorB = 0 : binErrorB = H2D_hist->GetBinError(iBinX, iBinY)*H2D_hist->GetBinError(iBinX, iBinY) / (H2D_hist->GetBinContent(iBinX, iBinY)*H2D_hist->GetBinContent(iBinX, iBinY));
@@ -379,7 +379,7 @@ void NormaliseXSlicesToOne(TH2D* H2D_hist){
   double genSliceNormError;
   double binContent, binError, binErrorA, binErrorB;
   for(int iBinX = 0; iBinX <= H2D_hist->GetNbinsX()+1; iBinX++){ // 0 and n+1 take underflow and overflow into account
-    genSliceNorm = H2D_hist->IntegralAndError(iBinX, iBinX, 0, H2D_hist->GetNbinsY()+1, genSliceNormError);
+    genSliceNorm = H2D_hist->IntegralAndError(iBinX, iBinX, 0, H2D_hist->GetNbinsY()+1, genSliceNormError, "width");
     for(int iBinY = 0; iBinY <= H2D_hist->GetNbinsY()+1; iBinY++){ // 0 and n+1 take underflow and overflow into account
       abs(H2D_hist->GetBinContent(iBinX, iBinY))  < GLOBAL_epsilon ? binErrorB = 0 : binErrorB = H2D_hist->GetBinError(iBinX, iBinY)*H2D_hist->GetBinError(iBinX, iBinY) / (H2D_hist->GetBinContent(iBinX, iBinY)*H2D_hist->GetBinContent(iBinX, iBinY));
       abs(genSliceNorm)  < GLOBAL_epsilon                          ? binErrorA = 0 : binErrorA = genSliceNormError*genSliceNormError / (genSliceNorm*genSliceNorm);
@@ -399,7 +399,7 @@ void NormaliseXSlicesToOneNoUnderOverFlows(TH2D* H2D_hist){
   double genSliceNormError;
   double binContent, binError, binErrorA, binErrorB;
   for(int iBinX = 1; iBinX <= H2D_hist->GetNbinsX(); iBinX++){ // 0 and n+1 take underflow and overflow into account
-    genSliceNorm = H2D_hist->IntegralAndError(iBinX, iBinX, 1, H2D_hist->GetNbinsY(), genSliceNormError);
+    genSliceNorm = H2D_hist->IntegralAndError(iBinX, iBinX, 1, H2D_hist->GetNbinsY(), genSliceNormError, "width");
     for(int iBinY = 1; iBinY <= H2D_hist->GetNbinsY(); iBinY++){ // 0 and n+1 take underflow and overflow into account
       abs(H2D_hist->GetBinContent(iBinX, iBinY)) < GLOBAL_epsilon ? binErrorB = 0 : binErrorB = H2D_hist->GetBinError(iBinX, iBinY)*H2D_hist->GetBinError(iBinX, iBinY) / (H2D_hist->GetBinContent(iBinX, iBinY)*H2D_hist->GetBinContent(iBinX, iBinY));
       abs(genSliceNorm) < GLOBAL_epsilon                          ? binErrorA = 0 : binErrorA = genSliceNormError*genSliceNormError / (genSliceNorm*genSliceNorm);
@@ -432,7 +432,7 @@ void TransformRawResponseToYieldResponse(TH2D* H2D_hist){
 TH2* NormalizeResponsMatrixYaxisWithPrior(TH2 *h2RM, TH1 *hPrior) { // aliphysics version; shorter because doesn't take care of uncertainties
   // Normalize such that the Y projection is the prior
 
-  double intPrior = hPrior->Integral();//"width");
+  double intPrior = hPrior->Integral("width");
   for (Int_t jbin = 1; jbin <= h2RM->GetNbinsY(); jbin++) {
       for (Int_t ibin = 1; ibin <= h2RM->GetNbinsX(); ibin++) {
 	double content = h2RM->GetBinContent(ibin,jbin);
@@ -465,7 +465,7 @@ void WeightMatrixWithPrior(TH2D* H2D_hist, TH1D* priorSpectrum, bool doPriorDivi
   if (doPriorDivision){ 
     double genSliceNorm, genSliceNormError;
     // double genSliceNorm = priorSpectrum->IntegralAndError(0, -1, genSliceNormError);
-    genSliceNorm = priorSpectrum->IntegralAndError(1, priorSpectrum->GetNbinsX(), genSliceNormError); // I think we only prior the 1, N bins
+    genSliceNorm = priorSpectrum->IntegralAndError(1, priorSpectrum->GetNbinsX(), genSliceNormError, "width"); // I think we only prior the 1, N bins
 
     for(int iBinX = 1; iBinX <= H2D_hist->GetNbinsX(); iBinX++){ // 0 and n+1 take underflow and overflow into account
       for(int iBinY = 1; iBinY <= H2D_hist->GetNbinsY(); iBinY++){ // 0 and n+1 take underflow and overflow into account
