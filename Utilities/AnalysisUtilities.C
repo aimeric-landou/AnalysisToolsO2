@@ -18,7 +18,7 @@ void NormaliseRawHistToNEntries(TH1D* histogram) {
 }
 
 void NormaliseYieldToIntegral(TH1D* histogram) { // also takes care of the transformation of raw count to dCount/dQuantity (like dN/dpT), thanks to option "width"
-  histogram->Scale(1./histogram->Integral("width"),"width"); // If option contains "width" the bin contents and errors are divided by the bin width.
+  histogram->Scale(1./histogram->Integral("width"),"width"); // If Scale() option contains "width" the bin contents and errors are divided by the bin width.
 }
 void NormaliseRawHistToIntegral(TH1D* histogram) { 
   histogram->Scale(1./histogram->Integral("width"),"");
@@ -26,14 +26,14 @@ void NormaliseRawHistToIntegral(TH1D* histogram) {
 
 
 void NormaliseAsYieldToInputN(TH1D* histogram, double inputN) { // also takes care of the transformation of raw count to dCount/dQuantity (like dN/dpT), thanks to option "width"
-  histogram->Scale(1./inputN,"width"); // If option contains "width" the bin contents and errors are divided by the bin width.
+  histogram->Scale(1./inputN,"width"); // If Scale() option contains "width" the bin contents and errors are divided by the bin width.
 }
 void NormaliseRawHistToInputN(TH1D* histogram, double inputN) { 
-  histogram->Scale(1./inputN,""); // If option contains "width" the bin contents and errors are divided by the bin width.
+  histogram->Scale(1./inputN,""); // If Scale() option contains "width" the bin contents and errors are divided by the bin width.
 }
 
 void TransformRawHistToYield(TH1D* histogram){
-  histogram->Scale(1.,"width"); // If option contains "width" the bin contents and errors are divided by the bin width.
+  histogram->Scale(1.,"width"); // If Scale() option contains "width" the bin contents and errors are divided by the bin width.
 }
 
 void TransformYieldToEtaDifferentialYield(TH1D* histogram, double deltaEta){
