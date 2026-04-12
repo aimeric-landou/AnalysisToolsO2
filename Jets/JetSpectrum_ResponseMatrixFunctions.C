@@ -639,7 +639,7 @@ void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuatio
         // }
       }
     }
-    float integralCheck = H2D_response.Integral(1, H2D_response.GetNbinsX(), 10, 10);
+    float integralCheck = H2D_response.Integral(1, H2D_response.GetNbinsX(), 80, 80, "width");
     if (!(0.999 < integralCheck && integralCheck < 1.001)) {
       cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
       cout << "!!!!!!Response matrix of fluctuations does not have line integral equal to 1; something is wrong with binning!!!!!!" << endl;
