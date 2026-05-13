@@ -432,7 +432,7 @@ void Draw_Systematics_trackSelectionVariation_pt_betterVersion(std::string optio
   TString* pdfName_systUncertainty_zoom = new TString("Systematics_Efficiency_pt_zoom");
   TString* pdfName_systUncertainty_PreBarlow_zoom = new TString("Systematics_Efficiency_pt_PreBarlow_zoom");
 
-  TString textContext("");
+  TString textContext(contextCustomOneField(*texDatasetsComparisonType, ""));
 
 
   // std::array<std::array<float, 2>, 2> drawnWindowLog = {{{(float)(hSystematicUncertainty[0]->GetXaxis()->GetBinLowEdge(1)
