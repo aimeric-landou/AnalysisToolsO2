@@ -67,8 +67,10 @@ TString* texPtHardDifferentialYield = new TString("1/#it{N}_{ev} d#it{N}/d#it{p}
 
 TString* texPtDifferentialYield = new TString("1/#it{N}_{ev} d#it{N}/d#it{p}_{T} (GeV/#it{c})^{-1}");
 TString* texCount = new TString("count");
+TString* texCountEntriesNorm = new TString("count normalised to integral");
 
 TString* texPtMeasured = new TString("#it{p}_{T}^{measured} (GeV/#it{c})");
+TString* texPtReco = new TString("#it{p}_{T}^{reco} (GeV/#it{c})");
 TString* texPtMC = new TString("#it{p}_{T, gen} (GeV/#it{c})");
 TString* texPtRec = new TString("#it{p}_{T, rec} (GeV/#it{c})");
 TString* texEtaMC = new TString("#eta_{gen}");
@@ -122,7 +124,8 @@ TString* texPtPeak = new TString("#it{p}_{T,ch jet}^{rec} - #it{A}_{jet} #it{#rh
 TString* texPtAtThreshold = new TString("#it{p}_{T,ch jet}^{rec} - #it{A}_{jet} #it{#rho} (GeV/#it{c}) at 95% threshold");
 
 TString* texSystematicsRelative = new TString ("systematic error (relative)");
-
+TString* texRelativeEfficiency = new TString ("#epsilon_{relative} = yield_{tightCut}/yield_{nominal}");
+TString* texRelativeEfficiencyRatio = new TString ("#epsilon_{relative}^{Data}/#epsilon_{relative}^{MC}");
 
 //////////////////////////
 ////////// Jets //////////
