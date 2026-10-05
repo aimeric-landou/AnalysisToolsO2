@@ -491,9 +491,9 @@ void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detect
       H2D_jetPtMcdjetPtMcd = (TH2D*)((TH2D*) fileRespMatrix->Get(analysisWorkflowMC+"/h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_rhoareasubtracted"))->Clone("Get_PtResponseMatrix_detectorResponse"+Datasets[iDataset]+DatasetsNames[iDataset]);
     } else {
       if (etaCutOnMatchedJetsIsObsoleteVersion == true) {
-        H2D_jetPtMcdjetPtMcd = (TH2D*)((TH2D*) fileRespMatrix->Get(analysisWorkflowMC+"/h2_jet_pt_mcd_jet_pt_mcp_matchedgeo"))->Clone("Get_PtResponseMatrix_detectorResponse"+Datasets[iDataset]+DatasetsNames[iDataset]);
-      } else {
         H2D_jetPtMcdjetPtMcd = (TH2D*)((TH2D*) fileRespMatrix->Get(analysisWorkflowMC+"/h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpetaconstraint"))->Clone("Get_PtResponseMatrix_detectorResponse"+Datasets[iDataset]+DatasetsNames[iDataset]);
+      } else {
+        H2D_jetPtMcdjetPtMcd = (TH2D*)((TH2D*) fileRespMatrix->Get(analysisWorkflowMC+"/h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpmcdetaconstraint"))->Clone("Get_PtResponseMatrix_detectorResponse"+Datasets[iDataset]+DatasetsNames[iDataset]);
       }
     }
     H2D_jetPtMcdjetPtMcd->Sumw2();
@@ -553,7 +553,7 @@ void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detect
   if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_detectorResponse()" << endl;};
 }
 
-void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuations, int iDataset, int iRadius, std::string optionsFluctResp) { 
+void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuations, int randomConeTypeInput, int iDataset, int iRadius, std::string optionsFluctResp) { 
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_Fluctuations()" << endl;};
 
   // see Hiroki Yokoyama thesis
@@ -574,7 +574,7 @@ void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuatio
     TH2D* H2D_fluctuations_centrality;
     TH1D* H1D_fluctuations;
 
-    H2D_fluctuations_centrality = (TH2D*)((TH2D*)file_O2Analysis_list[iDataset]->Get(analysisWorkflowBkg+"/h2_centrality_rhorandomcone"+randomConeTypeList[randomConeType]))->Clone("Get_PtResponseMatrix_Fluctuations"+Datasets[iDataset]+DatasetsNames[iDataset]);
+    H2D_fluctuations_centrality = (TH2D*)((TH2D*)file_O2Analysis_Bkg_list[iDataset]->Get(analysisWorkflowBkg+"/h2_centrality_rhorandomcone"+randomConeTypeList[randomConeTypeInput]))->Clone("Get_PtResponseMatrix_Fluctuations"+Datasets[iDataset]+DatasetsNames[iDataset]);
     H2D_fluctuations_centrality->Sumw2();
 
 
