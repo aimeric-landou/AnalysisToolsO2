@@ -417,9 +417,9 @@ void Get_Pt_spectrum_mcdMatched_genBinning_preWidthScalingAtEndAndEvtNorm(TH1D* 
       histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_rhoareasubtracted";
     } else {
       if (etaCutOnMatchedJetsIsObsoleteVersion == true) {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpetaconstraint";
       } else {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcdetaconstraint";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpmcdetaconstraint";
       }
     }
   } else {
@@ -460,9 +460,9 @@ void Get_Pt_spectrum_mcdMatched_recBinning_preWidthScalingAtEndAndEvtNorm(TH1D* 
       histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_rhoareasubtracted";
     } else {
       if (etaCutOnMatchedJetsIsObsoleteVersion == true) {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpetaconstraint";
       } else {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcdetaconstraint";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpmcdetaconstraint";
       }
     }
   } else {
@@ -502,9 +502,9 @@ void Get_Pt_spectrum_mcdMatched_fineBinning_preWidthScalingAtEndAndEvtNorm(TH1D*
       histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_rhoareasubtracted";
     } else {
       if (etaCutOnMatchedJetsIsObsoleteVersion == true) {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpetaconstraint";
       } else {
-        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcdetaconstraint";
+        histogramName = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo_mcpmcdetaconstraint";
       }
     }
   } else {
