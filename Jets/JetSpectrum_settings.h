@@ -33,7 +33,11 @@ const float centralityRange[2] = {0, 10};
 
 
 
-char unfoldingPrior[] = "mcpPriorUnfolding";     // prior options: mcpPriorUnfolding, mcdPriorUnfolding, measuredPriorUnfolding, noPriorUnfolding, testAliPhysics /////// if using mcp as prior, should have the leading track cut like data
+char unfoldingPrior[] = "mcpPriorUnfolding";     // also supports TF1PriorUnfolding (Tsallis parameters below)
+double PriorTsillsPara[2] = {5.7, 0.51}; // n, T for a standalone TF1 prior
+const int nPriorVariations = 2;
+const double priorTsallisVariations[nPriorVariations][2] = {{5.7, 0.51}, {6.7, 0.51}};
+const double priorTsallisFitRange[2] = {5., 200.};
 const bool doYSliceNormToOneDetResp = true; // should be true in Pb-Pb analysis (done by marta) (because fluct. response matrix is probability distrib; in pp where we only have detector response, it's best to keep matrix of number of events as svd paper seems to advise: less weight on matrix entries with single count; if this is set to FALSE then noPriorUnfolding should be used, as det response already comes with weighting so it'd be done twice)
 const bool doYSliceNormToOneCombinedResp = false; // should be false (not done by marta); breaks unfolding with svd if true 
 const bool doUnfoldingPriorDivision = false; // keep false for now ; unfolding doesn't work anymore if this is done, gives almost flat pT distribution, though refolding test is good; I am not sure why, might be because roounfold already does that; one good reason to avoid it; anyway, is that roounfold already seems to deal with errors; my error propagation doesn't take into account off-diagonal covariance elements, and so can only be worse 
@@ -111,7 +115,8 @@ const bool deltaPtHistStopsAt100 = true; //temporary fix to issue of delta pt hi
 
 
 float ptWindowDisplay[2] = {30, 140}; // used for drawn histograms of unfolded distrib
-float relativeSystematicsRange[2] = {0., 0.3}; // fractions: 0.3 = 30%; relative uncertainty plots only
+float relativeSystematicsRange[2] = {0., 30.}; // percent: 30 = 30%; uncertainty plots only
+double nCollUncertaintyPercent = 5.; // constant normalisation uncertainty (%); 0 disables it
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
 // TODOLIST:

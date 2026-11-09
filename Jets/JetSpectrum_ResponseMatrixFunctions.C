@@ -3,6 +3,28 @@
 
 #include "JetSpectrum_ResponseMatrixFunctions.h"
 #include <stdexcept>
+#include "TF1.h"
+#include "../Utilities/AnalysisUtilities.h"
+
+// Same Tsallis weighting and response-error convention as the May analysis.
+void ReweightResponseMatrixWithTsallisPrior(TH2D* matrix, int dataset) {
+  TF1 prior("tsallisResponsePrior", "x*pow(1+x/([0]*[1]),-[0])",
+            priorTsallisFitRange[0], priorTsallisFitRange[1]);
+  prior.SetParameters(PriorTsillsPara[0], PriorTsillsPara[1]);
+  double events = 1.;
+  if (!normGenAndMeasByNEvtsForUnfoldingInput)
+    events = mcIsWeighted
+      ? GetNEventsSelected_JetFramework_gen_weighted(file_O2Analysis_MCfile_GeneralResponse[dataset], analysisWorkflowMC, mcCollHistIsObsolete)
+      : GetNEventsSelected_JetFramework_gen(file_O2Analysis_MCfile_GeneralResponse[dataset], analysisWorkflowMC, mcCollHistIsObsolete);
+  for (int y = 1; y <= matrix->GetNbinsY(); ++y) {
+    double weight = events * prior.Eval(matrix->GetYaxis()->GetBinCenter(y));
+    for (int x = 1; x <= matrix->GetNbinsX(); ++x) {
+      double error = matrix->GetBinError(x, y);
+      matrix->SetBinContent(x, y, matrix->GetBinContent(x, y) * weight);
+      matrix->SetBinError(x, y, error); // Preserve May's matrix statistical errors.
+    }
+  }
+}
 
 #include "./JetSpectrum_SpectraGetters.h"
 #include "./JetSpectrum_SpectraGetters.C"
@@ -86,6 +108,8 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2
 }
 
 void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options, bool controlMC = false) {
+  if (options.find("TF1PriorUnfolding") != std::string::npos)
+    ReweightResponseMatrixWithTsallisPrior(H2D_jetPtResponseMatrix, iDataset);
   if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_modular()" << endl;};
 
   bool controlMC_useResponseSplit = true;
@@ -422,6 +446,8 @@ void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResp
 }
 
 void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options, bool controlMC = false) {
+  if (options.find("TF1PriorUnfolding") != std::string::npos)
+    ReweightResponseMatrixWithTsallisPrior(H2D_jetPtResponseMatrix, iDataset);
   if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_fineBinningOnly()" << endl;};
 
   bool controlMC_useResponseSplit = true;
