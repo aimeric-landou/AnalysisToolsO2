@@ -15,6 +15,20 @@ const TString analysisWorkflowBkg_Systematics = "jet-background-analysis-task";
 const TString analysisWorkflowBkg_DeltaR08 = "jet-background-analysis-task_DeltaR08";
 const TString analysisWorkflowBkg_DeltaR15 = "jet-background-analysis-task_DeltaR15";
 
+// Same three background variations used in the May analysis.
+// randomConeType: 1 = no leading jet, 2 = randomised tracks,
+// 3 = randomised tracks without the leading jet (see JetSpectrum_settings.h).
+const int nBackgroundVariations = 3;
+const TString backgroundVariationWorkflows[nBackgroundVariations] = {
+  analysisWorkflowBkg_DeltaR15,
+  analysisWorkflowBkg_Systematics,
+  analysisWorkflowBkg_Systematics
+};
+const int backgroundVariationRandomConeTypes[nBackgroundVariations] = {1, 2, 3};
+const TString backgroundVariationLabels[nBackgroundVariations] = {
+  "RC, #DeltaR > 1.5", "Randomised tracks", "Randomised, no lead"
+};
+
 // Older background input, retained as a reference.
 // TFile* file_O2Analysis_Bkg_Systematics_old_list[nDatasets] = {
 //   new TFile("/Users/fengwenhui/run_hyperloop/pbpb_apass4_spectra/input/23zzh_bkgAnalysis_sys_HY659248/AnalysisResults_25kHz.root")

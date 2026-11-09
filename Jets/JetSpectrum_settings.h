@@ -110,7 +110,8 @@ const bool deltaPtHistStopsAt100 = true; //temporary fix to issue of delta pt hi
 
 
 
-float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
+float ptWindowDisplay[2] = {30, 140}; // used for drawn histograms of unfolded distrib
+float relativeSystematicsRange[2] = {0., 0.3}; // fractions: 0.3 = 30%; relative uncertainty plots only
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
 // TODOLIST:
@@ -174,6 +175,18 @@ double ptBinsJetsGen[nRadius][30] = {{5, 10., 15., 20., 25., 30., 35., 40., 45.,
                                       {5, 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},
                                       {5., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.}};
 int nBinPtJetsGen[nRadius] = {21,13,13};
+
+// pT-range systematics for the current R=0.2 analysis (GeV/c).
+// Keep nominal arrays above unchanged; internal edges are retained automatically.
+// A new outer boundary is inserted when extending or truncating a range.
+const int nMeasuredPtRangeVariations = 3;
+const double measuredPtRangeVariations[nMeasuredPtRangeVariations][2] = {
+  {24., 140.}, {20., 130.}, {20., 150.}
+};
+const int nUnfoldedPtRangeVariations = 2;
+const double unfoldedPtRangeVariations[nUnfoldedPtRangeVariations][2] = {
+  {10., 200.}, {5., 180.}
+};
 
 // // PbPb Aimeric test finer - lead03
 // double ptBinsJetsRec[nRadius][50] = {{20., 22, 24, 26, 28, 30., 32, 34, 36, 38, 40., 42, 44, 46, 48., 50., 52, 54, 56, 58, 60., 62, 64, 66, 68, 70, 75., 80., 85., 90., 95., 100., 110., 120., 130., 140.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.}};
