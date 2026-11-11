@@ -26,6 +26,7 @@
 //My Libraries
 #include "./JetSpectrum_settings.h"
 #include "./JetSpectrum_inputs.h"
+#include "./JetSpectrum_Output.h"
 
 #include "./JetSpectrum_ResponseMatrixFunctions.h"
 #include "./JetSpectrum_ResponseMatrixFunctions.C"
@@ -1025,20 +1026,12 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
       throw std::runtime_error("Non-finite unfolded spectrum");
     }
   }
-  // Temporarily disable saving unfolding spectra; uncomment to enable again.
-//   TString resultPath = Form("unfolding_%s_R%02d_%s_k%d.root", Datasets[iDataset].Data(),
-//                             int(std::lround(10 * arrayRadius[iRadius])), unfoldingMethod, unfoldParameterInput);
-//   TFile resultFile(resultPath, "RECREATE");
-//   if (resultFile.IsZombie()) throw std::runtime_error("Cannot create unfolding result file");
-//   H1D_jetPt_unfolded->Write("unfolded");
-//   H1D_jetPt_measured->Write("measured");
-//   H1D_jetPt_unfoldedThenRefolded->Write("refolded");
-//   H1D_jetPt_ratio_measuredRefolded[0]->Write("refolded_over_measured");
-//   H1D_jetPt_mcp->Write("mcp");
-//   TNamed configuration("analysis_options", options.c_str());
-//   configuration.Write();
-//   resultFile.Close();
-//   cout << "Saved unfolding spectra: " << resultPath << endl;
+  if (saveAnalysisResults && !controlMC && options.find("Svd") != std::string::npos)
+    Save_JetSpectrumHistograms({
+      {"HJetSpectra_measured", H1D_jetPt_measured},
+      {"HJetSpectra_Svdkdefault", H1D_jetPt_unfolded},
+      {"HJetSpectra_refolded", H1D_jetPt_unfoldedThenRefolded}
+    });
 
 }
 

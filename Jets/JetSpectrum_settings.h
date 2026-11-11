@@ -4,6 +4,9 @@
 #define JETSPECTRUM_SETTINGS_H
 
 // Analysis settings
+bool saveAnalysisResults = false;
+TString analysisResultsFileName = "rootfile_folder/JetSpectrum_results_lead5_25kHz_cent5080.root";
+
 const int nJetType = 3;
 const TString jetType[nJetType] = {"charged", "neutral", "full"};
 const int nJetLevel = 3;
@@ -23,20 +26,20 @@ const int iJetType = 0;
 const int iJetLevel = 0;
 const int randomConeType = 1;
 
+// const float centralityRange[2] = {0, 10};
+// const float centralityRange[2] = {10, 30};
+// const float centralityRange[2] = {30, 50};
+const float centralityRange[2] = {50, 80};
 
-const float centralityRange[2] = {0, 10};
-// const float centralityRange[2] = {50, 70};
-
-////////////////////////////////////////////////
-////////// Unfolding settings - start //////////
-////////////////////////////////////////////////
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////// Unfolding settings - start //////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 char unfoldingPrior[] = "mcpPriorUnfolding";     // also supports TF1PriorUnfolding (Tsallis parameters below)
 double PriorTsillsPara[2] = {5.7, 0.51}; // n, T for a standalone TF1 prior
 const int nPriorVariations = 2;
-const double priorTsallisVariations[nPriorVariations][2] = {{5.7, 0.51}, {6.7, 0.51}};
+// const double priorTsallisVariations[nPriorVariations][2] = {{5.7, 0.51}, {6.7, 0.51}};
+const double priorTsallisVariations[nPriorVariations][2] = {{5.9, 0.51}, {6.9, 0.51}};
 const double priorTsallisFitRange[2] = {5., 200.};
 const bool doYSliceNormToOneDetResp = true; // should be true in Pb-Pb analysis (done by marta) (because fluct. response matrix is probability distrib; in pp where we only have detector response, it's best to keep matrix of number of events as svd paper seems to advise: less weight on matrix entries with single count; if this is set to FALSE then noPriorUnfolding should be used, as det response already comes with weighting so it'd be done twice)
 const bool doYSliceNormToOneCombinedResp = false; // should be false (not done by marta); breaks unfolding with svd if true 
@@ -101,9 +104,6 @@ bool smoothenMCP = false;
 
 bool transposeResponseHistogramsInDrawing = false;  // default is false; if set to true, then one can just rotate the result matrices 90 degrees to have the correct visualisation of the response as a matrix, rather than as a histogram as is default (when false) 
 
-// Systematics: true applies the Barlow cut; false keeps all deviations.
-bool applyBarlowTest = false;
-
 bool showFunctionInAndOutLog = false;
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
@@ -111,7 +111,8 @@ bool mcpInput_useMcpCollCountForUnfoldingResultNorm = true; //if controlMC is tr
 
 const bool deltaPtHistStopsAt100 = true; //temporary fix to issue of delta pt histogram stopping at 100/-100 
 
-
+////////////////////////// Systematics: true applies the Barlow cut; false keeps all deviations.
+bool applyBarlowTest = false;
 
 
 float ptWindowDisplay[2] = {30, 140}; // used for drawn histograms of unfolded distrib
