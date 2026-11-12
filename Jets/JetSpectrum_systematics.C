@@ -62,35 +62,31 @@ R__LOAD_LIBRARY(libRooUnfold)
 using namespace std;
 
 void SetStyle_Systematics(Bool_t graypalette=kFALSE);
-void LoadLibs_Systematics();
 
-
-void Get_systematics_UnfoldMethod(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** reference = nullptr, bool drawSpectra = true);
 void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** relativeResult = nullptr);
-void Get_systematics_SvdParameter(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int nominalK, std::string options, TH1D** reference = nullptr, bool drawSpectra = true);
+void Get_systematics_UnfoldMethod(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** reference = nullptr, bool drawSpectra = true);
 void Draw_Systematics_SvdParameter(int iDataset, int iRadius, int nominalK, std::string options, TH1D** relativeResult = nullptr);
-void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference = nullptr);
-void Draw_Systematics_BackgroundFluctuations(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult = nullptr);
-void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference = nullptr);
+void Get_systematics_SvdParameter(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int nominalK, std::string options, TH1D** reference = nullptr, bool drawSpectra = true);
+void Draw_Systematics_PtRange(int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** relativeResult = nullptr);
+void Get_systematics_PtRange(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** reference = nullptr, bool drawSpectra = true);
+TH1D* DrawUnfoldingSys(int iDataset = 0, int iRadius = 0, int nominalSvdK = 11, int bayesIterations = 7);
 void Draw_Systematics_TrackingEfficiency(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult = nullptr);
+void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference = nullptr);
+void Draw_Systematics_BackgroundFluctuations(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult = nullptr);
+void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference = nullptr);
+void Draw_Systematics_Prior(int iDataset, int iRadius, int unfoldParameter, TH1D** relativeResult = nullptr);
 void Draw_Systematics_Vertex(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult = nullptr);
 void Draw_Systematics_Centrality(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult = nullptr);
-void Get_systematics_PtRange(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** reference = nullptr, bool drawSpectra = true);
-void Draw_Systematics_PtRange(int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** relativeResult = nullptr);
-TH1D* DrawUnfoldingSys(int iDataset = 0, int iRadius = 0, int nominalSvdK = 11, int bayesIterations = 7);
 TH1D* DrawTotalSys(int iDataset = 0, int iRadius = 0, int nominalSvdK = 11, int bayesIterations = 7);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////// Main Macro //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Draw_Systematics_Prior(int iDataset, int iRadius, int unfoldParameter, TH1D** relativeResult = nullptr);
 
 void JetSpectrum_systematics() {
   Create_JetSpectrumResultsFile();
   cout << "Apply Barlow test: " << (applyBarlowTest ? "true" : "false") << endl;
-  // Load necessary libraries
-  LoadLibs_Systematics();
   // Set the default style
   SetStyle_Systematics();
 
@@ -108,9 +104,9 @@ void JetSpectrum_systematics() {
   snprintf(optionsAnalysis_withoutUnfoldingMethod, sizeof(optionsAnalysis_withoutUnfoldingMethod), "%s", unfoldingPrior);
 
 
-  const int nUnfoldingMethods = 2;
-  const char* unfoldingMethodList[nUnfoldingMethods] = {"Svd", "Bayes"};
-  int unfoldParameterInputList[2] = {11, 7};
+  // const int nUnfoldingMethods = 2;
+  // const char* unfoldingMethodList[nUnfoldingMethods] = {"Svd", "Bayes"};
+  // int unfoldParameterInputList[2] = {11, 7};
 
   // Draw_Systematics_UnfoldMethod(iDataset, iRadius, unfoldingMethodList, unfoldParameterInputList, nUnfoldingMethods, optionsAnalysis_withoutUnfoldingMethod);
   // Draw_Systematics_SvdParameter(iDataset, iRadius, unfoldParameterInputList[0], optionsAnalysis_withoutUnfoldingMethod);
@@ -120,22 +116,6 @@ void JetSpectrum_systematics() {
   // Draw_Systematics_PtRange(iDataset, iRadius, unfoldParameterInputList[0], std::string(optionsAnalysis_withoutUnfoldingMethod) + "," + unfoldingMethodList[0], false);
   // Calculate all four unfolding sources and draw the combined result.
   // DrawTotalSys(iDataset, iRadius, unfoldParameterInputList[0], unfoldParameterInputList[1]);
-}
-
-void LoadLibs_Systematics() {
-  // gSystem->Load("libCore.so");  
-  // gSystem->Load("libGeom.so");
-  // gSystem->Load("libPhysics.so");
-  // gSystem->Load("libVMC");
-  // gSystem->Load("libTree");
-  // gSystem->Load("libMinuit");
-  // gSystem->Load("libSTEERBase");
-  // gSystem->Load("libESD");
-  // gSystem->Load("libAOD");
-  // gSystem->Load("libANALYSIS");
-  // gSystem->Load("libANALYSISalice");
-  // gSystem->Load("libCORRFW");
-  // gSystem->Load("libPWGTools");
 }
 
 void SetStyle_Systematics(Bool_t graypalette) {
@@ -238,15 +218,12 @@ TH1D* Get_Systematics_MeasuredInput(int iDataset, int iRadius, std::string optio
   return measured;
 }
 
-void Draw_Systematics_Spectra(std::vector<TH1D*>& spectra, const std::vector<TString>& legends,
-                             TString name, int iRadius) {
+void Draw_Systematics_Spectra(std::vector<TH1D*>& spectra, const std::vector<TString>& legends, TString name, int iRadius) {
   TString* pdfName = new TString(name);
   TString* yTitle = normaliseUnfoldingResultsAtEnd ? texJet_d2Ndptdeta_EventNorm : new TString("d^{2}#it{N}_{jet}/d#it{p}_{T}d#it{#eta} (GeV/#it{c})^{-1}");
   std::array<std::array<float, 2>, 2> legendPlacement = {{{0.54, 0.59}, {0.88, 0.79}}};
   if (spectra.size() > 3) legendPlacement = {{{0.54, 0.47}, {0.88, 0.79}}};
 
-  // The shared plotter uses 0.7 * gStyle text size for legends.
-  // Apply a smaller size locally so other macros keep their own style.
   const float savedTextSize = gStyle->GetTextSize();
   gStyle->SetTextSize(0.036);
   Draw_TH1_Histograms(spectra.data(), legends.data(), spectra.size(), contextJetRadius(arrayRadius[iRadius]), pdfName, texPtJetGen, yTitle, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacement, contextPlacementAuto, "logy");
@@ -286,6 +263,17 @@ void Draw_Systematics_RelativeUncertainty(TH1D* uncertainty, TH1D* preBarlow, TH
   }
 }
 
+void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** relativeResult) {
+  TH1D *uncertainty, *preBarlow, *reference;
+  Get_systematics_UnfoldMethod(uncertainty, preBarlow, iDataset, iRadius, methods, parameters, nMethods, options, &reference);
+  TString name = "Systematics_UnfoldMethod_" + Datasets[iDataset] + Form("_R=%.1f", arrayRadius[iRadius]);
+
+  for (int method = 0; method < nMethods; ++method) name += Form("_%s%d", methods[method], parameters[method]);
+
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
 void Get_systematics_UnfoldMethod(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** reference, bool drawSpectra) {
   if (nMethods < 2) throw std::runtime_error("At least two unfolding methods are required");
   TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
@@ -308,105 +296,29 @@ void Get_systematics_UnfoldMethod(TH1D* &uncertainty, TH1D* &preBarlow, int iDat
   if (reference) *reference = spectra[0];
 }
 
-void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** relativeResult) {
+void Draw_Systematics_SvdParameter(int iDataset, int iRadius, int nominalK, std::string options, TH1D** relativeResult) {
   TH1D *uncertainty, *preBarlow, *reference;
-  Get_systematics_UnfoldMethod(uncertainty, preBarlow, iDataset, iRadius, methods, parameters, nMethods, options, &reference);
-  TString name = "Systematics_UnfoldMethod_" + Datasets[iDataset] + Form("_R=%.1f", arrayRadius[iRadius]);
-
-  for (int method = 0; method < nMethods; ++method) name += Form("_%s%d", methods[method], parameters[method]);
-
+  Get_systematics_SvdParameter(uncertainty, preBarlow, iDataset, iRadius, nominalK, options, &reference);
+  TString name = "Systematics_SvdParameter_" + Datasets[iDataset] + Form("_R=%.1f_k%d", arrayRadius[iRadius], nominalK);
   Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
   if (relativeResult) *relativeResult = uncertainty;
 }
 
-// PYTHIA remains nominal; the fitted curve is a diagnostic, not a third variation.
-void Draw_Systematics_Prior(int iDataset, int iRadius, int unfoldParameter, TH1D** relativeResult) {
-  if (controlMC || automaticBestSvdParameter){
-    throw std::runtime_error("Prior systematics requires data unfolding with a fixed parameter");
-  }
-  
-  TString name = "Prior_" + Datasets[iDataset] + Form("_R=%.1f_k%d", arrayRadius[iRadius], unfoldParameter);
-  TH1D* mcp;
-  Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(mcp, iDataset, iRadius, "");
-  if (doWidthScalingAtEnd) TransformRawHistToYield(mcp);
-
-  TF1* fit = new TF1("priorTsallisFit_" + name, "x*pow(1+x/([0]*[1]),-[0])", priorTsallisFitRange[0], priorTsallisFitRange[1]);
-
-  fit->SetParameters(6., .6);
-  TFitResultPtr result = mcp->Fit(fit, "R0QSN");
-  if (int(result) != 0) throw std::runtime_error("Tsallis MCP fit failed");
-  cout << "Prior Tsallis fit: n=" << fit->GetParameter(0) << ", T=" << fit->GetParameter(1) << endl;
-  
-  TCanvas* canvas = new TCanvas("priorFitCanvas_" + name, "MCP prior", 800, 700);
-  canvas->SetLogy();
-  mcp->GetXaxis()->SetRangeUser(priorTsallisFitRange[0], priorTsallisFitRange[1]);
-  mcp->GetXaxis()->SetTitle("#it{p}_{T} (GeV/#it{c})");
-  mcp->GetYaxis()->SetTitle("1/N_{evt} dN/d#it{p}_{T} (GeV/#it{c})^{-1}");
-  mcp->SetMarkerStyle(20); mcp->Draw("E");
-
-  TLegend* legend = new TLegend(.52, .69, .87, .89);
-  legend->SetBorderSize(0); legend->SetFillStyle(0); legend->SetTextSize(.024);
-  legend->AddEntry(mcp, "MCP jet (PYTHIA)", "lep");
-  fit->SetLineColor(kBlack); fit->Draw("same");
-  legend->AddEntry(fit, Form("Fit: n=%.3f, T=%.3f", fit->GetParameter(0), fit->GetParameter(1)), "l");
-  const int colors[2] = {kBlue, kGreen+2};
-  for (int v = 0; v < nPriorVariations; ++v) {
-    TF1* curve = (TF1*)fit->Clone(Form("priorCurve%d_", v) + name);
-    curve->SetParameters(priorTsallisVariations[v][0], priorTsallisVariations[v][1]);
-    curve->SetLineColor(colors[v%2]); curve->Draw("same");
-    legend->AddEntry(curve, Form("Var%d: n=%.1f, T=%.2f", v+1, priorTsallisVariations[v][0], priorTsallisVariations[v][1]), "l");
-  }
-  legend->Draw();
-  canvas->SaveAs("pdfFolder/Systematics_PriorFit_" + name + ".pdf");
-  canvas->SaveAs("pngFolder/Systematics_PriorFit_" + name + ".png");
-  canvas->SaveAs("epsFolder/Systematics_PriorFit_" + name + ".eps");
-
-  std::string method = std::string(",") + unfoldingMethod + ",noUnfoldingDiagnostics";
-  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, "mcpPriorUnfolding" + method);
-  std::vector<TH1D*> spectra(nPriorVariations + 1);
-  std::vector<TString> legends = {"PYTHIA prior (nominal)"};
-  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, "mcpPriorUnfolding" + method);
-  Save_JetSpectrumVariation(spectra[0], "Prior_Nominal");
-  const double saved[2] = {PriorTsillsPara[0], PriorTsillsPara[1]};
-  try {
-    for (int v = 0; v < nPriorVariations; ++v) {
-      PriorTsillsPara[0] = priorTsallisVariations[v][0];
-      PriorTsillsPara[1] = priorTsallisVariations[v][1];
-      Get_Pt_spectrum_unfolded(spectra[v+1], measured, iDataset, iRadius, unfoldParameter, "TF1PriorUnfolding" + method);
-      Save_JetSpectrumVariation(spectra[v+1], Form("Prior_Var%d_Tsallis_n", v+1)
-        + JetSpectrumVariationNumber(PriorTsillsPara[0]) + "_T"
-        + JetSpectrumVariationNumber(PriorTsillsPara[1]));
-      legends.push_back(Form("Tsallis: n=%.1f, T=%.2f", PriorTsillsPara[0], PriorTsillsPara[1]));
-    }
-  } catch (...) {
-    PriorTsillsPara[0] = saved[0]; PriorTsillsPara[1] = saved[1];
-    throw;
-  }
-  PriorTsillsPara[0] = saved[0]; PriorTsillsPara[1] = saved[1];
-  TH1D *uncertainty, *preBarlow;
-  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
-  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, spectra[0], "Systematics_" + name, iRadius);
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
-void Get_systematics_SvdParameter(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset,
-                                 int iRadius, int nominalK, std::string options, TH1D** reference, bool drawSpectra) {
+void Get_systematics_SvdParameter(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int nominalK, std::string options, TH1D** reference, bool drawSpectra) {
   if (automaticBestSvdParameter)
     throw std::runtime_error("Disable automaticBestSvdParameter for an explicit k variation");
-  int nBins = useFineBinningTest ? nBinPtJetsFine[iRadius]
-                               : std::min(nBinPtJetsRec[iRadius], nBinPtJetsGen[iRadius]);
-  if (nominalK < 2 || nominalK + 1 > nBins)
-    throw std::runtime_error("SVD k-1 and k+1 must lie within the response bin count");
+  int nBins = useFineBinningTest ? nBinPtJetsFine[iRadius] : std::min(nBinPtJetsRec[iRadius], nBinPtJetsGen[iRadius]);
+
+  if (nominalK < 2 || nominalK + 1 > nBins) throw std::runtime_error("SVD k-1 and k+1 must lie within the response bin count");
   TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
   const int parameters[3] = {nominalK, nominalK - 1, nominalK + 1};
+  
   std::vector<TH1D*> spectra(3);
   std::vector<TString> legends(3);
-  TString name = "SvdParameter_" + Datasets[iDataset]
-                 + Form("_R=%.1f_k%d", arrayRadius[iRadius], nominalK);
+  TString name = "SvdParameter_" + Datasets[iDataset] + Form("_R=%.1f_k%d", arrayRadius[iRadius], nominalK);
+  
   for (int variation = 0; variation < 3; ++variation) {
-    Get_Pt_spectrum_unfolded(spectra[variation], measured, iDataset, iRadius, parameters[variation],
-                             options + ",Svd");
+    Get_Pt_spectrum_unfolded(spectra[variation], measured, iDataset, iRadius, parameters[variation], options + ",Svd");
     TString variationKey = variation == 0 ? "SvdParameter_Nominal"
       : TString(variation == 1 ? "SvdParameter_kMinus1_k" : "SvdParameter_kPlus1_k")
         + Form("%d", parameters[variation]);
@@ -418,227 +330,8 @@ void Get_systematics_SvdParameter(TH1D* &uncertainty, TH1D* &preBarlow, int iDat
   if (reference) *reference = spectra[0];
 }
 
-void Draw_Systematics_SvdParameter(int iDataset, int iRadius, int nominalK, std::string options, TH1D** relativeResult) {
-  TH1D *uncertainty, *preBarlow, *reference;
-  Get_systematics_SvdParameter(uncertainty, preBarlow, iDataset, iRadius, nominalK, options, &reference);
-  TString name = "Systematics_SvdParameter_" + Datasets[iDataset] + Form("_R=%.1f_k%d", arrayRadius[iRadius], nominalK);
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
-void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference) {
-  if (!useFactorisedMatrix || options.find("useIdentityForFluctResp") != std::string::npos)
-    throw std::runtime_error("Background systematics require the fluctuation response to be enabled");
-  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
-    throw std::runtime_error("Use a fixed SVD parameter for background variations");
-  if (nBackgroundVariations < 1)
-    throw std::runtime_error("At least one background variation is required");
-
-  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
-  std::vector<TH1D*> spectra(nBackgroundVariations + 1);
-  std::vector<TString> legends(nBackgroundVariations + 1);
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = "BackgroundFluctuations_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-
-  // Nominal background remains the file/workflow/randomConeType in nominal inputs.
-  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, options);
-  Save_JetSpectrumVariation(spectra[0], "BackgroundFluctuations_Nominal");
-  legends[0] = "Nominal RC";
-  for (int variation = 0; variation < nBackgroundVariations; ++variation) {
-    TH2D* fluctuations = nullptr;
-    Get_PtResponseMatrix_Fluctuations(fluctuations, backgroundVariationRandomConeTypes[variation], iDataset, iRadius, "", file_O2Analysis_Bkg_Systematics_list[iDataset], backgroundVariationWorkflows[variation]);
-    fluctuations->SetName(Form("BackgroundVariation%d", variation + 1));
-    fluctuations->SetDirectory(nullptr);
-    cout << "Background variation " << variation + 1 << ": "
-         << file_O2Analysis_Bkg_Systematics_list[iDataset]->GetName() << ", "
-         << backgroundVariationWorkflows[variation] << ", randomConeType="
-         << backgroundVariationRandomConeTypes[variation] << endl;
-    // Explicit matrix input: no changes to nominal file pointers or settings.
-    Get_Pt_spectrum_unfolded(spectra[variation + 1], measured, iDataset, iRadius, unfoldParameter, options, false, false, fluctuations);
-    delete fluctuations;
-    TString workflowKey = backgroundVariationWorkflows[variation];
-    workflowKey.ReplaceAll("-", "_");
-    Save_JetSpectrumVariation(spectra[variation + 1], "BackgroundFluctuations_"
-      + workflowKey + Form("_RCtype%d", backgroundVariationRandomConeTypes[variation]));
-    legends[variation + 1] = backgroundVariationLabels[variation];
-  }
-  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
-  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
-  if (reference) *reference = spectra[0];
-}
-
-void Draw_Systematics_BackgroundFluctuations(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
-  TH1D *uncertainty, *preBarlow, *reference;
-  Get_systematics_BackgroundFluctuations(uncertainty, preBarlow, iDataset, iRadius, unfoldParameter, options, &reference);
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = "Systematics_BackgroundFluctuations_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
-// All MC-dependent getters read this file pointer: response, prior, fakes and efficiency.
-// Restore nominal input on both normal return and a C++ exception.
-void Get_Systematics_UnfoldedWithMC(TH1D* &spectrum, TH1D* &measured, int iDataset, int iRadius, int unfoldParameter, std::string options,
-                                   TFile* mcFile, TString mcWorkflow) {
-  if (!mcFile || mcFile->IsZombie())
-    throw std::runtime_error("Cannot open tracking-efficiency MC file");
-  if (mcWorkflow != analysisWorkflowMC) 
-    throw std::runtime_error("MC variation must use the nominal workflow name");
-
-  TString matched = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo";
-  matched += doBkgSubtractionInMC ? "_rhoareasubtracted"  : (etaCutOnMatchedJetsIsObsoleteVersion ? "_mcpetaconstraint" : "_mcpmcdetaconstraint");
-  const TString required[] = {
-    doBkgSubtractionInMC ? "h_jet_pt_rhoareasubtracted" : "h_jet_pt",
-    doBkgSubtractionInMC ? "h_jet_pt_part_rhoareasubtracted" : "h_jet_pt_part",
-    matched,
-    mcIsWeighted ? "h_collisions_weighted" : "h_collisions",
-    mcCollHistIsObsolete
-      ? (mcIsWeighted ? "h_mcColl_counts_weight" : "h_mcColl_counts")
-      : (mcIsWeighted ? "h_mccollisions_weighted" : "h_mccollisions")
-  };
-  for (const TString& histogram : required) {
-    if (!dynamic_cast<TH1*>(mcFile->Get(mcWorkflow + "/" + histogram)))
-      throw std::runtime_error(std::string("Missing MC histogram: ")
-                               + mcFile->GetName() + ":" + mcWorkflow.Data() + "/" + histogram.Data());
-  }
-
-  TFile* nominalMC = file_O2Analysis_MCfile_GeneralResponse[iDataset];
-  file_O2Analysis_MCfile_GeneralResponse[iDataset] = mcFile;
-  try {
-    Get_Pt_spectrum_unfolded(spectrum, measured, iDataset, iRadius, unfoldParameter,
-                             options, false, false);
-  } catch (...) {
-    file_O2Analysis_MCfile_GeneralResponse[iDataset] = nominalMC;
-    throw;
-  }
-  file_O2Analysis_MCfile_GeneralResponse[iDataset] = nominalMC;
-}
-
-void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow,
-                                       int iDataset, int iRadius, int unfoldParameter,
-                                       std::string options, TH1D** reference) {
-  if (!file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset])
-    throw std::runtime_error("Tracking-efficiency MC input is not configured");
-  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
-    throw std::runtime_error("Use a fixed SVD parameter for tracking-efficiency variations");
-  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
-  std::vector<TH1D*> spectra(2);
-  std::vector<TString> legends = {"Nominal MC", "Tracking eff. varied"};
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = "TrackingEfficiency_" + Datasets[iDataset]
-                 + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-
-  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, options);
-  spectra[0]->SetName("Nominal_" + name);
-  spectra[0]->SetDirectory(nullptr);
-  Save_JetSpectrumVariation(spectra[0], "TrackingEfficiency_Nominal");
-  cout << "Tracking efficiency variation: "
-       << file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset]->GetName()
-       << ", " << analysisWorkflowMC_TrackingEfficiency_Systematics << endl;
-  Get_Systematics_UnfoldedWithMC(spectra[1], measured, iDataset, iRadius, unfoldParameter, options,
-    file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset],
-    analysisWorkflowMC_TrackingEfficiency_Systematics);
-  spectra[1]->SetName("Variation_" + name);
-  spectra[1]->SetDirectory(nullptr);
-  Save_JetSpectrumVariation(spectra[1], "TrackingEfficiency_Varied");
-
-  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
-  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
-  if (reference) *reference = spectra[0];
-}
-
-void Draw_Systematics_TrackingEfficiency(int iDataset, int iRadius, int unfoldParameter,
-                                       std::string options, TH1D** relativeResult) {
-  TH1D *uncertainty, *preBarlow, *reference;
-  Get_systematics_TrackingEfficiency(uncertainty, preBarlow, iDataset, iRadius,
-                                    unfoldParameter, options, &reference);
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = "Systematics_TrackingEfficiency_" + Datasets[iDataset]
-                 + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
-// Keep the varied data file active through BOTH measured-spectrum extraction and
-// unfolded event normalisation. MC and the fluctuation response remain nominal.
-void Get_Systematics_UnfoldedWithData(TH1D*& spectrum, int iDataset, int iRadius,
-                                    int unfoldParameter, std::string options,
-                                    TFile* dataFile, TString workflow) {
-  if (!dataFile || dataFile->IsZombie())
-    throw std::runtime_error("Cannot open event-selection data file");
-  if (workflow != analysisWorkflowData)
-    throw std::runtime_error("Data variation must use the nominal workflow name");
-  const TString required[] = {
-    doBkgSubtractionInData ? "h_jet_pt_rhoareasubtracted" : "h_jet_pt", "h_collisions"
-  };
-  for (const TString& histogram : required) {
-    if (!dynamic_cast<TH1*>(dataFile->Get(workflow + "/" + histogram)))
-      throw std::runtime_error(std::string("Missing event-selection histogram: ")
-        + dataFile->GetName() + ":" + workflow.Data() + "/" + histogram.Data());
-  }
-  if (GetNEventsSelected_JetFramework(dataFile, workflow, collHistIsObsolete[iDataset]) <= 0)
-    throw std::runtime_error("Event-selection input has no selected events");
-  TFile* nominalData = file_O2Analysis_list[iDataset];
-  file_O2Analysis_list[iDataset] = dataFile;
-  try {
-    TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
-    Get_Pt_spectrum_unfolded(spectrum, measured, iDataset, iRadius, unfoldParameter, options);
-    spectrum->SetDirectory(nullptr);
-  } catch (...) {
-    file_O2Analysis_list[iDataset] = nominalData;
-    throw;
-  }
-  file_O2Analysis_list[iDataset] = nominalData;
-}
-
-// Shared calculation; Vertex and Centrality have separate public drawing functions.
-void Draw_Systematics_EventSelection(int iDataset, int iRadius, int unfoldParameter,
-                                    std::string options, TFile* variedData, TString workflow,
-                                    TString source, TString variationLabel, TH1D** relativeResult) {
-  if (controlMC)
-    throw std::runtime_error("Event-selection systematics requires data unfolding");
-  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
-    throw std::runtime_error("Use a fixed SVD parameter for event-selection variations");
-  options += ",noUnfoldingDiagnostics";
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = source + "_" + Datasets[iDataset]
-    + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-  std::vector<TH1D*> spectra(2);
-  std::vector<TString> legends = {"Nominal selection", variationLabel};
-  Get_Systematics_UnfoldedWithData(spectra[0], iDataset, iRadius, unfoldParameter,
-    options, file_O2Analysis_list[iDataset], analysisWorkflowData);
-  spectra[0]->SetName("Nominal_" + name);
-  Save_JetSpectrumVariation(spectra[0], source + "_Nominal");
-  Get_Systematics_UnfoldedWithData(spectra[1], iDataset, iRadius, unfoldParameter,
-    options, variedData, workflow);
-  spectra[1]->SetName("Variation_" + name);
-  Save_JetSpectrumVariation(spectra[1], source == "Vertex"
-    ? "Vertex_ZVertexMax8cm" : "Centrality_FT0CVariant1");
-  TH1D *uncertainty, *preBarlow;
-  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
-  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, spectra[0], "Systematics_" + name, iRadius);
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
-void Draw_Systematics_Vertex(int iDataset, int iRadius, int unfoldParameter,
-                            std::string options, TH1D** relativeResult) {
-  Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
-    file_O2Analysis_ZVertex8_Systematics_list[iDataset], analysisWorkflowData_ZVertex8_Systematics,
-    "Vertex", "|#it{z}_{vtx}| < 8 cm", relativeResult);
-}
-
-void Draw_Systematics_Centrality(int iDataset, int iRadius, int unfoldParameter,
-                                std::string options, TH1D** relativeResult) {
-  Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
-    file_O2Analysis_Centrality_Systematics_list[iDataset], analysisWorkflowData_Centrality_Systematics,
-    "Centrality", "FT0C Variant1", relativeResult);
-}
-
 // Keep all nominal interior edges. Insert only the requested new endpoints.
-std::vector<double> Get_Systematics_PtRangeEdges(const double* nominal, int nBins,
-                                               int capacity, double minimum, double maximum,
-                                               int iRadius) {
+std::vector<double> Get_Systematics_PtRangeEdges(const double* nominal, int nBins, int capacity, double minimum, double maximum, int iRadius) {
   if (!std::isfinite(minimum) || !std::isfinite(maximum) || minimum >= maximum)
     throw std::runtime_error("Invalid pT-range variation");
   for (double boundary : {minimum, maximum}) {
@@ -662,13 +355,12 @@ std::vector<double> Get_Systematics_PtRangeEdges(const double* nominal, int nBin
 
 // Change only one row and its count for the selected radius, then restore both rows.
 // Re-read measured data and rebuild response/prior/efficiencies for every variation.
-void Get_Systematics_UnfoldedWithPtRange(TH1D* &spectrum, int iDataset, int iRadius,
-                                        int unfoldParameter, std::string options,
-                                        bool varyMeasured, double minimum, double maximum) {
+void Get_Systematics_UnfoldedWithPtRange(TH1D* &spectrum, int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, double minimum, double maximum) {
   if (useFineBinningTest)
     throw std::runtime_error("Disable useFineBinningTest for rec/gen pT-range variations");
   if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
     throw std::runtime_error("Use a fixed SVD parameter for pT-range variations");
+  
   const int recCapacity = sizeof(ptBinsJetsRec[iRadius])/sizeof(double);
   const int genCapacity = sizeof(ptBinsJetsGen[iRadius])/sizeof(double);
   const int nominalRecCount = nBinPtJetsRec[iRadius], nominalGenCount = nBinPtJetsGen[iRadius];
@@ -747,25 +439,39 @@ void Align_Systematics_CommonPtBins(std::vector<TH1D*>& spectra, TString name) {
        << ", " << nominalBins.size() << " bins" << endl;
 }
 
-void Get_systematics_PtRange(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset,
-                            int iRadius, int unfoldParameter, std::string options,
-                            bool varyMeasured, TH1D** reference, bool drawSpectra) {
+void Draw_Systematics_PtRange(int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** relativeResult) {
+  TH1D *uncertainty, *preBarlow, *reference;
+  Get_systematics_PtRange(uncertainty, preBarlow, iDataset, iRadius, unfoldParameter, options, varyMeasured, &reference);
+  TString source = varyMeasured ? "MeasuredPtRange" : "UnfoldedPtRange";
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = "Systematics_" + source + "_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+  
+  // These small relative uncertainties need longer decimal tick labels.
+  float originalLabelSize = gStyle->GetLabelSize("Y");
+  gStyle->SetLabelSize(0.035, "Y");
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
+  gStyle->SetLabelSize(originalLabelSize, "Y");
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
+void Get_systematics_PtRange(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, bool varyMeasured, TH1D** reference, bool drawSpectra) {
   int nVariations = varyMeasured ? nMeasuredPtRangeVariations : nUnfoldedPtRangeVariations;
   const double (*ranges)[2] = varyMeasured ? measuredPtRangeVariations : unfoldedPtRangeVariations;
   if (nVariations < 1) throw std::runtime_error("At least one pT-range variation is required");
+ 
   std::vector<TH1D*> spectra(nVariations + 1);
   std::vector<TString> legends(nVariations + 1);
   TString source = varyMeasured ? "MeasuredPtRange" : "UnfoldedPtRange";
   TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = source + "_" + Datasets[iDataset]
-                 + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+  TString name = source + "_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+ 
   double nominalMinimum = varyMeasured ? ptBinsJetsRec[iRadius][0] : ptBinsJetsGen[iRadius][0];
   double nominalMaximum = varyMeasured ? ptBinsJetsRec[iRadius][nBinPtJetsRec[iRadius]]
                                        : ptBinsJetsGen[iRadius][nBinPtJetsGen[iRadius]];
-  Get_Systematics_UnfoldedWithPtRange(spectra[0], iDataset, iRadius, unfoldParameter,
-                                     options, varyMeasured, nominalMinimum, nominalMaximum);
+  Get_Systematics_UnfoldedWithPtRange(spectra[0], iDataset, iRadius, unfoldParameter, options, varyMeasured, nominalMinimum, nominalMaximum);
   Save_JetSpectrumVariation(spectra[0], source + "_Nominal");
   legends[0] = Form("Nominal %g-%g", nominalMinimum, nominalMaximum);
+ 
   for (int variation = 0; variation < nVariations; ++variation) {
     Get_Systematics_UnfoldedWithPtRange(spectra[variation+1], iDataset, iRadius,
       unfoldParameter, options, varyMeasured, ranges[variation][0], ranges[variation][1]);
@@ -781,23 +487,6 @@ void Get_systematics_PtRange(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset,
   if (reference) *reference = spectra[0];
 }
 
-void Draw_Systematics_PtRange(int iDataset, int iRadius, int unfoldParameter,
-                             std::string options, bool varyMeasured, TH1D** relativeResult) {
-  TH1D *uncertainty, *preBarlow, *reference;
-  Get_systematics_PtRange(uncertainty, preBarlow, iDataset, iRadius,
-                          unfoldParameter, options, varyMeasured, &reference);
-  TString source = varyMeasured ? "MeasuredPtRange" : "UnfoldedPtRange";
-  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
-  TString name = "Systematics_" + source + "_" + Datasets[iDataset]
-                 + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
-  // These small relative uncertainties need longer decimal tick labels.
-  float originalLabelSize = gStyle->GetLabelSize("Y");
-  gStyle->SetLabelSize(0.035, "Y");
-  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
-  gStyle->SetLabelSize(originalLabelSize, "Y");
-  if (relativeResult) *relativeResult = uncertainty;
-}
-
 // Calculate all four sources internally and draw their bin-by-bin maximum.
 // A private ROOT directory isolates intermediate histogram names from existing plots.
 TH1D* DrawUnfoldingSys(int iDataset, int iRadius, int nominalSvdK, int bayesIterations) {
@@ -805,11 +494,14 @@ TH1D* DrawUnfoldingSys(int iDataset, int iRadius, int nominalSvdK, int bayesIter
     throw std::runtime_error("Invalid dataset or radius for unfolding systematics");
   const char* methods[2] = {"Svd", "Bayes"};
   const int parameters[2] = {nominalSvdK, bayesIterations};
+  
   if (bayesIterations < 1) throw std::runtime_error("Bayes iterations must be positive");
   std::string options = std::string(unfoldingPrior) + ",noUnfoldingDiagnostics";
   TH1D* relative[4] = {nullptr, nullptr, nullptr, nullptr};
   cout << "DrawUnfoldingSys: SVD k=" << nominalSvdK << ", Bayes iterations="
        << bayesIterations << ", Barlow=" << applyBarlowTest << endl;
+  
+  // This scope restores the previous ROOT directory and cleans up directory-owned temporary histograms on exit.
   {
     TDirectoryFile calculationDirectory("UnfoldingSysCalculation", "Temporary calculation");
     TDirectory::TContext directoryContext(&calculationDirectory);
@@ -845,14 +537,15 @@ TH1D* DrawUnfoldingSys(int iDataset, int iRadius, int nominalSvdK, int bayesIter
   if (!std::isfinite(relativeSystematicsRange[0]) || !std::isfinite(relativeSystematicsRange[1])
       || relativeSystematicsRange[0] >= relativeSystematicsRange[1])
     throw std::runtime_error("Invalid relative-systematics display range");
-  TString name = "UnfoldingCombined_" + Datasets[iDataset]
-                 + Form("_R=%.1f", arrayRadius[iRadius])
-                 + (applyBarlowTest ? "_Barlow" : "_NoBarlow");
+  
+  TString name = "UnfoldingCombined_" + Datasets[iDataset] + Form("_R=%.1f", arrayRadius[iRadius]) + (applyBarlowTest ? "_Barlow" : "_NoBarlow");
   Align_Systematics_CommonPtBins(sources, name);
+  
   for (TH1D* source : relative) delete source;
   TH1D* combined = (TH1D*)sources[0]->Clone("hSystematicUncertainty_" + name);
   combined->SetDirectory(nullptr);
   combined->Reset("ICES");
+  
   for (int bin = 1; bin <= combined->GetNbinsX(); ++bin) {
     double maximum = 0.;
     for (TH1D* source : sources) {
@@ -930,6 +623,271 @@ TH1D* DrawUnfoldingSys(int iDataset, int iRadius, int nominalSvdK, int bayesIter
   return combined;
 }
 
+void Draw_Systematics_TrackingEfficiency(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  TH1D *uncertainty, *preBarlow, *reference;
+  Get_systematics_TrackingEfficiency(uncertainty, preBarlow, iDataset, iRadius, unfoldParameter, options, &reference);
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = "Systematics_TrackingEfficiency_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+  
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
+void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference) {
+  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
+    throw std::runtime_error("Use a fixed SVD parameter for tracking-efficiency variations");
+  
+  TFile* mcFile = file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset];
+  const TString mcWorkflow = analysisWorkflowMC_TrackingEfficiency_Systematics;
+  if (!mcFile || mcFile->IsZombie())
+    throw std::runtime_error("Cannot open tracking-efficiency MC file");
+  if (mcWorkflow != analysisWorkflowMC) 
+    throw std::runtime_error("MC variation must use the nominal workflow name");
+
+  TString matched = "h2_jet_pt_mcd_jet_pt_mcp_matchedgeo";
+  matched += doBkgSubtractionInMC ? "_rhoareasubtracted"  : (etaCutOnMatchedJetsIsObsoleteVersion ? "_mcpetaconstraint" : "_mcpmcdetaconstraint");
+  const TString required[] = {
+    doBkgSubtractionInMC ? "h_jet_pt_rhoareasubtracted" : "h_jet_pt",
+    doBkgSubtractionInMC ? "h_jet_pt_part_rhoareasubtracted" : "h_jet_pt_part",
+    matched,
+    mcIsWeighted ? "h_collisions_weighted" : "h_collisions",
+    mcCollHistIsObsolete
+      ? (mcIsWeighted ? "h_mcColl_counts_weight" : "h_mcColl_counts")
+      : (mcIsWeighted ? "h_mccollisions_weighted" : "h_mccollisions")
+  };
+  for (const TString& histogram : required) {
+    if (!dynamic_cast<TH1*>(mcFile->Get(mcWorkflow + "/" + histogram)))
+      throw std::runtime_error(std::string("Missing MC histogram: ") + mcFile->GetName() + ":" + mcWorkflow.Data() + "/" + histogram.Data());
+  }
+
+  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
+  std::vector<TH1D*> spectra(2);
+  std::vector<TString> legends = {"Nominal MC", "Tracking eff. varied"};
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = "TrackingEfficiency_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+
+  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, options);
+  spectra[0]->SetName("Nominal_" + name);
+  spectra[0]->SetDirectory(nullptr);
+  
+  Save_JetSpectrumVariation(spectra[0], "TrackingEfficiency_Nominal");
+  cout << "Tracking efficiency variation: "
+       << file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset]->GetName()
+       << ", " << analysisWorkflowMC_TrackingEfficiency_Systematics << endl;
+  // Temporarily use the tracking-efficiency MC, then restore nominal on every exit.
+  TFile* nominalMC = file_O2Analysis_MCfile_GeneralResponse[iDataset];
+  file_O2Analysis_MCfile_GeneralResponse[iDataset] = mcFile;
+  try {
+    Get_Pt_spectrum_unfolded(spectra[1], measured, iDataset, iRadius, unfoldParameter, options, false, false);
+  } catch (...) {
+    file_O2Analysis_MCfile_GeneralResponse[iDataset] = nominalMC;
+    throw;
+  }
+  file_O2Analysis_MCfile_GeneralResponse[iDataset] = nominalMC;
+  spectra[1]->SetName("Variation_" + name);
+  spectra[1]->SetDirectory(nullptr);
+  Save_JetSpectrumVariation(spectra[1], "TrackingEfficiency_Varied");
+
+  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
+  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
+  if (reference) *reference = spectra[0];
+}
+
+void Draw_Systematics_BackgroundFluctuations(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  TH1D *uncertainty, *preBarlow, *reference;
+  Get_systematics_BackgroundFluctuations(uncertainty, preBarlow, iDataset, iRadius, unfoldParameter, options, &reference);
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = "Systematics_BackgroundFluctuations_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, reference, name, iRadius);
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
+void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** reference) {
+  if (!useFactorisedMatrix || options.find("useIdentityForFluctResp") != std::string::npos)
+    throw std::runtime_error("Background systematics require the fluctuation response to be enabled");
+  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
+    throw std::runtime_error("Use a fixed SVD parameter for background variations");
+  if (nBackgroundVariations < 1)
+    throw std::runtime_error("At least one background variation is required");
+
+  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
+  std::vector<TH1D*> spectra(nBackgroundVariations + 1);
+  std::vector<TString> legends(nBackgroundVariations + 1);
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = "BackgroundFluctuations_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+
+  // Nominal background remains the file/workflow/randomConeType in nominal inputs.
+  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, options);
+  Save_JetSpectrumVariation(spectra[0], "BackgroundFluctuations_Nominal");
+  legends[0] = "Nominal RC";
+  for (int variation = 0; variation < nBackgroundVariations; ++variation) {
+    TH2D* fluctuations = nullptr;
+    Get_PtResponseMatrix_Fluctuations(fluctuations, backgroundVariationRandomConeTypes[variation], iDataset, iRadius, "", file_O2Analysis_Bkg_Systematics_list[iDataset], backgroundVariationWorkflows[variation]);
+    fluctuations->SetName(Form("BackgroundVariation%d", variation + 1));
+    fluctuations->SetDirectory(nullptr);
+    cout << "Background variation " << variation + 1 << ": "
+         << file_O2Analysis_Bkg_Systematics_list[iDataset]->GetName() << ", "
+         << backgroundVariationWorkflows[variation] << ", randomConeType="
+         << backgroundVariationRandomConeTypes[variation] << endl;
+    // Explicit matrix input: no changes to nominal file pointers or settings.
+    Get_Pt_spectrum_unfolded(spectra[variation + 1], measured, iDataset, iRadius, unfoldParameter, options, false, false, fluctuations);
+    delete fluctuations;
+    TString workflowKey = backgroundVariationWorkflows[variation];
+    workflowKey.ReplaceAll("-", "_");
+    Save_JetSpectrumVariation(spectra[variation + 1], "BackgroundFluctuations_"
+      + workflowKey + Form("_RCtype%d", backgroundVariationRandomConeTypes[variation]));
+    legends[variation + 1] = backgroundVariationLabels[variation];
+  }
+  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
+  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
+  if (reference) *reference = spectra[0];
+}
+
+// PYTHIA remains nominal; the fitted curve is a diagnostic, not a third variation.
+void Draw_Systematics_Prior(int iDataset, int iRadius, int unfoldParameter, TH1D** relativeResult) {
+  if (controlMC || automaticBestSvdParameter){
+    throw std::runtime_error("Prior systematics requires data unfolding with a fixed parameter");
+  }
+  
+  TString name = "Prior_" + Datasets[iDataset] + Form("_R=%.1f_k%d", arrayRadius[iRadius], unfoldParameter);
+  TH1D* mcp;
+  Get_Pt_spectrum_mcp_fineBinning_preWidthScalingAtEnd(mcp, iDataset, iRadius, "");
+  if (doWidthScalingAtEnd) TransformRawHistToYield(mcp);
+
+  TF1* fit = new TF1("priorTsallisFit_" + name, "x*pow(1+x/([0]*[1]),-[0])", priorTsallisFitRange[0], priorTsallisFitRange[1]);
+
+  fit->SetParameters(6., .6);
+  TFitResultPtr result = mcp->Fit(fit, "R0QSN");
+  if (int(result) != 0) throw std::runtime_error("Tsallis MCP fit failed");
+  cout << "Prior Tsallis fit: n=" << fit->GetParameter(0) << ", T=" << fit->GetParameter(1) << endl;
+  
+  TCanvas* canvas = new TCanvas("priorFitCanvas_" + name, "MCP prior", 800, 700);
+  canvas->SetLogy();
+  mcp->GetXaxis()->SetRangeUser(priorTsallisFitRange[0], priorTsallisFitRange[1]);
+  mcp->GetXaxis()->SetTitle("#it{p}_{T} (GeV/#it{c})");
+  mcp->GetYaxis()->SetTitle("1/N_{evt} dN/d#it{p}_{T} (GeV/#it{c})^{-1}");
+  mcp->SetMarkerStyle(20); mcp->Draw("E");
+
+  TLegend* legend = new TLegend(.52, .69, .87, .89);
+  legend->SetBorderSize(0); legend->SetFillStyle(0); legend->SetTextSize(.024);
+  legend->AddEntry(mcp, "MCP jet (PYTHIA)", "lep");
+  fit->SetLineColor(kBlack); fit->Draw("same");
+  legend->AddEntry(fit, Form("Fit: n=%.3f, T=%.3f", fit->GetParameter(0), fit->GetParameter(1)), "l");
+  const int colors[2] = {kBlue, kGreen+2};
+  for (int v = 0; v < nPriorVariations; ++v) {
+    TF1* curve = (TF1*)fit->Clone(Form("priorCurve%d_", v) + name);
+    curve->SetParameters(priorTsallisVariations[v][0], priorTsallisVariations[v][1]);
+    curve->SetLineColor(colors[v%2]); curve->Draw("same");
+    legend->AddEntry(curve, Form("Var%d: n=%.1f, T=%.2f", v+1, priorTsallisVariations[v][0], priorTsallisVariations[v][1]), "l");
+  }
+  legend->Draw();
+  canvas->SaveAs("pdfFolder/Systematics_PriorFit_" + name + ".pdf");
+  canvas->SaveAs("pngFolder/Systematics_PriorFit_" + name + ".png");
+  canvas->SaveAs("epsFolder/Systematics_PriorFit_" + name + ".eps");
+
+  std::string method = std::string(",") + unfoldingMethod + ",noUnfoldingDiagnostics";
+  TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, "mcpPriorUnfolding" + method);
+  std::vector<TH1D*> spectra(nPriorVariations + 1);
+  std::vector<TString> legends = {"PYTHIA prior (nominal)"};
+  Get_Pt_spectrum_unfolded(spectra[0], measured, iDataset, iRadius, unfoldParameter, "mcpPriorUnfolding" + method);
+  Save_JetSpectrumVariation(spectra[0], "Prior_Nominal");
+  const double saved[2] = {PriorTsillsPara[0], PriorTsillsPara[1]};
+  try {
+    for (int v = 0; v < nPriorVariations; ++v) {
+      PriorTsillsPara[0] = priorTsallisVariations[v][0];
+      PriorTsillsPara[1] = priorTsallisVariations[v][1];
+      Get_Pt_spectrum_unfolded(spectra[v+1], measured, iDataset, iRadius, unfoldParameter, "TF1PriorUnfolding" + method);
+      Save_JetSpectrumVariation(spectra[v+1], Form("Prior_Var%d_Tsallis_n", v+1)
+        + JetSpectrumVariationNumber(PriorTsillsPara[0]) + "_T"
+        + JetSpectrumVariationNumber(PriorTsillsPara[1]));
+      legends.push_back(Form("Tsallis: n=%.1f, T=%.2f", PriorTsillsPara[0], PriorTsillsPara[1]));
+    }
+  } catch (...) {
+    PriorTsillsPara[0] = saved[0]; PriorTsillsPara[1] = saved[1];
+    throw;
+  }
+  PriorTsillsPara[0] = saved[0]; PriorTsillsPara[1] = saved[1];
+  TH1D *uncertainty, *preBarlow;
+  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
+  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, spectra[0], "Systematics_" + name, iRadius);
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
+// Keep the varied data file active through BOTH measured-spectrum extraction and
+// unfolded event normalisation. MC and the fluctuation response remain nominal.
+void Get_Systematics_EventSelectionSpectrum(TH1D*& spectrum, int iDataset, int iRadius, int unfoldParameter, std::string options, TFile* dataFile, TString workflow) {
+  if (!dataFile || dataFile->IsZombie())
+    throw std::runtime_error("Cannot open event-selection data file");
+  if (workflow != analysisWorkflowData)
+    throw std::runtime_error("Data variation must use the nominal workflow name");
+  const TString required[] = {
+    doBkgSubtractionInData ? "h_jet_pt_rhoareasubtracted" : "h_jet_pt", "h_collisions"
+  };
+  
+  for (const TString& histogram : required) {
+    if (!dynamic_cast<TH1*>(dataFile->Get(workflow + "/" + histogram)))
+      throw std::runtime_error(std::string("Missing event-selection histogram: ")
+        + dataFile->GetName() + ":" + workflow.Data() + "/" + histogram.Data());
+  }
+  if (GetNEventsSelected_JetFramework(dataFile, workflow, collHistIsObsolete[iDataset]) <= 0)
+    throw std::runtime_error("Event-selection input has no selected events");
+  
+  TFile* nominalData = file_O2Analysis_list[iDataset];
+  file_O2Analysis_list[iDataset] = dataFile;
+  try {
+    TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
+    Get_Pt_spectrum_unfolded(spectrum, measured, iDataset, iRadius, unfoldParameter, options);
+    spectrum->SetDirectory(nullptr);
+  } catch (...) {
+    file_O2Analysis_list[iDataset] = nominalData;
+    throw;
+  }
+  file_O2Analysis_list[iDataset] = nominalData;
+}
+
+// Shared calculation; Vertex and Centrality have separate public drawing functions.
+void Draw_Systematics_EventSelection(int iDataset, int iRadius, int unfoldParameter, std::string options, TFile* variedData, TString workflow, TString source, TString variationLabel, TH1D** relativeResult) {
+  if (controlMC)
+    throw std::runtime_error("Event-selection systematics requires data unfolding");
+  if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
+    throw std::runtime_error("Use a fixed SVD parameter for event-selection variations");
+  options += ",noUnfoldingDiagnostics";
+  TString method = options.find("Svd") != std::string::npos ? "Svd" : "Bayes";
+  TString name = source + "_" + Datasets[iDataset] + Form("_R=%.1f_%s%d", arrayRadius[iRadius], method.Data(), unfoldParameter);
+  
+  std::vector<TH1D*> spectra(2);
+  std::vector<TString> legends = {"Nominal selection", variationLabel};
+  Get_Systematics_EventSelectionSpectrum(spectra[0], iDataset, iRadius, unfoldParameter, options, file_O2Analysis_list[iDataset], analysisWorkflowData);
+  spectra[0]->SetName("Nominal_" + name);
+  
+  Save_JetSpectrumVariation(spectra[0], source + "_Nominal");
+  Get_Systematics_EventSelectionSpectrum(spectra[1], iDataset, iRadius, unfoldParameter, options, variedData, workflow);
+  
+  spectra[1]->SetName("Variation_" + name);
+  Save_JetSpectrumVariation(spectra[1], source == "Vertex"
+    ? "Vertex_ZVertexMax8cm" : "Centrality_FT0CVariant1");
+  
+  TH1D *uncertainty, *preBarlow;
+  Get_Systematics_Envelope(uncertainty, preBarlow, spectra, name);
+  Draw_Systematics_Spectra(spectra, legends, "Systematics_Spectra_" + name, iRadius);
+  Draw_Systematics_RelativeUncertainty(uncertainty, preBarlow, spectra[0], "Systematics_" + name, iRadius);
+  
+  if (relativeResult) *relativeResult = uncertainty;
+}
+
+void Draw_Systematics_Vertex(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
+    file_O2Analysis_ZVertex8_Systematics_list[iDataset], analysisWorkflowData_ZVertex8_Systematics,
+    "Vertex", "|#it{z}_{vtx}| < 8 cm", relativeResult);
+}
+
+void Draw_Systematics_Centrality(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
+    file_O2Analysis_Centrality_Systematics_list[iDataset], analysisWorkflowData_Centrality_Systematics,
+    "Centrality", "FT0C Variant1", relativeResult);
+}
+
 // Return fractional relative uncertainties (0.05 = 5%), like DrawUnfoldingSys.
 // Plot copies in percent. Independent sources are combined in quadrature;
 // the four unfolding variations enter only through their maximum envelope.
@@ -940,24 +898,29 @@ TH1D* DrawTotalSys(int iDataset, int iRadius, int nominalSvdK, int bayesIteratio
     throw std::runtime_error("Total systematics currently requires nominal SVD unfolding");
   std::string options = std::string(unfoldingPrior) + ",Svd,noUnfoldingDiagnostics";
   std::vector<TH1D*> sources(6, nullptr);
+  
   sources[0] = DrawUnfoldingSys(iDataset, iRadius, nominalSvdK, bayesIterations);
   Draw_Systematics_TrackingEfficiency(iDataset, iRadius, nominalSvdK, options, &sources[1]);
   Draw_Systematics_BackgroundFluctuations(iDataset, iRadius, nominalSvdK, options, &sources[2]);
   Draw_Systematics_Prior(iDataset, iRadius, nominalSvdK, &sources[3]);
   Draw_Systematics_Vertex(iDataset, iRadius, nominalSvdK, options, &sources[4]);
   Draw_Systematics_Centrality(iDataset, iRadius, nominalSvdK, options, &sources[5]);
+  
   TString name = "Total_" + Datasets[iDataset] + Form("_R=%.1f_Svd%d", arrayRadius[iRadius], nominalSvdK) + (applyBarlowTest ? "_Barlow" : "_NoBarlow");
+  
   // Match physical edges, rather than indices: range variations have cropped bins.
   Align_Systematics_CommonPtBins(sources, name);
   TH1D* normalisation = (TH1D*)sources[0]->Clone("hNcollUncertainty_" + name);
   normalisation->SetDirectory(nullptr);
   normalisation->Reset("ICES");
+  
   for (int bin = 1; bin <= normalisation->GetNbinsX(); ++bin)
     normalisation->SetBinContent(bin, nCollUncertaintyPercent / 100.);
   sources.push_back(normalisation);
   TH1D* total = (TH1D*)sources[0]->Clone("hSystematicUncertainty_" + name);
   total->SetDirectory(nullptr);
   total->Reset("ICES");
+  
   for (int bin = 1; bin <= total->GetNbinsX(); ++bin) {
     double variance = 0.;
     for (TH1D* source : sources) {
@@ -978,6 +941,7 @@ TH1D* DrawTotalSys(int iDataset, int iRadius, int nominalSvdK, int bayesIteratio
     {"h1_syst_ncoll", sources[6]},
     {"h1_syst_total", total}
   }, "Systematics_uncertainty");
+  
   TCanvas* canvas = new TCanvas("canvas_" + name, "Total systematics", 850, 800);
   canvas->SetLeftMargin(.15); canvas->SetRightMargin(.06);
   canvas->SetBottomMargin(.14); canvas->SetTopMargin(.03);
@@ -995,10 +959,12 @@ TH1D* DrawTotalSys(int iDataset, int iRadius, int nominalSvdK, int bayesIteratio
   totalPercent->SetLineColor(kBlack); totalPercent->SetLineWidth(2);
   totalPercent->SetStats(false); totalPercent->Draw("HIST SAME");
   legend->AddEntry(totalPercent, "Total (quadrature)", "l");
+  
   const int colors[7] = {kRed, kCyan+2, kBlue, kGreen+2, kViolet, kMagenta, kOrange+1};
   const char* labels[7] = {"Unfolding", "Tracking efficiency", "Background",
     "Prior", "Vertex selection", "Centrality selection", "#LTN_{coll}#GT"};
-  for (size_t source = 0; source < sources.size(); ++source) {
+  
+    for (size_t source = 0; source < sources.size(); ++source) {
     TH1D* percent = (TH1D*)sources[source]->Clone(Form("TotalSourcePercent_%zu_", source) + name);
     percent->SetDirectory(nullptr); percent->Scale(100.);
     percent->SetLineColor(colors[source]); percent->SetLineWidth(2);
@@ -1006,11 +972,13 @@ TH1D* DrawTotalSys(int iDataset, int iRadius, int nominalSvdK, int bayesIteratio
     percent->Draw("HIST SAME");
     legend->AddEntry(percent, labels[source], "l");
   }
+  
   legend->Draw();
   TLatex* context = new TLatex(); context->SetNDC();
   context->SetTextFont(42); context->SetTextSize(.029);
   context->DrawLatex(.18, .90, texCollisionDataInfo->Data());
   context->DrawLatex(.18, .84, contextJetRadius(arrayRadius[iRadius]).Data());
+  
   for (const char* format : {"pdf", "png", "eps"}) {
     TString folder = TString(format) + "Folder";
     gSystem->mkdir(folder, true);
