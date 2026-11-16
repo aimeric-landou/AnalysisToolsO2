@@ -3,9 +3,10 @@
 
 
 int GetSvdBestRegularisationParameter_notYetSatisfying(TSVDUnfold* unfoldTSvd);
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen);
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen);
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen);
+// Optional fluctuation response replaces only the background matrix; nullptr uses nominal inputs.
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false, const TH2D* fluctuationsOverride = nullptr);
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false, const TH2D* fluctuationsOverride = nullptr);
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false, const TH2D* fluctuationsOverride = nullptr);
 
 
 void Get_Pt_spectrum_dataUnfoldedThenRefolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfoldedThenRefolded, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen);

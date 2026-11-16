@@ -2,6 +2,29 @@
 #define JETSPECTRU_RESPONSEMATRIXFUNCTIONS_C
 
 #include "JetSpectrum_ResponseMatrixFunctions.h"
+#include <stdexcept>
+#include "TF1.h"
+#include "../Utilities/AnalysisUtilities.h"
+
+// Same Tsallis weighting and response-error convention as the May analysis.
+void ReweightResponseMatrixWithTsallisPrior(TH2D* matrix, int dataset) {
+  TF1 prior("tsallisResponsePrior", "x*pow(1+x/([0]*[1]),-[0])",
+            priorTsallisFitRange[0], priorTsallisFitRange[1]);
+  prior.SetParameters(PriorTsillsPara[0], PriorTsillsPara[1]);
+  double events = 1.;
+  if (!normGenAndMeasByNEvtsForUnfoldingInput)
+    events = mcIsWeighted
+      ? GetNEventsSelected_JetFramework_gen_weighted(file_O2Analysis_MCfile_GeneralResponse[dataset], analysisWorkflowMC, mcCollHistIsObsolete)
+      : GetNEventsSelected_JetFramework_gen(file_O2Analysis_MCfile_GeneralResponse[dataset], analysisWorkflowMC, mcCollHistIsObsolete);
+  for (int y = 1; y <= matrix->GetNbinsY(); ++y) {
+    double weight = events * prior.Eval(matrix->GetYaxis()->GetBinCenter(y));
+    for (int x = 1; x <= matrix->GetNbinsX(); ++x) {
+      double error = matrix->GetBinError(x, y);
+      matrix->SetBinContent(x, y, matrix->GetBinContent(x, y) * weight);
+      matrix->SetBinError(x, y, error); // Preserve May's matrix statistical errors.
+    }
+  }
+}
 
 #include "./JetSpectrum_SpectraGetters.h"
 #include "./JetSpectrum_SpectraGetters.C"
@@ -85,6 +108,8 @@ void Get_PtResponseMatrix_DetectorAndFluctuationsCombined_postFinalise(TH2D* &H2
 }
 
 void ReweightResponseMatrixWithPrior_modular(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options, bool controlMC = false) {
+  if (options.find("TF1PriorUnfolding") != std::string::npos)
+    ReweightResponseMatrixWithTsallisPrior(H2D_jetPtResponseMatrix, iDataset);
   if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_modular()" << endl;};
 
   bool controlMC_useResponseSplit = true;
@@ -421,6 +446,8 @@ void FinaliseResponseMatrix_priorAndNormYslicesAndMergeBins(TH2D* &H2D_jetPtResp
 }
 
 void ReweightResponseMatrixWithPrior_fineBinningOnly(TH2D* &H2D_jetPtResponseMatrix, int iDataset, int iRadius, std::string options, bool controlMC = false) {
+  if (options.find("TF1PriorUnfolding") != std::string::npos)
+    ReweightResponseMatrixWithTsallisPrior(H2D_jetPtResponseMatrix, iDataset);
   if (showFunctionInAndOutLog) {cout << "--- IN  ReweightResponseMatrixWithPrior_fineBinningOnly()" << endl;};
 
   bool controlMC_useResponseSplit = true;
@@ -553,7 +580,17 @@ void Get_PtResponseMatrix_detectorResponse(TH2D* &H2D_jetPtResponseMatrix_detect
   if (showFunctionInAndOutLog) {cout << "--- OUT Get_PtResponseMatrix_detectorResponse()" << endl;};
 }
 
-void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuations, int randomConeTypeInput, int iDataset, int iRadius, std::string optionsFluctResp) { 
+// Existing callers use the random-cone choice from JetSpectrum_settings.h.
+void Get_PtResponseMatrix_Fluctuations(TH2D* &matrix, int iDataset, int iRadius, std::string options) {
+  Get_PtResponseMatrix_Fluctuations(matrix, randomConeType, iDataset, iRadius, options);
+}
+
+void Get_PtResponseMatrix_Fluctuations(TH2D* &matrix, int randomConeTypeInput, int iDataset, int iRadius, std::string optionsFluctResp) {
+  Get_PtResponseMatrix_Fluctuations(matrix, randomConeTypeInput, iDataset, iRadius,
+                                  optionsFluctResp, file_O2Analysis_Bkg_list[iDataset], analysisWorkflowBkg);
+}
+
+void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuations, int randomConeTypeInput, int iDataset, int iRadius, std::string optionsFluctResp, TFile* backgroundFile, TString backgroundWorkflow) {
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_PtResponseMatrix_Fluctuations()" << endl;};
 
   // see Hiroki Yokoyama thesis
@@ -571,10 +608,20 @@ void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuatio
     cout << "I should check that the average of each ptGen slice is as displaced to the diagonal as the randomCone distrib is; ie should I use GetBinLowEdge or GetBinLowEdge+width for ptGen" << endl;
 
 
-    TH2D* H2D_fluctuations_centrality;
+    TH2* H2D_fluctuations_centrality;
     TH1D* H1D_fluctuations;
 
-    H2D_fluctuations_centrality = (TH2D*)((TH2D*)file_O2Analysis_Bkg_list[iDataset]->Get(analysisWorkflowBkg+"/h2_centrality_rhorandomcone"+randomConeTypeList[randomConeTypeInput]))->Clone("Get_PtResponseMatrix_Fluctuations"+Datasets[iDataset]+DatasetsNames[iDataset]);
+    if (randomConeTypeInput < 0 || randomConeTypeInput >= nRandomConeTypes)
+      throw std::runtime_error("Invalid background random-cone type");
+    if (!backgroundFile || backgroundFile->IsZombie())
+      throw std::runtime_error("Cannot open background fluctuations file");
+    TString histogramPath = backgroundWorkflow + "/h2_centrality_rhorandomcone"
+                            + randomConeTypeList[randomConeTypeInput];
+    TH2* source = dynamic_cast<TH2*>(backgroundFile->Get(histogramPath));
+    if (!source)
+      throw std::runtime_error(std::string("Missing background histogram: ")
+                               + backgroundFile->GetName() + ":" + histogramPath.Data());
+    H2D_fluctuations_centrality = (TH2*)source->Clone("Get_PtResponseMatrix_Fluctuations"+Datasets[iDataset]+DatasetsNames[iDataset]);
     H2D_fluctuations_centrality->Sumw2();
 
 
@@ -606,6 +653,8 @@ void Get_PtResponseMatrix_Fluctuations(TH2D* &H2D_jetPtResponseMatrix_fluctuatio
     // 1   2   3   4   5        6   7   8   9   10    11    12    13    14    15         16    17    18    19    20
     // 01, 12, 23, 34, 45,      56, 67, 78, 89, 910, 1011, 1112, 1213, 1314, 1415,      1516, 1617, 1718, 1819, 1920 
 
+    if (H1D_fluctuations->Integral() <= 0.)
+      throw std::runtime_error("Empty background fluctuation distribution in selected centrality");
     NormaliseRawHistToIntegral(H1D_fluctuations); // normalising fluctuations to 1
     // cout << "Integral H1D_fluctuations: " << H1D_fluctuations->Integral(1, H1D_fluctuations->GetNbinsX()) << endl;
 

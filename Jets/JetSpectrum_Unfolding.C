@@ -47,7 +47,7 @@ int GetSvdBestRegularisationParameter_notYetSatisfying(TSVDUnfold* unfoldTSvd){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false) {
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen, const TH2D* fluctuationsOverride) {
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm()" << endl;};
   //for now makes the assumption gen and rec have the same pT binning
 
@@ -55,6 +55,7 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   bool controlMC_useResponseSplit_input = false; // has no effect if controlMC=false; is used with spectraGetters if one should draw from input split
 
   TString partialUniqueSpecifier = Datasets[iDataset]+DatasetsNames[iDataset]+Form("%.1d",iDataset)+"_R="+Form("%.1f",arrayRadius[iRadius])+"unfoldParameterInput"+Form("%.1d",unfoldParameterInput)+"controlMC"+Form("%.1i",controlMC)+"inputIsGen"+Form("%.1i",inputIsGen);
+  if (fluctuationsOverride) partialUniqueSpecifier += "_" + TString(fluctuationsOverride->GetName());
 
   TH1D* measured = (TH1D*)measuredInput->Clone("measured_Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm"+partialUniqueSpecifier);;
   TH1D* mcp; // used if useManualRespMatrixSettingMethod is false, for calculating efficiency and purity
@@ -113,7 +114,11 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   TH2D* H2D_jetPtResponseMatrix_detectorAndFluctuationsCombined;
   
   std::string optionsFluctResp = options.find("useIdentityForFluctResp") != std::string::npos ? (std::string)"useIdentityForFluctResp" : (std::string)"";
-  Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, optionsFluctResp); // gets fluct matrix in fine binning 
+  if (fluctuationsOverride) {
+    H2D_jetPtResponseMatrix_fluctuations = (TH2D*)fluctuationsOverride->Clone("fluctuationsOverride_"+partialUniqueSpecifier);
+  } else {
+    Get_PtResponseMatrix_Fluctuations(H2D_jetPtResponseMatrix_fluctuations, iDataset, iRadius, optionsFluctResp);
+  }
   std::string optionsDetResp = options.find("useIdentityForDetResp") != std::string::npos ? (std::string)"useIdentityForDetResp" : (std::string)"";
   Get_PtResponseMatrix_detectorResponse(H2D_jetPtResponseMatrix_detectorResponse, iDataset, iRadius, optionsDetResp, controlMC); // gets det matrix in fine binning 
   // compute matrixFluctuations times matrixDetector
@@ -269,7 +274,8 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
     TString* pdfName_regparam = new TString("Svd_regularisationd_distribution_"+(TString)partialUniqueSpecifier+"_"+(TString)unfoldingPrior+inputUnfoldingName);
     TString textContext(contextCustomTwoFields(*texDatasetsComparisonCommonDenominator, contextJetRadius(arrayRadius[iRadius]), ""));
     std::array<std::array<float, 2>, 2> drawnWindowSvdParam = {{{0, 30}, {0.01, 10000}}}; // {{xmin, xmax}, {ymin, ymax}}
-    Draw_TH1_Histogram(H1D_D, textContext, pdfName_regparam, texSvdK, texSvdDvector_k, texCollisionDataInfo, drawnWindowSvdParam, legendPlacementAuto, contextPlacementAuto, "logy");
+    if (options.find("noUnfoldingDiagnostics") == std::string::npos)
+      Draw_TH1_Histogram(H1D_D, textContext, pdfName_regparam, texSvdK, texSvdDvector_k, texCollisionDataInfo, drawnWindowSvdParam, legendPlacementAuto, contextPlacementAuto, "logy");
 
   } else if (options.find("Bayes") != std::string::npos) {
     unfoldParameter = unfoldParameterInput;
@@ -358,10 +364,10 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNo
   std::pair<int, RooUnfold*> unfoldInfo(unfoldParameter, unfold);
   return unfoldInfo;
 }
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false) {
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen, const TH2D* fluctuationsOverride) {
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded_preWidthScalingAtEnd()" << endl;};
 
-  std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options, controlMC, inputIsGen);
+  std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEndAndEvtNorm(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options, controlMC, inputIsGen, fluctuationsOverride);
   if (normaliseUnfoldingResultsAtEnd){
     if (!controlMC && options.find("inputIsMC") == std::string::npos) { // if option controlMC is false, and if inputIsMC has not been found in options; necessary check for the mcp-folded unfolding test as we want to normalise by the number of events in the MC file
       NormaliseRawHistToInputN(H1D_jetPt_unfolded, GetNEventsSelected_JetFramework(file_O2Analysis_list[iDataset], analysisWorkflowData, collHistIsObsolete[iDataset]));
@@ -386,10 +392,10 @@ std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(TH1D* &
   if (showFunctionInAndOutLog) {cout << "--- OUT Get_Pt_spectrum_unfolded_preWidthScalingAtEnd()" << endl;};
   return unfoldInfo;
 }
-std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC = false, bool inputIsGen = false) {
+std::pair<int, RooUnfold*> Get_Pt_spectrum_unfolded(TH1D* &H1D_jetPt_unfolded, TH1D* &measuredInput, int iDataset, int iRadius, int unfoldParameterInput, std::string options, bool controlMC, bool inputIsGen, const TH2D* fluctuationsOverride) {
   if (showFunctionInAndOutLog) {cout << "--- IN  Get_Pt_spectrum_unfolded()" << endl;};
 
-  std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options, controlMC, inputIsGen);
+  std::pair<int, RooUnfold*> unfoldInfo = Get_Pt_spectrum_unfolded_preWidthScalingAtEnd(H1D_jetPt_unfolded, measuredInput, iDataset, iRadius, unfoldParameterInput, options, controlMC, inputIsGen, fluctuationsOverride);
 
   if (doWidthScalingAtEnd) {
     TransformRawHistToYield(H1D_jetPt_unfolded);

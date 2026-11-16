@@ -26,6 +26,7 @@
 //My Libraries
 #include "./JetSpectrum_settings.h"
 #include "./JetSpectrum_inputs.h"
+#include "./JetSpectrum_Output.h"
 
 #include "./JetSpectrum_ResponseMatrixFunctions.h"
 #include "./JetSpectrum_ResponseMatrixFunctions.C"
@@ -1018,6 +1019,20 @@ void Draw_Pt_spectrum_unfolded_singleDataset(int iDataset, int iRadius, int unfo
       Draw_TH1_Histogram(H1D_jetPt_ratio_mcdSplitClosure, textContext, pdfName_ratio_McdUnfoldedClosureCheck, texPtX, texRatioMcdUnfoldedMcd, texCollisionDataInfo, drawnWindowUnfoldedMeasurement, legendPlacementAuto, contextPlacementAuto, "ratioLine");
     }
   }
+  // Persist the same normalised spectra used in the plots for numerical inspection.
+  for (int bin = 1; bin <= H1D_jetPt_unfolded->GetNbinsX(); ++bin) {
+    if (!std::isfinite(H1D_jetPt_unfolded->GetBinContent(bin)) ||
+        !std::isfinite(H1D_jetPt_unfolded->GetBinError(bin))) {
+      throw std::runtime_error("Non-finite unfolded spectrum");
+    }
+  }
+  if (saveAnalysisResults && !controlMC && options.find("Svd") != std::string::npos)
+    Save_JetSpectrumHistograms({
+      {"HJetSpectra_measured", H1D_jetPt_measured},
+      {"HJetSpectra_Svdkdefault", H1D_jetPt_unfolded},
+      {"HJetSpectra_refolded", H1D_jetPt_unfoldedThenRefolded}
+    });
+
 }
 
 void Draw_Pt_spectrum_unfolded_parameterVariation_singleDataset(int iDataset, int iRadius, int unfoldIterationMin, int unfoldIterationMax, int step, std::string options) {
