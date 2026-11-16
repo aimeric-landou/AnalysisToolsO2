@@ -62,6 +62,7 @@ R__LOAD_LIBRARY(libRooUnfold)
 using namespace std;
 
 void SetStyle_Systematics(Bool_t graypalette=kFALSE);
+TFile* Get_Systematics_InputFile(TFile*& file, const TString& fileName, const char* source);
 
 void Draw_Systematics_UnfoldMethod(int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** relativeResult = nullptr);
 void Get_systematics_UnfoldMethod(TH1D* &uncertainty, TH1D* &preBarlow, int iDataset, int iRadius, const char* const* methods, const int* parameters, int nMethods, std::string options, TH1D** reference = nullptr, bool drawSpectra = true);
@@ -157,6 +158,25 @@ void SetStyle_Systematics(Bool_t graypalette) {
   gStyle->SetLegendFillColor(kWhite);
   //  gStyle->SetFillColor(kWhite);
   gStyle->SetLegendFont(42);
+}
+
+// Open only the variation file required by the requested source.
+TFile* Get_Systematics_InputFile(TFile*& file, const TString& fileName, const char* source) {
+  if (file) {
+    if (file->IsZombie() || !file->IsOpen())
+      throw std::runtime_error(std::string("Invalid ") + source + " input file");
+    return file;
+  }
+  if (fileName.IsNull())
+    throw std::runtime_error(std::string("Missing ") + source
+      + " input: set its fileName entry in JetSpectrum_Systematics_input.h");
+  TFile* opened = TFile::Open(fileName, "READ");
+  if (!opened || opened->IsZombie() || !opened->IsOpen()) {
+    delete opened;
+    throw std::runtime_error(std::string("Cannot open ") + source + " input: " + fileName.Data());
+  }
+  file = opened;
+  return file;
 }
 
 // First spectrum is nominal. Use the largest absolute variation in each bin.
@@ -637,7 +657,8 @@ void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow, in
   if (options.find("Svd") != std::string::npos && automaticBestSvdParameter)
     throw std::runtime_error("Use a fixed SVD parameter for tracking-efficiency variations");
   
-  TFile* mcFile = file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset];
+  TFile* mcFile = Get_Systematics_InputFile(file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset],
+    fileName_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset], "tracking efficiency");
   const TString mcWorkflow = analysisWorkflowMC_TrackingEfficiency_Systematics;
   if (!mcFile || mcFile->IsZombie())
     throw std::runtime_error("Cannot open tracking-efficiency MC file");
@@ -672,7 +693,7 @@ void Get_systematics_TrackingEfficiency(TH1D* &uncertainty, TH1D* &preBarlow, in
   
   Save_JetSpectrumVariation(spectra[0], "TrackingEfficiency_Nominal");
   cout << "Tracking efficiency variation: "
-       << file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset]->GetName()
+       << mcFile->GetName()
        << ", " << analysisWorkflowMC_TrackingEfficiency_Systematics << endl;
   // Temporarily use the tracking-efficiency MC, then restore nominal on every exit.
   TFile* nominalMC = file_O2Analysis_MCfile_GeneralResponse[iDataset];
@@ -710,6 +731,8 @@ void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow
   if (nBackgroundVariations < 1)
     throw std::runtime_error("At least one background variation is required");
 
+  TFile* backgroundFile = Get_Systematics_InputFile(file_O2Analysis_Bkg_Systematics_list[iDataset],
+    fileName_O2Analysis_Bkg_Systematics_list[iDataset], "background fluctuations");
   TH1D* measured = Get_Systematics_MeasuredInput(iDataset, iRadius, options);
   std::vector<TH1D*> spectra(nBackgroundVariations + 1);
   std::vector<TString> legends(nBackgroundVariations + 1);
@@ -722,11 +745,11 @@ void Get_systematics_BackgroundFluctuations(TH1D* &uncertainty, TH1D* &preBarlow
   legends[0] = "Nominal RC";
   for (int variation = 0; variation < nBackgroundVariations; ++variation) {
     TH2D* fluctuations = nullptr;
-    Get_PtResponseMatrix_Fluctuations(fluctuations, backgroundVariationRandomConeTypes[variation], iDataset, iRadius, "", file_O2Analysis_Bkg_Systematics_list[iDataset], backgroundVariationWorkflows[variation]);
+    Get_PtResponseMatrix_Fluctuations(fluctuations, backgroundVariationRandomConeTypes[variation], iDataset, iRadius, "", backgroundFile, backgroundVariationWorkflows[variation]);
     fluctuations->SetName(Form("BackgroundVariation%d", variation + 1));
     fluctuations->SetDirectory(nullptr);
     cout << "Background variation " << variation + 1 << ": "
-         << file_O2Analysis_Bkg_Systematics_list[iDataset]->GetName() << ", "
+         << backgroundFile->GetName() << ", "
          << backgroundVariationWorkflows[variation] << ", randomConeType="
          << backgroundVariationRandomConeTypes[variation] << endl;
     // Explicit matrix input: no changes to nominal file pointers or settings.
@@ -877,14 +900,18 @@ void Draw_Systematics_EventSelection(int iDataset, int iRadius, int unfoldParame
 }
 
 void Draw_Systematics_Vertex(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  TFile* dataFile = Get_Systematics_InputFile(file_O2Analysis_ZVertex8_Systematics_list[iDataset],
+    fileName_O2Analysis_ZVertex8_Systematics_list[iDataset], "Vertex selection");
   Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
-    file_O2Analysis_ZVertex8_Systematics_list[iDataset], analysisWorkflowData_ZVertex8_Systematics,
+    dataFile, analysisWorkflowData_ZVertex8_Systematics,
     "Vertex", "|#it{z}_{vtx}| < 8 cm", relativeResult);
 }
 
 void Draw_Systematics_Centrality(int iDataset, int iRadius, int unfoldParameter, std::string options, TH1D** relativeResult) {
+  TFile* dataFile = Get_Systematics_InputFile(file_O2Analysis_Centrality_Systematics_list[iDataset],
+    fileName_O2Analysis_Centrality_Systematics_list[iDataset], "Centrality selection");
   Draw_Systematics_EventSelection(iDataset, iRadius, unfoldParameter, options,
-    file_O2Analysis_Centrality_Systematics_list[iDataset], analysisWorkflowData_Centrality_Systematics,
+    dataFile, analysisWorkflowData_Centrality_Systematics,
     "Centrality", "FT0C Variant1", relativeResult);
 }
 
@@ -892,10 +919,21 @@ void Draw_Systematics_Centrality(int iDataset, int iRadius, int unfoldParameter,
 // Plot copies in percent. Independent sources are combined in quadrature;
 // the four unfolding variations enter only through their maximum envelope.
 TH1D* DrawTotalSys(int iDataset, int iRadius, int nominalSvdK, int bayesIterations) {
+  if (iDataset < 0 || iDataset >= nDatasets || iRadius < 0 || iRadius >= nRadius)
+    throw std::runtime_error("Invalid dataset or radius for total systematics");
   if (!std::isfinite(nCollUncertaintyPercent) || nCollUncertaintyPercent < 0.)
     throw std::runtime_error("Ncoll uncertainty must be a finite non-negative percentage");
   if (std::string(unfoldingMethod) != "Svd")
     throw std::runtime_error("Total systematics currently requires nominal SVD unfolding");
+  // Require all sources before starting the total calculation; never skip missing inputs.
+  Get_Systematics_InputFile(file_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset],
+    fileName_O2Analysis_MCfile_TrackingEfficiency_Systematics[iDataset], "tracking efficiency");
+  Get_Systematics_InputFile(file_O2Analysis_Bkg_Systematics_list[iDataset],
+    fileName_O2Analysis_Bkg_Systematics_list[iDataset], "background fluctuations");
+  Get_Systematics_InputFile(file_O2Analysis_ZVertex8_Systematics_list[iDataset],
+    fileName_O2Analysis_ZVertex8_Systematics_list[iDataset], "Vertex selection");
+  Get_Systematics_InputFile(file_O2Analysis_Centrality_Systematics_list[iDataset],
+    fileName_O2Analysis_Centrality_Systematics_list[iDataset], "Centrality selection");
   std::string options = std::string(unfoldingPrior) + ",Svd,noUnfoldingDiagnostics";
   std::vector<TH1D*> sources(6, nullptr);
   

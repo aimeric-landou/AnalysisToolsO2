@@ -1,5 +1,34 @@
-// root -l AnalysisToolsO2/Jets/JetSpectrum_PbPbResult.C
-// Spectrum style/conventions: JetUnfoldResults.C, Cspectra_cent preliminary figure.
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// STANDALONE FINAL-RESULT PLOTTING MACRO -- NOT PART OF THE RunMacro EXECUTION FLOW
+//
+// Purpose:
+//   Read completed analysis results and produce the final preliminary jet-spectrum plots,
+//   Rcp plots, Rcp systematic-uncertainty summaries, and the ALICE--ATLAS Rcp comparison.
+//   The plotting style follows the original JetUnfoldResults.C preliminary figures.
+//   This macro does not run unfolding or generate the required centrality input files.
+//
+// REQUIRED BEFORE USE:
+//   First run JetSpectrum_RunMacro.C separately for each of the four centrality classes:
+//   0-10%, 10-30%, 30-50%, and 50-80%, with the matching inputs and unfolding settings.
+//   Enable saveAnalysisResults, choose a different output filename for each centrality,
+//   and call DrawAndSave_JetSpectrumResultsAndSystematics(...) to save both the nominal spectra and the complete systematic uncertainties and variation spectra.
+//
+//   All four completed ROOT files must be available in pbpbResultInputFolder, for example:
+//     JetSpectrum_results_lead5_25kHz_cent0010.root
+//     JetSpectrum_results_lead5_25kHz_cent1030.root
+//     JetSpectrum_results_lead5_25kHz_cent3050.root
+//     JetSpectrum_results_lead5_25kHz_cent5080.root
+//   Each file must contain HJetSpectra_measured, HJetSpectra_Svdkdefault,
+//   HJetSpectra_refolded, Systematics_uncertainty/, and Systematics_variation/.
+//   The local ATLAS reference ROOT file configured in pbpbRcpAtlasFile is also required
+//   when running Draw_JetSpectrumPbPbRcp(), which automatically draws the ATLAS comparison.
+//
+// WHEN TO RUN:
+//   Use this macro only after unfolding and systematic checks are complete and all four centrality result files have been saved successfully; it is the final plotting stage.
+//   Check the input paths, Ncoll values, and plotting settings below, then run independently
+//   from the parent directory of AnalysisToolsO2:
+//     root -l AnalysisToolsO2/Jets/JetSpectrum_PbPbResult.C
+////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef JETSPECTRUM_PBPBRESULT_C
 #define JETSPECTRUM_PBPBRESULT_C
 
@@ -78,7 +107,6 @@ void JetSpectrum_PbPbResult() {
   Draw_JetSpectrumPbPbSpectra();
   Draw_JetSpectrumPbPbRcp();
 }
-
 
 
 // Function implementations

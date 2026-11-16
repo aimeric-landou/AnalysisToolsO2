@@ -4,6 +4,9 @@
 #define JETSPECTRUM_SETTINGS_H
 
 // Analysis settings
+bool saveAnalysisResults = false;  // keep false, open only when needed. Save unfolded results and systematics uncertainty & variations to a rootfile
+TString analysisResultsFileName = "rootfile_folder/JetSpectrum_results_lead5_25kHz_cent5080.root"; // name of this rootfile
+
 const int nJetType = 3;
 const TString jetType[nJetType] = {"charged", "neutral", "full"};
 const int nJetLevel = 3;
@@ -23,21 +26,21 @@ const int iJetType = 0;
 const int iJetLevel = 0;
 const int randomConeType = 1;
 
-
 const float centralityRange[2] = {0, 10};
-// const float centralityRange[2] = {50, 70};
+// const float centralityRange[2] = {10, 30};
+// const float centralityRange[2] = {30, 50};
+// const float centralityRange[2] = {50, 80};
 
-////////////////////////////////////////////////
-////////// Unfolding settings - start //////////
-////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////// Unfolding settings - start //////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-char unfoldingPrior[] = "mcpPriorUnfolding";     // prior options: mcpPriorUnfolding, mcdPriorUnfolding, measuredPriorUnfolding, noPriorUnfolding, testAliPhysics /////// if using mcp as prior, should have the leading track cut like data
+char unfoldingPrior[] = "mcpPriorUnfolding";  // prior options: mcpPriorUnfolding, mcdPriorUnfolding, measuredPriorUnfolding, noPriorUnfolding, testAliPhysics /////// if using mcp as prior, should have the leading track cut like data
 const bool doYSliceNormToOneDetResp = true; // should be true in Pb-Pb analysis (done by marta) (because fluct. response matrix is probability distrib; in pp where we only have detector response, it's best to keep matrix of number of events as svd paper seems to advise: less weight on matrix entries with single count; if this is set to FALSE then noPriorUnfolding should be used, as det response already comes with weighting so it'd be done twice)
 const bool doYSliceNormToOneCombinedResp = false; // should be false (not done by marta); breaks unfolding with svd if true 
 const bool doUnfoldingPriorDivision = false; // keep false for now ; unfolding doesn't work anymore if this is done, gives almost flat pT distribution, though refolding test is good; I am not sure why, might be because roounfold already does that; one good reason to avoid it; anyway, is that roounfold already seems to deal with errors; my error propagation doesn't take into account off-diagonal covariance elements, and so can only be worse 
 const bool scaleRespByXYWidth = false; // keep false, does not work well if true; although necessary (along with matrixTransformationOrder 1) to get a good looking response matrix with every entry below 1, unfolding with this struggles a bit though not horrible, it's still not great looking
+const bool scaleRespByXWidth = false;
 const bool scaleRespByYWidth = false; // keep false
 const bool matrixTransformationOrder = 0; // use 0 
  //0: reweight with unfoldingPrior, then rebin with merging prior, then do YSliceNorm and scaleRespByXYWidth if set to true (works well 0); 
@@ -47,12 +50,12 @@ const bool matrixTransformationOrder = 0; // use 0
 char unfoldingMethod[] = "Svd"; // unfolding method options: Bayes, Svd
 char optionsAnalysis[100] = "";
 
-const bool doClosure_splitMC_mcdUnfoldedVsGen = true;
+const bool doClosure_splitMC_mcdUnfoldedVsGen = false;
 const bool doClosure_splitMC_mcpFoldedWithFluct = false; // if true, uses file_O2Analysis_MCfile_UnfoldingControl_input mcp distribution, folds it with the background fluctuation matrix, unfolds it with the merged det x bkg response matrix, and compares it to the mcp distribution in file_O2Analysis_MCfile_UnfoldingControl_input
 // 13/11/2025: check this comparison; for some reason it's not a ratio of 1 when running on pp even though the bkg fluctuation matrix is identity
-const bool doBkgSubtractionInData = false;
+const bool doBkgSubtractionInData = true;
 const bool doBkgSubtractionInMC = false;
-const bool useFactorisedMatrix = false; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
+const bool useFactorisedMatrix = true; // use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
 const bool useFactorisedMatrixInMcdUnfoldedClosure = true; // whne doing SplitMcClosure: use factorised response matrix for unfolding, or not; if not, the fluctuations response it replaced by the identity matrix
 const bool mcIsWeighted = true; // use if the MC has been weighted to have more high pt jets?
 bool applyFakes = true; // only applied if useManualRespMatrixSettingMethod is true; 18/03: if false?
@@ -64,6 +67,9 @@ const bool doWidthScalingAtEnd = true;                          //
 
 const bool normDetRespByNEvts = false; //that's what breaks svd; https://arxiv.org/pdf/hep-ph/9509307 seems to say one should use the number of events matrix (see last paragraph of conclusion) instead of a probability matrix, to further reduce errors
 const bool normGenAndMeasByNEvtsForUnfoldingInput = false; // controls normalisation of input to unfolding; if false the inputs aren't normalised; if true they are normalised IF normaliseDistribsInComparisonPlots is also true (probably should remove influence of this)
+// Keep per-event yields; Ncoll scaling belongs to the later physics comparison.
+const bool divideYieldByAverageNColl = false;
+const double averageNColl = 1.0; // unused while divideYieldByAverageNColl is false
 const bool normaliseUnfoldingResultsAtEnd = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; 
 const bool normaliseDistribsInComparisonPlots = true; // if true: Njets per event ; if false: Njets total ; both normaliseUnfoldingResultsAtEnd and normaliseDistribsInComparisonPlots should be the same, else refolding test fails; without
 
@@ -76,7 +82,7 @@ const bool useMatrixOverflows = false; // false by default, haven't tried true r
 const int usePtOverflowForKineEff = 0; // false by default, not tested yet, might be better to be at 1; only matters if applyEfficiencies is 1 or 3, and by default this is not the case
 
 // MC split closure test: mcd as input from file_O2Analysis_MCfile_UnfoldingControl_input with Response from file_O2Analysis_MCfile_GeneralResponse
-bool controlMC = true; // use file_O2Analysis_MCfile_UnfoldingControl_input MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
+bool controlMC = false; // use file_O2Analysis_MCfile_UnfoldingControl_input MC file as input to unfolding (with h_jet_pt(_rhoareasubtracted) distrib on file), rather than real data, and as gen in comparison to gen (with h_jet_pt_part distrib on file);
 
 
 // Debugging and checks:
@@ -93,16 +99,27 @@ bool smoothenMCP = false;
 
 bool transposeResponseHistogramsInDrawing = false;  // default is false; if set to true, then one can just rotate the result matrices 90 degrees to have the correct visualisation of the response as a matrix, rather than as a histogram as is default (when false) 
 
+bool showFunctionInAndOutLog = false;
 bool automaticBestSvdParameter = false; // automatic function not well setup yet, should work on it; keep false for now
 
 bool mcpInput_useMcpCollCountForUnfoldingResultNorm = true; //if controlMC is true, mcpInput_useMcpCollCountForUnfoldingResultNorm=true will normalise by N_mccoll rather than N_coll : just unfolding function for now, maybe try getmcpdistrib as well
 
 const bool deltaPtHistStopsAt100 = true; //temporary fix to issue of delta pt histogram stopping at 100/-100 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// Systematics settings ////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool applyBarlowTest = false;
+double PriorTsillsPara[2] = {5.7, 0.51}; // Tsallis fit parameter when calculate Prior uncertainty
+const int nPriorVariations = 2;
+const double priorTsallisVariations[nPriorVariations][2] = {{5.7, 0.51}, {6.7, 0.51}};
+// const double priorTsallisVariations[nPriorVariations][2] = {{5.9, 0.51}, {6.9, 0.51}};
+const double priorTsallisFitRange[2] = {5., 200.};
+float relativeSystematicsRange[2] = {0., 30.}; // percent: 30 = 30%; syst. uncertainty plots only
 
 
-
-float ptWindowDisplay[2] = {5, 140}; // used for drawn histograms of unfolded distrib
+float ptWindowDisplay[2] = {30, 140}; // used for drawn histograms of unfolded distrib
+double nCollUncertaintyPercent = 5.; // constant normalisation uncertainty (%); 0 disables it
 std::array<std::array<float, 2>, 2> drawnWindowUnfoldedMeasurement = {{{ptWindowDisplay[0], ptWindowDisplay[1]}, {-999, -999}}}; // {{xmin, xmax}, {ymin, ymax}}
 
 // TODOLIST:
@@ -127,58 +144,28 @@ double ptBinsJetsGen_run2[nRadius][30] = {{20., 30., 40., 50., 60., 70., 85., 10
 int nBinPtJetsGen_run2[nRadius] = {9,9,9};
 double ptMaxFit = 120;
 
-// // pT binning for jets - gen = rec
-// double ptBinsJetsRec[nRadius][30] = {{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.}};
-// int nBinPtJetsRec[nRadius] = {15,15,15};
-// double ptBinsJetsGen[nRadius][30] = {{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.},{0.0, 5., 10., 15., 20., 25., 30., 40., 50., 60., 70., 80., 100., 120., 140., 200.}};
-// int nBinPtJetsGen[nRadius] = {15,15,15};
 
+// 2023 PbPb pass4 Preliminary binning - lead05
+double ptBinsJetsRec[nRadius][50] = {{20, 22, 24, 26, 28, 30., 32, 34, 36, 38, 40., 42, 44, 46, 48., 50., 52, 54, 56, 58, 60., 65., 70, 75., 80., 85., 90., 95., 100., 110., 120., 130., 140},
+                                     {10, 15, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 100., 120., 140., 160},
+                                     {10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.}};
+int nBinPtJetsRec[nRadius] = {32,20,22};
+double ptBinsJetsGen[nRadius][30] = {{5, 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 100., 120., 140., 200.},
+                                      {5, 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},
+                                      {5., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.}};
+int nBinPtJetsGen[nRadius] = {21,13,13};
 
-// // PbPb
-// // Hannah bossi identical fo run 2 comparison
-// double ptBinsJetsRec[nRadius][30] = {{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.},{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.},{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.}};
-// int nBinPtJetsRec[nRadius] = {19,19,19};
-// double ptBinsJetsGen[nRadius][30] = {{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.}};
-// int nBinPtJetsGen[nRadius] = {9,9,9};
-
-
-// // PbPb
-// // ML paper binning for run2 comparisons
-// double ptBinsJetsRec[nRadius][30] = {{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.},{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.},{20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140.}};
-// int nBinPtJetsRec[nRadius] = {19,19,19};
-// double ptBinsJetsGen[nRadius][30] = {{5., 10., 20., 30., 40., 50., 60., 70., 85., 100., 120., 140., 200.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.},{10., 20., 40., 60., 70., 85., 100., 120., 140., 200.}};
-// int nBinPtJetsGen[nRadius] = {12,9,9};
-
-
-// PbPb Aimeric default
-// double ptBinsJetsRec[nRadius][30] = {{10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 130., 140.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.}};
-// int nBinPtJetsRec[nRadius] = {22,22,22};
-// double ptBinsJetsGen[nRadius][30] = {{5., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.}};
-// int nBinPtJetsGen[nRadius] = {13,13,13};
-
-
-// PbPb Aimeric test finer - lead05
-double ptBinsJetsRec[nRadius][50] = {{10., 12, 14, 16, 18, 20., 22, 24, 26, 28, 30., 32, 34, 36, 38, 40., 42, 44, 46, 48., 50., 52, 54, 56, 58, 60., 62, 64, 66, 68, 70, 75., 80., 85., 90., 95., 100., 110., 120., 130., 140.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.}};
-int nBinPtJetsRec[nRadius] = {40,22,22};
-double ptBinsJetsGen[nRadius][30] = {{5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95, 100., 120., 140., 160., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.}};
-int nBinPtJetsGen[nRadius] = {23,13,13};
-
-// // PbPb Aimeric test finer - lead03
-// double ptBinsJetsRec[nRadius][50] = {{20., 22, 24, 26, 28, 30., 32, 34, 36, 38, 40., 42, 44, 46, 48., 50., 52, 54, 56, 58, 60., 62, 64, 66, 68, 70, 75., 80., 85., 90., 95., 100., 110., 120., 130., 140.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.},{5., 10, 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95., 100., 110., 120., 140., 200.}};
-// int nBinPtJetsRec[nRadius] = {35,22,22};
-// double ptBinsJetsGen[nRadius][30] = {{5., 10., 15., 20., 25., 30., 35., 40., 45., 50., 55., 60., 65., 70., 75., 80., 85., 90., 95, 100., 120., 140., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.},{0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 140., 200.}};
-// int nBinPtJetsGen[nRadius] = {22,13,13};
-
-// ///////////////Wenhui binning for Data unfolding GP PbPb MC/////////////////////////////
-// double ptBinsJetsRec[nRadius][30] = {{-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200},
-//                                      {-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200},
-//                                      {-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200}};
-// int nBinPtJetsRec[nRadius] = {17,17,17};
-// double ptBinsJetsGen[nRadius][30] = {{-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200},
-//                                     {-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200} ,
-//                                      {-5, 0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 200}};
-// int nBinPtJetsGen[nRadius] = {17,17,17};
-
+// pT-range systematics for the current R=0.2 analysis (GeV/c).
+// Keep nominal arrays above unchanged; internal edges are retained automatically.
+// A new outer boundary is inserted when extending or truncating a range.
+const int nMeasuredPtRangeVariations = 3;
+const double measuredPtRangeVariations[nMeasuredPtRangeVariations][2] = {
+  {24., 140.}, {20., 130.}, {20., 150.}
+};
+const int nUnfoldedPtRangeVariations = 2;
+const double unfoldedPtRangeVariations[nUnfoldedPtRangeVariations][2] = {
+  {10., 200.}, {5., 180.}
+};
 
 // // Joonsuk binning for pp
 // double ptBinsJetsRec[nRadius][30] = {{5,  6,  7,  8,  9,  10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 85, 100, 140},{0, 5,  6,  7,  8,  9,  10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 85, 100, 140, 200},{5,  6,  7,  8,  9,  10, 12, 14, 16, 18, 20, 25, 30, 40, 50, 60, 70, 85, 100, 140}};
